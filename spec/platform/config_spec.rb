@@ -1,0 +1,62 @@
+require 'spec_helper'
+require 'tempfile'
+
+module Platform
+  describe Config do
+    describe '#read' do
+      it 'reads the YAML file' do
+        Tempfile.open('config.yml') do |config_file|
+          begin
+            config_file.puts <<-YAML
+---
+name: Hello
+            YAML
+            config_file.close
+
+            expect(Config.read(config_file.path)).to eq({'name' => 'Hello'})
+
+          ensure
+            config_file.close
+            config_file.unlink
+          end
+        end
+      end
+    end
+
+    describe '#for_environment' do
+      subject { Config.for_environment(config, env) }
+
+      let(:config) {
+        {
+          'a' => {
+            'b' => 1
+          },
+          'c' => 'foo',
+          'environments' => {
+            'prod' => {
+              'a' => {
+                'b' => 2
+              }
+            }
+          }
+        }
+      }
+
+      context 'when environment overrides exist' do
+        let(:env) { 'prod'}
+
+        it 'replaces the overriden values' do
+          expect(subject['a']['b']).to eq(2)
+        end
+
+        it 'does not change global values' do
+          expect(subject['c']).to eq('foo')
+        end
+
+        it 'removes the "environments" key' do
+          expect(subject).not_to have_key('environments')
+        end
+      end
+    end
+  end
+end
