@@ -24,18 +24,29 @@ name: Hello
     end
 
     describe '#for_environment' do
-      subject { Config.for_environment(config, env) }
+      subject { ->(env) { Config.for_environment(config, env) } }
 
       let(:config) {
         {
           'a' => {
-            'b' => 1
+            'b' => {
+              'c' => 1
+            }
           },
-          'c' => 'foo',
+          'foo' => 'bar',
           'environments' => {
             'prod' => {
               'a' => {
-                'b' => 2
+                'b' => {
+                  'c' => 2
+                }
+              }
+            },
+            'staging' => {
+              'a' => {
+                'b' => {
+                  'c' => 0
+                }
               }
             }
           }
@@ -43,18 +54,18 @@ name: Hello
       }
 
       context 'when environment overrides exist' do
-        let(:env) { 'prod'}
-
         it 'replaces the overriden values' do
-          expect(subject['a']['b']).to eq(2)
+          expect(subject.('staging')['a']['b']['c']).to eq(0)
+          expect(subject.('prod')['a']['b']['c']).to eq(2)
+
         end
 
         it 'does not change global values' do
-          expect(subject['c']).to eq('foo')
+          expect(subject.('prod')['foo']).to eq('bar')
         end
 
         it 'removes the "environments" key' do
-          expect(subject).not_to have_key('environments')
+          expect(subject.('prod')).not_to have_key('environments')
         end
       end
     end

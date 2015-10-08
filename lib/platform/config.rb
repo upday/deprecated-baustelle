@@ -11,10 +11,22 @@ module Platform
 
     def for_environment(config, environment)
       if override = config.fetch('environments', {})[environment]
-        override.deep_merge(config).reject { |k,_| k == 'environments' }
+        override.deep_merge(config.reject { |k,_| k == 'environments' })
       else
         config
       end
+    end
+
+    def environments(config)
+      config.fetch('environments').keys
+    end
+
+    def applications(config)
+      config.fetch('applications').keys
+    end
+
+    def app_config(config, name)
+      config.fetch('applications').fetch(name)
     end
   end
 end
