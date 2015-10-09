@@ -1,7 +1,7 @@
 require 'yaml'
 require 'deep_merge'
 
-module Platform
+module Baustelle
   module Config
     extend self
 

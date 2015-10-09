@@ -1,4 +1,0 @@
-#!/usr/bin/env ruby
-
-require "platform/cli" 
-Platform::CLI.start(ARGV)

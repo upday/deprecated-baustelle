@@ -1,6 +1,6 @@
 require 'ostruct'
 
-module Platform
+module Baustelle
   module CloudFormation
     module VPC
       extend self

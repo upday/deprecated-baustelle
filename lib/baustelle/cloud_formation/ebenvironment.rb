@@ -1,20 +1,21 @@
 require 'ostruct'
 
-module Platform
+module Baustelle
   module CloudFormation
     module EBEnvironment
       extend self
 
-      def apply(template, env_name:, app_ref:, app_name:, vpc:, app_config:,
+      def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:)
         template.eval do
-          eb_env_name = "#{env_name}-#{app_name}".gsub('_', '-')
+          eb_dns = "#{stack_name}-#{env_name}-#{app_name}".gsub('_', '-')
+          env_hash = "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
           template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                             Type: "AWS::ElasticBeanstalk::Environment",
                             Properties: {
                               ApplicationName: app_ref,
-                              CNAMEPrefix: eb_env_name,
-                              EnvironmentName: eb_env_name,
+                              CNAMEPrefix: eb_dns,
+                              EnvironmentName: env_hash,
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
@@ -55,11 +56,6 @@ module Platform
           raise "Malformed stack"
         end
       end
-
-      def option_settings(config:, vpc:)
-
-      end
-
     end
   end
 end

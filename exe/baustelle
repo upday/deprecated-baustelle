@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require "baustelle/cli"
+Baustelle::CLI.start(ARGV)

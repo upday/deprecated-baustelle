@@ -1,4 +1,4 @@
-module Platform
+module Baustelle
   module CloudFormation
     class Template
       def initialize

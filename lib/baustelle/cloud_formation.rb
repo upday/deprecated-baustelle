@@ -1,5 +1,5 @@
 require 'aws-sdk'
-module Platform
+module Baustelle
   module CloudFormation
     extend self
 
@@ -10,20 +10,23 @@ module Platform
                         subnets: config.fetch('vpc').fetch('subnets'))
 
 
-        applications = Platform::Config.applications(config).map do |app_name|
+        applications = Baustelle::Config.applications(config).map do |app_name|
+          canonical_app_name = [name, app_name].join('_')
           OpenStruct.new(name: app_name,
-                         ref: Application.apply(template, app_name))
+                         canonical_name: canonical_app_name,
+                         ref: Application.apply(template, canonical_app_name))
         end
 
-        Platform::Config.environments(config).each do |env_name|
-          env_config = Platform::Config.for_environment(config, env_name)
+        Baustelle::Config.environments(config).each do |env_name|
+          env_config = Baustelle::Config.for_environment(config, env_name)
           applications.each do |app|
             EBEnvironment.apply(template,
+                                stack_name: name,
                                 env_name: env_name,
                                 app_ref: app.ref,
                                 app_name: app.name,
                                 vpc: vpc,
-                                app_config: Platform::Config.app_config(env_config, app.name),
+                                app_config: Baustelle::Config.app_config(env_config, app.name),
                                 stack_configurations: env_config.fetch('stacks'))
           end
         end

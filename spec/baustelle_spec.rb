@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Platform do
+describe Baustelle do
 
 end

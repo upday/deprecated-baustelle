@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-module Platform
+module Baustelle
   describe Config do
     describe '#read' do
       it 'reads the YAML file' do
