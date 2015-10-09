@@ -67,6 +67,15 @@ module Baustelle
       false
     end
 
+    def get_stack_status(name)
+      result = cfn_client.describe_stacks(stack_name: name)
+      if stack = result.stacks.first
+        stack.stack_status
+      end
+    rescue Aws::CloudFormation::Errors::ServiceError => e
+      nil
+    end
+
     private
 
     def cfn_client

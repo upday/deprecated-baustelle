@@ -7,7 +7,8 @@ module Baustelle
 
       def call(region:, name:)
         Aws.config[:region] = region
-        until Baustelle::CloudFormation.get_stack_status(name) =~ /.*_COMPLETE/
+        until (Baustelle::CloudFormation.get_stack_status(name) ||
+               "DELETE_COMPLETE") =~ /.*_(COMPLETE|FAILED)/
           sleep 5
         end
       end
