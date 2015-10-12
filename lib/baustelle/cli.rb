@@ -1,5 +1,6 @@
 require 'thor'
 require 'baustelle'
+require 'baustelle/ami/cli'
 
 module Baustelle
   class CLI < Thor
@@ -33,6 +34,9 @@ module Baustelle
     def wait
       Baustelle::Commands::Wait.call(name: name, region: region)
     end
+
+    desc "ami SUBCOMMAND", "Manages AMI images"
+    subcommand "ami", AMI::CLI
 
     private
 
