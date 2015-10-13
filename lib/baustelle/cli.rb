@@ -8,7 +8,6 @@ module Baustelle
                  default: ENV.fetch('AWS_DEFAULT_REGION', 'us-east-1')
     class_option "name", desc: 'name of the baustelle stack', default: 'baustelle'
 
-
     desc "create", "Create the baustelle according to specification in the yml file"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
@@ -36,6 +35,8 @@ module Baustelle
     end
 
     desc "ami SUBCOMMAND", "Manages AMI images"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
     subcommand "ami", AMI::CLI
 
     private
