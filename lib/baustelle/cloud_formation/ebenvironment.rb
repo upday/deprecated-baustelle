@@ -1,4 +1,5 @@
 require 'ostruct'
+require 'digest'
 
 module Baustelle
   module CloudFormation
