@@ -3,10 +3,21 @@ module Baustelle
     class Template
       def initialize
         @resources = {}
+        @mappings = {}
       end
 
       def eval(&block)
         instance_exec(&block)
+      end
+
+      def mapping(name, map)
+        @mappings[name] = map
+      end
+
+      def add_to_region_mapping(name, region, key, value)
+        map = (@mappings[camelize(name)] ||= {})
+        map[region] ||= {}
+        map[region][camelize(key)] = value
       end
 
       def resource(name, **params)
@@ -30,16 +41,19 @@ module Baustelle
         end
       end
 
-
       def as_json
         {
           AWSTemplateFormatVersion: "2010-09-09",
           Description: "",
           Parameters: {},
-          Mappings: {},
+          Mappings: @mappings,
           Resources: @resources,
           Outputs: {}
         }
+      end
+
+      def find_in_regional_mapping(name,  key)
+        {'Fn::FindInMap' => [camelize(name), {Ref: 'AWS::Region'}, camelize(key)]}
       end
     end
   end
