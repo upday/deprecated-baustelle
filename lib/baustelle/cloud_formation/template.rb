@@ -52,8 +52,12 @@ module Baustelle
         }
       end
 
+      def to_json
+        as_json.to_json
+      end
+
       def find_in_regional_mapping(name,  key)
-        {'Fn::FindInMap' => [camelize(name), {Ref: 'AWS::Region'}, camelize(key)]}
+        {'Fn::FindInMap' => [camelize(name), ref('AWS::Region'), camelize(key)]}
       end
     end
   end

@@ -7,10 +7,10 @@ module Baustelle
 
       def call(specification_file, region:, name:)
         config = Baustelle::Config.read(specification_file)
-        template = Baustelle::CloudFormation.build_template(config, name: name)
+        template = Baustelle::StackTemplate.new(config).build(name)
 
         Aws.config[:region] = region
-        Baustelle::CloudFormation.update_stack(name, template) or exit(1)
+        Baustelle::CloudFormation.update_stack(name, template.to_json) or exit(1)
         puts "Updated stack #{name} in #{region}"
       end
     end
