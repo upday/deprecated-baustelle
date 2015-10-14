@@ -6,16 +6,6 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
                                                  availability_zones:,
                                                  config: {}|
 
-  def group_option_settings(option_settings)
-    initial_acc = Hash.new { |h, k| h[k] = {} }
-    option_settings.inject(initial_acc) do |acc, entry|
-      acc[entry[:Namespace]][entry[:OptionName]] = entry[:Value]
-      entry[:Namespace]
-      acc[entry[:Namespace]]
-      acc
-    end
-  end
-
   context "Application #{app_name} in #{environment} environment" do
     it "ElasticBeanstalk Application" do
       expect_resource template, camelized_stack_name + camelized_app_name,

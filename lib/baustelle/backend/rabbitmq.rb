@@ -56,6 +56,19 @@ module Baustelle
                           }
       end
 
+      def output(template)
+        {
+          'url' => {'Fn::Join' =>
+                    ['', [
+                       'amqp://',
+                       {'Fn::GetAtt' => [template.ref("RabbitMQ#{template.camelize(name)}ELB"), 'DNSName']},
+                       ':5672'
+                     ]
+                    ]
+                   }
+        }
+      end
+
       private
 
       attr_reader :name, :options, :region, :vpc

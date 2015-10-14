@@ -24,13 +24,15 @@ module Baustelle
         env_config = Baustelle::Config.for_environment(config, env_name)
 
         # Create backends
-        (env_config['backends'] || {}).each do |type, backends|
+
+        environment_backends = Hash.new { |h,k| h[k] = {} }
+
+        (env_config['backends'] || {}).inject(environment_backends) do |acc, (type, backends)|
           backend_klass = Baustelle::Backend.const_get(type)
 
           backends.each do |name, options|
             backend_name = [env_name, name].join('_')
-
-            backend = backend_klass.new(backend_name, options, vpc: vpc)
+            acc[type][name] = backend = backend_klass.new(backend_name, options, vpc: vpc)
             backend.build(template)
           end
         end
@@ -44,7 +46,8 @@ module Baustelle
                                               app_name: app.name,
                                               vpc: vpc,
                                               app_config: Baustelle::Config.app_config(env_config, app.name),
-                                              stack_configurations: env_config.fetch('stacks'))
+                                              stack_configurations: env_config.fetch('stacks'),
+                                              backends: environment_backends)
         end
       end
       template

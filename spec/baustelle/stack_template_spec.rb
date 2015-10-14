@@ -36,6 +36,7 @@ applications:
       max: 4
     config:
       RAILS_ENV: production
+      RABBITMQ_URL: backend(RabbitMQ:main:url)
 environments:
   production: {}
   staging:
@@ -64,6 +65,16 @@ environments:
 
   def ref(name)
     {'Ref' => name}
+  end
+
+  def group_option_settings(option_settings)
+    initial_acc = Hash.new { |h, k| h[k] = {} }
+    option_settings.inject(initial_acc) do |acc, entry|
+      acc[entry[:Namespace]][entry[:OptionName]] = entry[:Value]
+      entry[:Namespace]
+      acc[entry[:Namespace]]
+      acc
+    end
   end
 
   describe '#build' do
@@ -121,6 +132,22 @@ environments:
                        availability_zones: %w(a b),
                        instance_type: 'm4.large',
                        cluster_size: 1
+
+      it 'links RabbitMQ server to the app' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["RABBITMQ_URL"]).
+            to eq({'Fn::Join' =>
+                   ['', [
+                      'amqp://',
+                      {'Fn::GetAtt' => [ref("RabbitMQProductionMainELB"), 'DNSName']},
+                      ':5672'
+                    ]
+                   ]
+                  })
+        end
+      end
     end
   end
 end

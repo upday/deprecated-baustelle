@@ -6,8 +6,10 @@ module Baustelle
     module EBEnvironment
       extend self
 
+      BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
+
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
-                stack_configurations:)
+                stack_configurations:, backends:)
         template.eval do
           eb_dns = "#{stack_name}-#{env_name}-#{app_name}".gsub('_', '-')
           env_hash = "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
@@ -32,7 +34,8 @@ module Baustelle
                                   'ELBSubnets' => join(',', *vpc.zone_identifier),
                                   'AssociatePublicIpAddress' => 'true'
                                 },
-                                'aws:elasticbeanstalk:application:environment' => app_config.fetch('config')
+                                'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config'),
+                                                                                                                     backends, template)
                               }.map do |namespace, options|
                                 options.map do |key, value|
                                   {
@@ -55,6 +58,20 @@ module Baustelle
           {SolutionStackName: stack['solution']}
         else
           raise "Malformed stack"
+        end
+      end
+
+      def extrapolate_backends(config, backends, template)
+        config.inject({}) do |acc, (key, value)|
+          if backend = value.match(BACKEND_REGEX)
+            backend_output = backends[backend[:type]][backend[:name]].
+                             output(template)
+
+            acc[key] = backend_output.fetch(backend[:property])
+          else
+            acc[key] = value
+          end
+          acc
         end
       end
     end
