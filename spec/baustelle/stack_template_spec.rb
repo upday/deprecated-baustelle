@@ -1,5 +1,6 @@
 require 'spec_helper'
 require_relative 'stack_template/vpc'
+require_relative 'stack_template/application'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
@@ -20,7 +21,7 @@ vpc:
 applications:
   hello_world:
     stack: ruby
-    instance_type: t2.micro
+    instance_type: t2.small
     scale:
       min: 2
       max: 4
@@ -31,6 +32,7 @@ environments:
   staging:
     applications:
       hello_world:
+        instance_type: t2.micro
         scale:
           min: 1
           max: 1
@@ -41,7 +43,7 @@ environments:
 
   def expect_resource(template, resource_name, of_type: nil)
     resource = template[:Resources][resource_name]
-    expect(resource).to be
+    expect(resource).not_to be_nil
     expect(resource[:Type]).to eq(of_type) if of_type
     yield resource[:Properties], resource if block_given?
   end
@@ -54,9 +56,35 @@ environments:
     subject { stack_template.build("foo") }
 
     context "returns template" do
-      let(:template) { subject.as_json }
+      let(:template) { (subject.as_json) }
 
       include_examples "VPC resource declaration"
+
+      include_examples "Application in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'production',
+                       camelized_environment: 'Production',
+                       app_name: "hello_world",
+                       camelized_app_name: "HelloWorld",
+                       instance_type: "t2.small",
+                       min_size: 2, max_size: 4,
+                       solution_stack_name: 'Ruby AWS EB Solution',
+                       availability_zones: %w(a b),
+                       config: {'RAILS_ENV' => 'production'}
+
+      include_examples "Application in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'staging',
+                       camelized_environment: 'Staging',
+                       app_name: "hello_world",
+                       camelized_app_name: "HelloWorld",
+                       instance_type: "t2.micro",
+                       min_size: 1, max_size: 1,
+                       solution_stack_name: 'Ruby AWS EB Solution',
+                       availability_zones: %w(a b),
+                       config: {'RAILS_ENV' => 'staging'}
     end
   end
 end
