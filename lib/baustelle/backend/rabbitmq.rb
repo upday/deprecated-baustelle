@@ -57,15 +57,11 @@ module Baustelle
       end
 
       def output(template)
+        host = {'Fn::GetAtt' => [template.ref("RabbitMQ#{template.camelize(name)}ELB"), 'DNSName']},
         {
-          'url' => {'Fn::Join' =>
-                    ['', [
-                       'amqp://',
-                       {'Fn::GetAtt' => [template.ref("RabbitMQ#{template.camelize(name)}ELB"), 'DNSName']},
-                       ':5672'
-                     ]
-                    ]
-                   }
+          'url' => {'Fn::Join' => ['', ['amqp://',host ,':5672']] },
+          'host' => host,
+          'port' => 5672
         }
       end
 
