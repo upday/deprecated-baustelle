@@ -1,6 +1,7 @@
 require 'spec_helper'
 require_relative 'stack_template/vpc'
 require_relative 'stack_template/application'
+require_relative 'stack_template/backend/rabbitmq'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
@@ -18,6 +19,14 @@ vpc:
     a: 172.31.0.0/20
     b: 172.31.16.0/20
 
+backends:
+  RabbitMQ:
+    main:
+      ami:
+        us-east-1: ami-123456
+      instance_type: m4.large
+      cluster_size: 4
+
 applications:
   hello_world:
     stack: ruby
@@ -30,6 +39,10 @@ applications:
 environments:
   production: {}
   staging:
+    backends:
+      RabbitMQ:
+        main:
+          cluster_size: 1
     applications:
       hello_world:
         instance_type: t2.micro
@@ -43,7 +56,8 @@ environments:
 
   def expect_resource(template, resource_name, of_type: nil)
     resource = template[:Resources][resource_name]
-    expect(resource).not_to be_nil
+    expect(resource).not_to be_nil,
+                            "expected #{resource_name} to be presend. Available resource names #{template[:Resources].keys}"
     expect(resource[:Type]).to eq(of_type) if of_type
     yield resource[:Properties], resource if block_given?
   end
@@ -85,6 +99,28 @@ environments:
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        config: {'RAILS_ENV' => 'staging'}
+
+      include_examples "Backend RabbitMQ in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'production',
+                       camelized_environment: 'Production',
+                       name: "main",
+                       camelized_name: "Main",
+                       availability_zones: %w(a b),
+                       instance_type: 'm4.large',
+                       cluster_size: 4
+
+      include_examples "Backend RabbitMQ in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'staging',
+                       camelized_environment: 'Staging',
+                       name: "main",
+                       camelized_name: "Main",
+                       availability_zones: %w(a b),
+                       instance_type: 'm4.large',
+                       cluster_size: 1
     end
   end
 end
