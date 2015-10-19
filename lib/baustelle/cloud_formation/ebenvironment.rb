@@ -63,7 +63,7 @@ module Baustelle
 
       def extrapolate_backends(config, backends, template)
         config.inject({}) do |acc, (key, value)|
-          if backend = value.match(BACKEND_REGEX)
+          if backend = value.to_s.match(BACKEND_REGEX)
             backend_output = backends[backend[:type]][backend[:name]].
                              output(template)
 

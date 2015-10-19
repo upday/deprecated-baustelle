@@ -10,6 +10,66 @@ module Baustelle
                                       cdir_block: config.fetch('vpc').fetch('cidr'),
                                       subnets: config.fetch('vpc').fetch('subnets'))
 
+      template.resource "GlobalSecurityGroup",
+                        Type: "AWS::EC2::SecurityGroup",
+                        Properties: {
+                          VpcId: vpc.id,
+                          GroupDescription: "#{name} baustelle stack global Security Group",
+                          SecurityGroupIngress: [
+                            {IpProtocol: 'tcp', FromPort: 0, ToPort: 65535, CidrIp: '0.0.0.0/0'}
+                          ]
+                        }
+
+      template.resource "IAMRole",
+                        Type: "AWS::IAM::Role",
+                        Properties: {
+                          Path: '/',
+                          AssumeRolePolicyDocument: {
+                            Version: '2012-10-17',
+                            Statement: [
+                              {
+                                Effect: 'Allow',
+                                Principal: {Service: ['ec2.amazonaws.com']},
+                                Action: ['sts:AssumeRole']
+                              }
+                            ]
+                          },
+                          Policies: [
+                            {
+                              PolicyName: 'DescribeTags',
+                              PolicyDocument: {
+                                Version: '2012-10-17',
+                                Statement: [
+                                  {
+                                    Effect: 'Allow',
+                                    Action: "ec2:DescribeTags",
+                                    Resource: "*"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              PolicyName: 'DescribeInstances',
+                              PolicyDocument: {
+                                Version: '2012-10-17',
+                                Statement: [
+                                  {
+                                    Effect: 'Allow',
+                                    Action: 'ec2:DescribeInstances',
+                                    Resource: '*'
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+
+      template.resource "IAMInstanceProfile",
+                        Type: 'AWS::IAM::InstanceProfile',
+                        Properties: {
+                          Path: '/',
+                          Roles: [template.ref('IAMRole')]
+                        }
 
       # Create Beanstalk applications
       applications = Baustelle::Config.applications(config).map do |app_name|

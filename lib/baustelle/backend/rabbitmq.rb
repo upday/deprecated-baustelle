@@ -18,19 +18,24 @@ module Baustelle
                           Type: 'AWS::AutoScaling::LaunchConfiguration',
                           Properties: {
                             AssociatePublicIpAddress: true,
+                            KeyName: 'kitchen',
                             ImageId: template.find_in_regional_mapping('BackendAMIs', ami_name),
                             InstanceType: options.fetch('instance_type',
-                                                        default_instance_type)
+                                                        default_instance_type),
+                            SecurityGroups: [template.ref("GlobalSecurityGroup")],
+                            IamInstanceProfile: template.ref('IAMInstanceProfile')
                           }
 
         template.resource elb = "RabbitMQ#{template.camelize(name)}ELB",
                           Type: 'AWS::ElasticLoadBalancing::LoadBalancer',
                           Properties: {
                             Subnets: vpc.zone_identifier,
-                            Scheme: 'internal',
+                            Scheme: 'internet-facing',
                             Listeners: [
                               {InstancePort: 5672, InstanceProtocol: 'tcp',
-                               LoadBalancerPort: 5672, Protocol: 'tcp'}
+                               LoadBalancerPort: 5672, Protocol: 'tcp'},
+                              {InstancePort: 15672, InstanceProtocol: 'http',
+                               LoadBalancerPort: 80, Protocol: 'http'}
                             ],
                             Tags: [
                               {Key: 'BaustelleBackend', Value: 'RabbitMQ'},
@@ -53,6 +58,11 @@ module Baustelle
                               {PropagateAtLaunch: true, Key: 'BaustelleName', Value: template.camelize(name)},
                               {PropagateAtLaunch: true, Key: 'Name', Value: "RabbitMQ#{template.camelize(name)}"},
                             ]
+                          },
+                          UpdatePolicy: {
+                            AutoScalingRollingUpdate: {
+                              MaxBatchSize: 1
+                            }
                           }
       end
 

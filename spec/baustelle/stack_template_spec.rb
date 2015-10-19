@@ -133,6 +133,23 @@ environments:
                        instance_type: 'm4.large',
                        cluster_size: 1
 
+      it 'creates security group for the platform' do
+        expect_resource template, "GlobalSecurityGroup",
+                        of_type: 'AWS::EC2::SecurityGroup'
+      end
+
+      it 'creates IAM role for the platform instances' do
+        expect_resource template, 'IAMRole',
+                        of_type: 'AWS::IAM::Role'
+      end
+
+      it 'creates instance profile for instances' do
+        expect_resource template, 'IAMInstanceProfile',
+                        of_type: 'AWS::IAM::InstanceProfile' do |properties|
+          expect(properties[:Roles]).to include(ref('IAMRole'))
+        end
+      end
+
       it 'links RabbitMQ server to the app' do
         expect_resource template, "HelloWorldEnvProduction" do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
