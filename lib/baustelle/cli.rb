@@ -34,6 +34,11 @@ module Baustelle
       Baustelle::Commands::Wait.call(name: name, region: region)
     end
 
+    desc "read_config", "Prints configuration for every environment"
+    def read_config
+      Baustelle::Commands::ReadConfig.call(specification_file)
+    end
+
     desc "ami SUBCOMMAND", "Manages AMI images"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'

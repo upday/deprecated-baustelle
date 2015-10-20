@@ -14,5 +14,6 @@ module Baustelle
   require 'baustelle/commands/update'
   require 'baustelle/commands/delete'
   require 'baustelle/commands/wait'
+  require 'baustelle/commands/read_config'
   require 'baustelle/backend/rabbitmq'
 end
