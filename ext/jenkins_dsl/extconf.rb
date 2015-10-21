@@ -4,6 +4,10 @@ File.open("Makefile", "w") do |makefile|
 
 all: gradle
 
+clean:
+
+install: gradle
+
 gradle:
 \twhich gradle || (echo "Gradle not found" && exit 1)
   MAKEFILE
