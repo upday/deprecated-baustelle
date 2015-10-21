@@ -10,5 +10,6 @@ install: gradle
 
 gradle:
 \twhich gradle || (echo "Gradle not found" && exit 1)
+\texit 1
   MAKEFILE
 end
