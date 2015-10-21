@@ -1,15 +1,12 @@
 File.open("Makefile", "w") do |makefile|
   makefile.puts <<-MAKEFILE
-.PHONY: all
-
-all: gradle
-
 clean:
+  rm -fr build .gradle
 
-install: gradle
+install: build
 
-gradle:
-\twhich gradle || (echo "Gradle not found" && exit 1)
-\texit 1
+build:
+\tgradle build
+
   MAKEFILE
 end
