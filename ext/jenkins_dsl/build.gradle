@@ -12,13 +12,18 @@ dependencies {
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
+
+    compile('ant:ant:1.7.0')
+    compile('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2') {
+        exclude(module: 'groovy')
+    }
 }
 
-task localXml(type: JavaExec, dependsOn: 'classes') {
-  main = 'javaposse.jobdsl.Run'
-  classpath sourceSets.main.runtimeClasspath
-  workingDir buildDir
-  args "${targetScript}"
+task xml(type: JavaExec, dependsOn: 'classes') {
+    main = 'javaposse.jobdsl.Run'
+    classpath sourceSets.main.runtimeClasspath
+    workingDir outputDir
+    args "${projectDir}/${source}"
 }
 
 task wrapper(type: Wrapper) {
