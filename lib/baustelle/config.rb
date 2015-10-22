@@ -9,6 +9,19 @@ module Baustelle
       YAML.load(File.read(filepath))
     end
 
+    def for_every_environment(config)
+      environments(config).each do |environment|
+        env_config = for_environment(config, environment)
+        yield environment, for_environment(env_config, environment)
+      end
+    end
+
+    def for_every_application(config)
+      config['applications'].each do |app_name, app_config|
+        yield app_name, app_config
+      end
+    end
+
     def for_environment(config, environment)
       if override = config.fetch('environments', {})[environment]
         override.deep_merge(config.reject { |k,_| k == 'environments' })

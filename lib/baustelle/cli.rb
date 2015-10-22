@@ -1,6 +1,7 @@
 require 'thor'
 require 'baustelle'
 require 'baustelle/ami/cli'
+require "baustelle/jenkins/cli"
 
 module Baustelle
   class CLI < Thor
@@ -44,10 +45,15 @@ module Baustelle
            default: 'baustelle.yml'
     subcommand "ami", AMI::CLI
 
+    desc "jenkins SUBCOMMAND", "Manages related jenkins"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
+    subcommand "jenkins", Jenkins::CLI
+
     private
 
     def specification_file
-      options.fetch("specification", "baustelle.yml")
+      options.fetch("specification")
     end
 
     def region
