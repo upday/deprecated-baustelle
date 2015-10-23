@@ -13,10 +13,13 @@ module Baustelle
       def update
         create_jobs
         cleanup_jobs
+        delete_views
+        create_views
       end
 
       def delete
         cleanup_jobs
+        delete_views
       end
 
       private
@@ -35,6 +38,20 @@ module Baustelle
       def jenkins_options
         config.fetch("jenkins").fetch("options").
           inject({}) { |acc, (k,v)| acc[k.to_s] = v; acc }
+      end
+
+      def create_views
+        jenkins.view.create_list_view(name: "Baustelle #{name} (#{region})",
+                                      regex: "baustelle-#{name}-.*")
+        Baustelle::Config.for_every_environment(config) do |environment, _|
+          jenkins.view.create_list_view(name: "Baustelle #{name} (#{region}) #{environment} DEPLOY",
+                                        regex: "baustelle-#{name}-#{environment}-.*-00-deploy")
+        end
+      end
+
+      def delete_views
+        views = jenkins.view.list("Baustelle #{name}.*#{region}.*")
+        views.each { |view| jenkins.view.delete(view) }
       end
 
       def create_jobs
