@@ -1,3 +1,5 @@
+require 'jenkins_api_client'
+
 module Baustelle
   module Jenkins
     class Stack

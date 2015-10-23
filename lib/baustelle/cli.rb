@@ -14,7 +14,10 @@ module Baustelle
            default: 'baustelle.yml'
     def create
       Baustelle::Commands::Create.call(specification_file, region: region,
-                                      name: name)
+                                       name: name)
+      Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
+                                              name: name)
+      Baustelle::Commands::Wait.call(name: name, region: region)
     end
 
     desc "update", "Update the baustelle according to specification in the yml file"
@@ -22,12 +25,20 @@ module Baustelle
            default: 'baustelle.yml'
     def update
       Baustelle::Commands::Update.call(specification_file, region: region,
-                                      name: name)
+                                       name: name)
+      Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
+                                              name: name)
+      Baustelle::Commands::Wait.call(name: name, region: region)
     end
 
     desc "delete", "Deletes the baustelle"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
     def delete
       Baustelle::Commands::Delete.call(name: name, region: region)
+      Baustelle::Commands::Jenkins::Delete.call(specification_file, region: region,
+                                              name: name)
+      Baustelle::Commands::Wait.call(name: name, region: region)
     end
 
     desc "wait", "Waits for the baustelle to be ready"
@@ -48,6 +59,9 @@ module Baustelle
     desc "jenkins SUBCOMMAND", "Manages related jenkins"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
+    option "region", desc: 'region where to run commands in',
+           default: ENV.fetch('AWS_DEFAULT_REGION', 'us-east-1')
+    option "name", desc: 'name of the baustelle stack', default: 'baustelle'
     subcommand "jenkins", Jenkins::CLI
 
     private
