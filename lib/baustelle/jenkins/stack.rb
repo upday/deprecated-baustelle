@@ -42,10 +42,10 @@ module Baustelle
 
       def create_views
         jenkins.view.create_list_view(name: "Baustelle #{name} (#{region})",
-                                      regex: "baustelle-#{name}-.*")
+                                      regex: "baustelle-#{name}-#{region}-.*")
         Baustelle::Config.for_every_environment(config) do |environment, _|
           jenkins.view.create_list_view(name: "Baustelle #{name} (#{region}) #{environment} DEPLOY",
-                                        regex: "baustelle-#{name}-#{environment}-.*-00-deploy")
+                                        regex: "baustelle-#{name}-#{region}-#{environment}-.*-00-deploy")
         end
       end
 
