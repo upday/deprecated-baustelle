@@ -4,10 +4,6 @@ shared_examples "Backend RabbitMQ in environment" do  |stack_name:, camelized_st
                                                        availability_zones:,
                                                        instance_type:, cluster_size:|
 
-
-  def foo
-  end
-
   describe "Backend RabbitMQ #{name} cluster on #{environment}" do
     let(:resource_prefix) { "RabbitMQ#{camelized_environment}#{camelized_name}"}
     it 'launch configuration' do

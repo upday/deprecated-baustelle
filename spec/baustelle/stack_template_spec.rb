@@ -26,6 +26,9 @@ backends:
         us-east-1: ami-123456
       instance_type: m4.large
       cluster_size: 4
+  External:
+    postgres:
+      url: postgres://production
 
 applications:
   hello_world:
@@ -37,6 +40,7 @@ applications:
     config:
       RAILS_ENV: production
       RABBITMQ_URL: backend(RabbitMQ:main:url)
+      DATABASE_URL: backend(External:postgres:url)
 environments:
   production: {}
   staging:
@@ -44,6 +48,9 @@ environments:
       RabbitMQ:
         main:
           cluster_size: 1
+      External:
+        postgres:
+          url: postgres://staging
     applications:
       hello_world:
         instance_type: t2.micro
@@ -163,6 +170,20 @@ environments:
                     ]
                    ]
                   })
+        end
+      end
+
+      it 'links External backend to the app' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["DATABASE_URL"]).to eq("postgres://production")
+        end
+
+        expect_resource template, "HelloWorldEnvStaging" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["DATABASE_URL"]).to eq("postgres://staging")
         end
       end
     end
