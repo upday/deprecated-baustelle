@@ -90,11 +90,13 @@ module Baustelle
         (env_config['backends'] || {}).inject(environment_backends) do |acc, (type, backends)|
           backend_klass = Baustelle::Backend.const_get(type)
 
-          backends.each do |name, options|
-            backend_name = [env_name, name].join('_')
-            acc[type][name] = backend = backend_klass.new(backend_name, options, vpc: vpc)
+          backends.each do |backend_name, options|
+            backend_full_name = [env_name, backend_name].join('_')
+            acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc)
             backend.build(template)
           end
+
+          environment_backends
         end
 
         # Create applications
