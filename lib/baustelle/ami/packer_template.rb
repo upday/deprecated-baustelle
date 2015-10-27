@@ -1,10 +1,11 @@
 module Baustelle
   module AMI
     class PackerTemplate
-      def initialize(definition, ami:, region:)
+      def initialize(definition, ami:, region:, user: 'ubuntu')
         @definition = definition
         @ami = ami
         @region = region
+        @user = user
       end
 
       def valid?
@@ -21,7 +22,7 @@ module Baustelle
               region: "#{@region}",
               source_ami: "#{@ami}",
               instance_type: "m4.large",
-              ssh_username: "ubuntu",
+              ssh_username: @user,
               ami_name: "baustelle-#{@definition}-#{Time.now.strftime('%Y%m%d%H%M%S')}",
               ami_description: "Baustelle Image #{@definition}",
               tags: {

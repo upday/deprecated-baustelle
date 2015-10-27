@@ -11,12 +11,15 @@ module Baustelle
 
       desc "build DEFINITION", "Builds an image"
       def build(definition)
-        config = Baustelle::Config.read(specification_file)
-        base_ami = config.fetch('base_amis').fetch(definition).
-                   fetch(region)
+        config = Baustelle::Config.read(specification_file).
+                 fetch('base_amis').fetch(definition)
+
+        base_ami = config.fetch(region)
+        user = config.fetch('user')
         template = Baustelle::AMI::PackerTemplate.new(definition,
-                                                         ami: base_ami,
-                                                         region: region)
+                                                      ami: base_ami,
+                                                      region: region,
+                                                      user: user)
         if template && template.valid?
           Tempfile.open("template.json") do |file|
             file.puts template.as_json.to_json
