@@ -59,7 +59,7 @@ module Baustelle
           ]
         when 'amazon'
           [
-
+            "sudo pip install ansible --upgrade",
           ]
         else
           raise "Unsupported base system"
