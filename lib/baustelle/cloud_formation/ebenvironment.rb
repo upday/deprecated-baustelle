@@ -10,9 +10,11 @@ module Baustelle
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:)
+        env_hash = eb_env_name(stack_name, app_name, env_name)
         template.eval do
           eb_dns = "#{stack_name}-#{env_name}-#{app_name}".gsub('_', '-')
-          env_hash = "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
+
+
           template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                             Type: "AWS::ElasticBeanstalk::Environment",
                             Properties: {
@@ -50,6 +52,10 @@ module Baustelle
 
           ref(env_name)
         end
+      end
+
+      def eb_env_name(stack_name, app_name, env_name)
+        "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
       end
 
       def stack(stack_name, stack_configurations:)

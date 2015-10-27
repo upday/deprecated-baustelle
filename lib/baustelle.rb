@@ -4,6 +4,7 @@ module Baustelle
   # Your code goes here...
   require 'baustelle/config'
   require 'baustelle/ami'
+  require 'baustelle/camelize'
   require 'baustelle/stack_template'
   require 'baustelle/cloud_formation'
   require 'baustelle/cloud_formation/vpc'

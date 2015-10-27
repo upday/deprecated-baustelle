@@ -1,8 +1,11 @@
 require 'jenkins_api_client'
+require 'baustelle/cloud_formation/ebenvironment'
 
 module Baustelle
   module Jenkins
     class Stack
+      include Baustelle::Camelize
+
       def initialize(name, config:, region:)
         @name = name
         @config = config
@@ -63,7 +66,10 @@ module Baustelle
               {
                 app_config: app_config,
                 jenkins_options: jenkins_options,
-                region: @region
+                region: @region,
+                eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
+                  eb_env_name(@name, application, environment),
+                eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_'))
               }
             )
 
