@@ -12,7 +12,8 @@ module Baustelle
       desc "build DEFINITION", "Builds an image"
       def build(definition)
         config = Baustelle::Config.read(specification_file)
-        base_ami = config.fetch('base_ami')[region]
+        base_ami = config.fetch('base_amis').fetch(definition).
+                   fetch(region)
         template = Baustelle::AMI::PackerTemplate.new(definition,
                                                          ami: base_ami,
                                                          region: region)
