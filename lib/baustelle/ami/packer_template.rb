@@ -1,7 +1,8 @@
 module Baustelle
   module AMI
     class PackerTemplate
-      def initialize(definition, ami:, region:, user: 'ubuntu', system: 'ubuntu')
+      def initialize(definition, ami:, region:, user: 'ubuntu',
+                     system: 'ubuntu')
         @definition = definition
         @ami = ami
         @region = region

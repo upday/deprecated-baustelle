@@ -16,10 +16,12 @@ module Baustelle
 
         base_ami = config.fetch(region)
         user = config.fetch('user')
+        system = config.fetch('system')
         template = Baustelle::AMI::PackerTemplate.new(definition,
                                                       ami: base_ami,
                                                       region: region,
-                                                      user: user)
+                                                      user: user,
+                                                      system: system)
         if template && template.valid?
           Tempfile.open("template.json") do |file|
             file.puts template.as_json.to_json
