@@ -7,6 +7,7 @@ module Baustelle
   require 'baustelle/camelize'
   require 'baustelle/stack_template'
   require 'baustelle/cloud_formation'
+  require 'baustelle/cloud_formation/remote_template'
   require 'baustelle/cloud_formation/vpc'
   require 'baustelle/cloud_formation/application'
   require 'baustelle/cloud_formation/ebenvironment'

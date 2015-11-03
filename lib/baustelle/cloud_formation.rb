@@ -3,9 +3,9 @@ module Baustelle
   module CloudFormation
     extend self
 
-    def create_stack(name, json)
+    def create_stack(name, url)
       result = cfn_client.create_stack(stack_name: name,
-                                       template_body: json,
+                                       template_url: url,
                                        parameters: [],
                                        tags: [],
                                        capabilities: ["CAPABILITY_IAM"])
@@ -17,9 +17,9 @@ module Baustelle
       false
     end
 
-    def update_stack(name, json)
+    def update_stack(name, url)
       result = cfn_client.update_stack(stack_name: name,
-                                       template_body: json,
+                                       template_url: url,
                                        parameters: [],
                                        capabilities: ["CAPABILITY_IAM"])
       result.successful?
