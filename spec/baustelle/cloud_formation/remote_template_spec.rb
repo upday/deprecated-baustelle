@@ -3,9 +3,7 @@ require 'spec_helper'
 describe Baustelle::CloudFormation::RemoteTemplate do
   describe '#call' do
     let(:template) { Baustelle::CloudFormation::RemoteTemplate.
-                     new(bucket_name: 'foo',
-                         region: 'us-east-1',
-                         s3: nil, bucket: bucket) }
+                     new(region: 'us-east-1', bucket: bucket) }
 
     let(:bucket) { double(object: object) }
     let(:object) { spy(put: nil, public_url: 'url', delete: nil) }

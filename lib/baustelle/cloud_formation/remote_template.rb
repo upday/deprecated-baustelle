@@ -1,14 +1,14 @@
 require 'aws-sdk'
 require 'securerandom'
+require 'baustelle/workspace_bucket'
 
 module Baustelle
   module CloudFormation
     class RemoteTemplate
       attr_reader :bucket
 
-      def initialize(bucket_name:, region:,
-                     s3: Aws::S3::Resource.new(region: region),
-                     bucket: s3.bucket(bucket_name))
+      def initialize(region:,
+                     bucket: Baustelle::WorkspaceBucket.new(region: region).call)
         @bucket = bucket
       end
 
