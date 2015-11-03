@@ -10,7 +10,12 @@ module Baustelle
         template = Baustelle::StackTemplate.new(config).build(name)
 
         Aws.config[:region] = region
-        Baustelle::CloudFormation.create_stack(name, template.to_json) or exit(1)
+        Baustelle::CloudFormation::RemoteTemplate.new(bucket_name: 'upday-baustelle',
+                                                      region: region).
+          call(template.to_json) do |template_url|
+          Baustelle::CloudFormation.create_stack(name, template_url) or exit(1)
+        end
+
         puts "Created stack #{name} in #{region}"
       end
     end
