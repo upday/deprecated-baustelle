@@ -28,6 +28,7 @@ module Baustelle
               ssh_pty: true,
               ami_name: "baustelle-#{@definition}-#{Time.now.strftime('%Y%m%d%H%M%S')}",
               ami_description: "Baustelle Image #{@definition}",
+              associate_public_ip_address: true,
               tags: {
                 "BaustelleImage" => @definition
               }
@@ -54,7 +55,7 @@ module Baustelle
         when 'ubuntu'
           [
             "sudo apt-get install -y software-properties-common",
-            "sudo apt-add-repository ppa:ansible/ansible",
+            "sudo apt-add-repository ppa:ansible/ansible -y",
             "sudo apt-get update",
             "sudo apt-get install -y ansible",
           ]
