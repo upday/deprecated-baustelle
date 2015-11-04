@@ -12,9 +12,15 @@ module Baustelle
                 stack_configurations:, backends:)
         env_hash = eb_env_name(stack_name, app_name, env_name)
         template.eval do
-          eb_dns = "#{stack_name}-#{env_name}-#{app_name}".gsub('_', '-')
-
-
+          eb_dns = {
+            'Fn::Join' => [
+              '-', [
+                "#{stack_name}",
+                template.ref('AWS::Region'),
+                "#{env_name}-#{app_name}".gsub('_', '-')
+              ]
+            ]
+          }
           template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                             Type: "AWS::ElasticBeanstalk::Environment",
                             Properties: {
@@ -23,7 +29,7 @@ module Baustelle
                               EnvironmentName: env_hash,
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
-                                  'EC2KeyName' => 'kitchen',
+                                  #'EC2KeyName' => 'kitchen',
                                   'InstanceType' => app_config.fetch('instance_type'),
                                 },
                                 'aws:autoscaling:asg' => {
