@@ -29,7 +29,7 @@ module Baustelle
                               EnvironmentName: env_hash,
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
-                                  #'EC2KeyName' => 'kitchen',
+                                  'EC2KeyName' => 'kitchen',
                                   'InstanceType' => app_config.fetch('instance_type'),
                                 },
                                 'aws:autoscaling:asg' => {
