@@ -1,13 +1,16 @@
+require 'base64'
+
 module Baustelle
   module AMI
     class PackerTemplate
       def initialize(definition, ami:, region:, user: 'ubuntu',
-                     system: 'ubuntu')
+                     system: 'ubuntu', user_data:)
         @definition = definition
         @ami = ami
         @region = region
         @user = user
         @system = system
+        @user_data = user_data
       end
 
       def valid?
@@ -31,7 +34,8 @@ module Baustelle
               associate_public_ip_address: true,
               tags: {
                 "BaustelleImage" => @definition
-              }
+              },
+              user_data: Base64.encode64(@user_data.to_s)
             }
           ],
           provisioners: [

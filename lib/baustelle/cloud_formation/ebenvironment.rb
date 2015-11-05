@@ -5,12 +5,16 @@ module Baustelle
   module CloudFormation
     module EBEnvironment
       extend self
+      extend Baustelle::Camelize
 
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:)
         env_hash = eb_env_name(stack_name, app_name, env_name)
+        stack = solution_stack(template, app_config.fetch('stack'),
+                               stack_configurations: stack_configurations)
+
         template.eval do
           eb_dns = {
             'Fn::Join' => [
@@ -21,16 +25,18 @@ module Baustelle
               ]
             ]
           }
+
           template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                             Type: "AWS::ElasticBeanstalk::Environment",
                             Properties: {
                               ApplicationName: app_ref,
                               CNAMEPrefix: eb_dns,
                               EnvironmentName: env_hash,
+                              SolutionStackName: stack.fetch(:name),
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
-                                  'InstanceType' => app_config.fetch('instance_type'),
+                                  'InstanceType' => app_config.fetch('instance_type')
                                 },
                                 'aws:autoscaling:asg' => {
                                   'MinSize' => app_config.fetch('scale').fetch('min'),
@@ -42,9 +48,13 @@ module Baustelle
                                   'ELBSubnets' => join(',', *vpc.zone_identifier),
                                   'AssociatePublicIpAddress' => 'true'
                                 },
-                                'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config'),
+                                'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
                                                                                                                      backends, template)
-                              }.map do |namespace, options|
+                              }.tap do |settings|
+                                if ami = stack.fetch(:ami)
+                                  settings['aws:autoscaling:launchconfiguration']['ImageId'] = ami
+                                end
+                              end.map do |namespace, options|
                                 options.map do |key, value|
                                   {
                                     Namespace: namespace,
@@ -53,9 +63,7 @@ module Baustelle
                                   }
                                 end
                               end.flatten
-                            }.merge(EBEnvironment.stack(app_config.fetch('stack'),
-                                                        stack_configurations: stack_configurations))
-
+                            }
           ref(env_name)
         end
       end
@@ -64,13 +72,21 @@ module Baustelle
         "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
       end
 
-      def stack(stack_name, stack_configurations:)
+      def solution_stack(template, stack_name, stack_configurations:)
         stack = stack_configurations.fetch(stack_name)
-        if stack.has_key?('solution')
-          {SolutionStackName: stack['solution']}
-        else
-          raise "Malformed stack"
+        stack_name = camelize(stack_name.gsub('-', '_'))
+        ami_selector = nil
+
+        if amis = stack['ami']
+          amis.each do |region, ami|
+            template.add_to_region_mapping "StackAMIs", region, stack_name, ami
+          end
+
+          ami_selector = template.find_in_regional_mapping("StackAMIs", stack_name)
         end
+
+        {name: stack.fetch('solution'),
+         ami: ami_selector}
       end
 
       def extrapolate_backends(config, backends, template)

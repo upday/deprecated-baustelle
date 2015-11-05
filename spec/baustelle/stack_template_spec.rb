@@ -12,6 +12,10 @@ describe Baustelle::StackTemplate do
 stacks:
   ruby:
     solution: Ruby AWS EB Solution
+  ruby-with-datadog:
+    solution: Ruby AWS EB Solution
+    ami:
+      us-east-1: ami-123456
 
 vpc:
   cidr: 172.31.0.0/16
@@ -31,6 +35,12 @@ backends:
       url: postgres://production
 
 applications:
+  custom_hello_world:
+    stack: ruby-with-datadog
+    instance_type: t2.small
+    scale:
+      min: 1
+      max: 1
   hello_world:
     stack: ruby
     instance_type: t2.small
@@ -184,6 +194,18 @@ environments:
           option_settings = group_option_settings(properties[:OptionSettings])
           app_env = option_settings["aws:elasticbeanstalk:application:environment"]
           expect(app_env["DATABASE_URL"]).to eq("postgres://staging")
+        end
+      end
+
+      it 'uses custom AMI for customized stack' do
+        expect_resource template, "CustomHelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+
+          expect(option_settings["aws:autoscaling:launchconfiguration"]["ImageId"]).
+            to eq({'Fn::FindInMap' => [ 'StackAMIs', {'Ref' => 'AWS::Region'},
+                                        'RubyWithDatadog']})
+          expect(template[:Mappings]['StackAMIs']['us-east-1']['RubyWithDatadog']).
+            to eq('ami-123456')
         end
       end
     end
