@@ -74,7 +74,7 @@ module Baustelle
 
       def solution_stack(template, stack_name, stack_configurations:)
         stack = stack_configurations.fetch(stack_name)
-        stack_name = camelize(stack_name.gsub('-', '_'))
+        stack_name = camelize(stack_name.gsub('-', '_').gsub(/[^A-Z0-9_]/i, ''))
         ami_selector = nil
 
         if amis = stack['ami']

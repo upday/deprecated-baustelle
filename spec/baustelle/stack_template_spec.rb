@@ -12,7 +12,7 @@ describe Baustelle::StackTemplate do
 stacks:
   ruby:
     solution: Ruby AWS EB Solution
-  ruby-with-datadog:
+  ruby2.2-with-datadog:
     solution: Ruby AWS EB Solution
     ami:
       us-east-1: ami-123456
@@ -36,7 +36,7 @@ backends:
 
 applications:
   custom_hello_world:
-    stack: ruby-with-datadog
+    stack: ruby2.2-with-datadog
     instance_type: t2.small
     scale:
       min: 1
@@ -203,8 +203,8 @@ environments:
 
           expect(option_settings["aws:autoscaling:launchconfiguration"]["ImageId"]).
             to eq({'Fn::FindInMap' => [ 'StackAMIs', {'Ref' => 'AWS::Region'},
-                                        'RubyWithDatadog']})
-          expect(template[:Mappings]['StackAMIs']['us-east-1']['RubyWithDatadog']).
+                                        'Ruby22WithDatadog']})
+          expect(template[:Mappings]['StackAMIs']['us-east-1']['Ruby22WithDatadog']).
             to eq('ami-123456')
         end
       end
