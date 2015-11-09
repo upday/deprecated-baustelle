@@ -9,6 +9,7 @@ module Baustelle
   require 'baustelle/cloud_formation'
   require 'baustelle/cloud_formation/remote_template'
   require 'baustelle/cloud_formation/vpc'
+  require 'baustelle/cloud_formation/peer_vpc'
   require 'baustelle/cloud_formation/application'
   require 'baustelle/cloud_formation/ebenvironment'
   require 'baustelle/cloud_formation/template'

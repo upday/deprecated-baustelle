@@ -10,6 +10,11 @@ module Baustelle
                                       cdir_block: config.fetch('vpc').fetch('cidr'),
                                       subnets: config.fetch('vpc').fetch('subnets'))
 
+      peer_vpcs = config.fetch('vpc').fetch('peers', {}).map do |name, peer_config|
+        CloudFormation::PeerVPC.apply(template, vpc, name,
+                                      peer_config)
+      end
+
       template.resource "GlobalSecurityGroup",
                         Type: "AWS::EC2::SecurityGroup",
                         Properties: {
