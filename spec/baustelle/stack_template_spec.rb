@@ -2,6 +2,7 @@ require 'spec_helper'
 require_relative 'stack_template/vpc'
 require_relative 'stack_template/application'
 require_relative 'stack_template/backend/rabbitmq'
+require_relative 'stack_template/peer_vpc'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
@@ -22,6 +23,10 @@ vpc:
   subnets:
     a: 172.31.0.0/20
     b: 172.31.16.0/20
+  peers:
+    staging:
+      vpc_id: vpc-123456
+      cidr: 172.30.0.0/16
 
 backends:
   RabbitMQ:
@@ -75,7 +80,7 @@ environments:
   def expect_resource(template, resource_name, of_type: nil)
     resource = template[:Resources][resource_name]
     expect(resource).not_to be_nil,
-                            "expected #{resource_name} to be presend. Available resource names #{template[:Resources].keys}"
+                            "expected #{resource_name} to be present. Available resource names #{template[:Resources].keys}"
     expect(resource[:Type]).to eq(of_type) if of_type
     yield resource[:Properties], resource if block_given?
   end
@@ -101,6 +106,11 @@ environments:
       let(:template) { (subject.as_json) }
 
       include_examples "VPC resource declaration"
+
+      include_examples "Peer VPC", name: 'staging',
+                       camelized_name: 'Staging',
+                       vpc_id: 'vpc-123456',
+                       cidr: '172.30.0.0/16'
 
       include_examples "Application in environment",
                        stack_name: 'foo',

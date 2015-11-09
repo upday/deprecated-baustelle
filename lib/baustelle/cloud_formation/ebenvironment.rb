@@ -95,6 +95,7 @@ module Baustelle
             backend_output = backends[backend[:type]][backend[:name]].
                              output(template)
 
+            # TODO: more readable error message
             acc[key] = backend_output.fetch(backend[:property])
           else
             acc[key] = value
