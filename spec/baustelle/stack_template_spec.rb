@@ -56,6 +56,12 @@ applications:
       RAILS_ENV: production
       RABBITMQ_URL: backend(RabbitMQ:main:url)
       DATABASE_URL: backend(External:postgres:url)
+  application_not_in_loadtest:
+    stack: ruby
+    instance_type: t2.small
+    scale:
+      min: 1
+      max: 1
 environments:
   production: {}
   staging:
@@ -74,6 +80,10 @@ environments:
           max: 1
         config:
           RAILS_ENV: staging
+  loadtest:
+    applications:
+      application_not_in_loadtest:
+        disabled: yes
     YAML
   }
 
@@ -217,6 +227,15 @@ environments:
           expect(template[:Mappings]['StackAMIs']['us-east-1']['Ruby22WithDatadog']).
             to eq('ami-123456')
         end
+      end
+
+      it 'includes non-disabled applications' do
+        expect_resource template, 'ApplicationNotInLoadtestEnvProduction'
+        expect_resource template, 'ApplicationNotInLoadtestEnvStaging'
+      end
+
+      it 'does not include disabled applications' do
+        expect(template[:Resources]['ApplicationNotInLoadtestEnvLoadtest']).to be_nil
       end
     end
   end
