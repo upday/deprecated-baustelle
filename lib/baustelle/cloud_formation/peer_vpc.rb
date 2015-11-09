@@ -4,7 +4,8 @@ module Baustelle
       extend self
 
       def apply(template, vpc, peer_name, peer_config)
-        template.resource pc_id = "PeerVPC#{template.camelize(peer_name)}PeeringConnection",
+        peering_connection_id = "PeerVPC#{template.camelize(peer_name)}PeeringConnection"
+        template.resource peering_connection_id,
                           Type: "AWS::EC2::VPCPeeringConnection",
                           Properties: {
                             VpcId: vpc.id,
@@ -19,7 +20,7 @@ module Baustelle
                           Properties: {
                             DestinationCidrBlock: peer_config.fetch('cidr'),
                             RouteTableId: template.ref("#{vpc.name}RouteTable"),
-                            VpcPeeringConnectionId: template.ref(pc_id)
+                            VpcPeeringConnectionId: template.ref(peering_connection_id)
                           }
       end
     end
