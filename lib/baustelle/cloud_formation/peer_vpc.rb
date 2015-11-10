@@ -30,7 +30,7 @@ module Baustelle
                         description: "Peering connection ID for #{peer_name} VPC"
       end
 
-      def list(stack_name, outputs: Aws::CloudFormation::Stack.new(stack_name))
+      def list(stack_name, outputs: Aws::CloudFormation::Stack.new(stack_name).outputs)
         outputs.inject({}) do |acc, output|
           if vpc = output.output_key[OUTPUT_REGEX, 1]
             acc[vpc] = output.output_value

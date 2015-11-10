@@ -114,6 +114,12 @@ module Baustelle
                        },
                        zone_identifier: subs.map(&:id))
       end
+
+      def cidr_block(stack_name, outputs: Aws::CloudFormation::Stack.new(stack_name).outputs)
+        if output = outputs.find { |o| o.output_key == "VpcCidr" }
+          output.output_value
+        end
+      end
     end
   end
 end
