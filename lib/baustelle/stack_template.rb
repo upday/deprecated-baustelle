@@ -108,7 +108,7 @@ module Baustelle
         applications.each do |app|
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
-          if not app_config.fetch('disabled', false)
+          unless app_config.fetch('disabled', false)
             CloudFormation::EBEnvironment.apply(template,
                                                 stack_name: name,
                                                 env_name: env_name,
