@@ -44,6 +44,10 @@ shared_examples "VPC resource declaration" do
       end
     end
 
+    it 'output: VPC network' do
+      expect(template[:Outputs]["VpcCidr"][:Value]).to eq("172.31.0.0/16")
+    end
+
     {'a' => '172.31.0.0/20',
      'b' => '172.31.16.0/20'}.each do |az, cidr|
       context "for availability zone #{az}" do

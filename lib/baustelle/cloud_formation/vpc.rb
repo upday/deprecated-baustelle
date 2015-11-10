@@ -5,7 +5,7 @@ module Baustelle
     module VPC
       extend self
 
-      def apply(template, vpc_name:, cdir_block:, subnets:)
+      def apply(template, vpc_name:, cidr_block:, subnets:)
 
         template.resource vpc_name, :Type => 'AWS::EC2::VPC', :Properties => {
                             :Tags => [
@@ -17,7 +17,7 @@ module Baustelle
                             :InstanceTenancy => 'default',
                             :EnableDnsSupport => true,
                             :EnableDnsHostnames => true,
-                            :CidrBlock => cdir_block,
+                            :CidrBlock => cidr_block,
                           }
 
         template.resource route_table = "#{vpc_name}RouteTable", :Type => 'AWS::EC2::RouteTable', :Properties => {
@@ -74,14 +74,14 @@ module Baustelle
                             :DestinationCidrBlock => '0.0.0.0/0',
                           }
 
-        subnets.each do |az, cdir|
+        subnets.each do |az, cidr|
           subnet_name = "#{vpc_name}Subnet#{az.upcase}"
 
           template.resource subnet_name,
                             :Type => 'AWS::EC2::Subnet',
                             :Properties => {
                               :VpcId => template.ref(vpc_name),
-                              :CidrBlock => cdir,
+                              :CidrBlock => cidr,
                               :AvailabilityZone => template.join('', template.ref('AWS::Region'), az),
                               :Tags => [
                                 {
@@ -99,6 +99,9 @@ module Baustelle
                             }
 
         end
+
+        template.output "VpcCidr", cidr_block,
+                        description: "Stack's VPC network addres"
 
         OpenStruct.new(id: template.ref(vpc_name),
                        name: vpc_name,
