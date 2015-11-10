@@ -6,6 +6,7 @@ module Baustelle
       def initialize
         @resources = {}
         @mappings = {}
+        @outputs = {}
       end
 
       def eval(&block)
@@ -23,8 +24,16 @@ module Baustelle
       end
 
       def resource(name, **params)
-        raise "The resource name: #{name} already taken" if @resources[name]
+        raise "The resource name: #{name} is already taken" if @resources[name]
         @resources[name] = params
+      end
+
+      def output(name, value, description:)
+        raise "The output name: #{name} is already taken" if @resources[name]
+        @outputs[name] = {
+          Description: description,
+          Value: value
+        }
       end
 
       def ref(name)
@@ -42,7 +51,7 @@ module Baustelle
           Parameters: {},
           Mappings: @mappings,
           Resources: @resources,
-          Outputs: {}
+          Outputs: @outputs
         }
       end
 

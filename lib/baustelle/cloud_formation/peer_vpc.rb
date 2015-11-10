@@ -22,6 +22,10 @@ module Baustelle
                             RouteTableId: template.ref("#{vpc.name}RouteTable"),
                             VpcPeeringConnectionId: template.ref(peering_connection_id)
                           }
+
+        template.output "PeeringConnectionVPC#{template.camelize(peer_name)}",
+                        template.ref(peering_connection_id),
+                        description: "Peering connection ID for #{peer_name} VPC"
       end
     end
   end

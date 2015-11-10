@@ -17,5 +17,13 @@ shared_examples "Peer VPC" do |vpc_id:, cidr:, name:, camelized_name:|
         expect(properties[:RouteTableId]).to eq(ref('fooRouteTable'))
       end
     end
+
+    it "outputs peering connection id" do
+      expect(template[:Outputs]["PeeringConnectionVPC#{camelized_name}"]).
+        to eq({
+                Description: "Peering connection ID for #{name} VPC",
+                Value: ref("PeerVPC#{camelized_name}PeeringConnection")
+              })
+    end
   end
 end
