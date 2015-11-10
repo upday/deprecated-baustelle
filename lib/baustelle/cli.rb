@@ -47,6 +47,8 @@ module Baustelle
     end
 
     desc "read_config", "Prints configuration for every environment"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
     def read_config
       Baustelle::Commands::ReadConfig.call(specification_file)
     end
