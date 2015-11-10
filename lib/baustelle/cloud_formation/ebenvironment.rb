@@ -38,6 +38,10 @@ module Baustelle
                                   'EC2KeyName' => 'kitchen',
                                   'InstanceType' => app_config.fetch('instance_type')
                                 },
+                                'aws:autoscaling:updatepolicy:rollingupdate' => {
+                                  'RollingUpdateEnabled' => 'true',
+                                  'RollingUpdateType' => 'Health'
+                                },
                                 'aws:autoscaling:asg' => {
                                   'MinSize' => app_config.fetch('scale').fetch('min'),
                                   'MaxSize' => app_config.fetch('scale').fetch('max')
