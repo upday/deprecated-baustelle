@@ -9,7 +9,11 @@ module Baustelle
         @outputs = {}
       end
 
+      # DEPRECATED
+      # Use direct calls on methods of this object instead
       def eval(&block)
+        $stderr.puts "Deprecated call to Baustelle::CloudFormation::Template#eval"
+        $stderr.puts caller.first
         instance_exec(&block)
       end
 
