@@ -6,15 +6,13 @@ module Baustelle
       extend self
 
       def apply(template, name)
-        template.eval do
-          resource app_name = camelize(name),
-                   Type: "AWS::ElasticBeanstalk::Application",
-                   Properties: {
-                     ApplicationName: app_name,
-                     Description: "#{name} app orchestrated by the baustelle"
-                   }
-          ref(app_name)
-        end
+        template.resource app_name = template.camelize(name),
+                 Type: "AWS::ElasticBeanstalk::Application",
+                 Properties: {
+                   ApplicationName: app_name,
+                   Description: "#{name} app orchestrated by the baustelle"
+                 }
+        template.ref(app_name)
       end
     end
   end
