@@ -15,61 +15,62 @@ module Baustelle
         stack = solution_stack(template, app_config.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        template.eval do
-          eb_dns = {
-            'Fn::Join' => [
-              '-', [
-                "#{stack_name}",
-                template.ref('AWS::Region'),
-                "#{env_name}-#{app_name}".gsub('_', '-')
-              ]
-            ]
-          }
+        eb_dns = template.join('-', [stack_name,
+                                     template.ref('AWS::Region'),
+                                     "#{env_name}-#{app_name}".gsub('_', '-')])
 
-          template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
-                            Type: "AWS::ElasticBeanstalk::Environment",
-                            Properties: {
-                              ApplicationName: app_ref,
-                              CNAMEPrefix: eb_dns,
-                              EnvironmentName: env_hash,
-                              SolutionStackName: stack.fetch(:name),
-                              OptionSettings: {
-                                'aws:autoscaling:launchconfiguration' => {
-                                  'EC2KeyName' => 'kitchen',
-                                  'InstanceType' => app_config.fetch('instance_type')
-                                },
-                                'aws:autoscaling:updatepolicy:rollingupdate' => {
-                                  'RollingUpdateEnabled' => 'true',
-                                  'RollingUpdateType' => 'Health'
-                                },
-                                'aws:autoscaling:asg' => {
-                                  'MinSize' => app_config.fetch('scale').fetch('min'),
-                                  'MaxSize' => app_config.fetch('scale').fetch('max')
-                                },
-                                'aws:ec2:vpc' => {
-                                  'VPCId' => vpc.id,
-                                  'Subnets' => join(',', *vpc.zone_identifier),
-                                  'ELBSubnets' => join(',', *vpc.zone_identifier),
-                                  'AssociatePublicIpAddress' => 'true'
-                                },
-                                'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
-                                                                                                                     backends, template)
-                              }.tap do |settings|
-                                if ami = stack.fetch(:ami)
-                                  settings['aws:autoscaling:launchconfiguration']['ImageId'] = ami
-                                end
-                              end.map do |namespace, options|
-                                options.map do |key, value|
-                                  {
-                                    Namespace: namespace,
-                                    OptionName: key.to_s,
-                                    Value: value.is_a?(Hash) ? value : value.to_s
-                                  }
-                                end
-                              end.flatten
-                            }
-          ref(env_name)
-        end
+        template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
+                          Type: "AWS::ElasticBeanstalk::Environment",
+                          Properties: {
+                            ApplicationName: app_ref,
+                            CNAMEPrefix: eb_dns,
+                            EnvironmentName: env_hash,
+                            SolutionStackName: stack.fetch(:name),
+                            OptionSettings: {
+                              'aws:autoscaling:launchconfiguration' => {
+                                'EC2KeyName' => 'kitchen',
+                                'InstanceType' => app_config.fetch('instance_type')
+                              },
+                              'aws:autoscaling:updatepolicy:rollingupdate' => {
+                                'RollingUpdateEnabled' => 'true',
+                                'RollingUpdateType' => 'Health'
+                              },
+                              'aws:autoscaling:asg' => {
+                                'MinSize' => app_config.fetch('scale').fetch('min'),
+                                'MaxSize' => app_config.fetch('scale').fetch('max')
+                              },
+                              'aws:ec2:vpc' => {
+                                'VPCId' => vpc.id,
+                                'Subnets' => template.join(',', *vpc.zone_identifier),
+                                'ELBSubnets' => template.join(',', *vpc.zone_identifier),
+                                'AssociatePublicIpAddress' => 'true'
+                              },
+                              'aws:elasticbeanstalk:application' => {
+                                'Application Healthcheck URL' => '/health'
+                              },
+                              'aws:elb:healthcheck' => {
+                                'Interval' => 10,
+                                'Timeout' => 5,
+                                'HealthyThreshold' => 2,
+                                'UnhealthyThreshold' => 2
+                              },
+                              'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
+                                                                                                                   backends, template)
+                            }.tap do |settings|
+                              if ami = stack.fetch(:ami)
+                                settings['aws:autoscaling:launchconfiguration']['ImageId'] = ami
+                              end
+                            end.map do |namespace, options|
+                              options.map do |key, value|
+                                {
+                                  Namespace: namespace,
+                                  OptionName: key.to_s,
+                                  Value: value.is_a?(Hash) ? value : value.to_s
+                                }
+                              end
+                            end.flatten
+                          }
+        template.ref(env_name)
       end
 
       def eb_env_name(stack_name, app_name, env_name)

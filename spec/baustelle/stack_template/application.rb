@@ -32,6 +32,10 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
           to eq({'Fn::Join' => [',', availability_zones.map { |az|
                                   ref("#{stack_name}Subnet#{az.upcase}")
                                 }]})
+
+        expect(option_settings['aws:elasticbeanstalk:application']['Application Healthcheck URL']).
+          to eq('/health')
+
         config.each do |key, value|
           expect(option_settings['aws:elasticbeanstalk:application:environment'][key]).
             to eq(value)
