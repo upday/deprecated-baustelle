@@ -106,15 +106,19 @@ module Baustelle
 
         # Create applications
         applications.each do |app|
-          CloudFormation::EBEnvironment.apply(template,
-                                              stack_name: name,
-                                              env_name: env_name,
-                                              app_ref: app.ref,
-                                              app_name: app.name,
-                                              vpc: vpc,
-                                              app_config: Baustelle::Config.app_config(env_config, app.name),
-                                              stack_configurations: env_config.fetch('stacks'),
-                                              backends: environment_backends)
+          app_config = Baustelle::Config.app_config(env_config, app.name)
+
+          unless app_config.fetch('disabled', false)
+            CloudFormation::EBEnvironment.apply(template,
+                                                stack_name: name,
+                                                env_name: env_name,
+                                                app_ref: app.ref,
+                                                app_name: app.name,
+                                                vpc: vpc,
+                                                app_config: app_config,
+                                                stack_configurations: env_config.fetch('stacks'),
+                                                backends: environment_backends)
+          end
         end
       end
       template
