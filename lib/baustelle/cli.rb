@@ -47,8 +47,31 @@ module Baustelle
     end
 
     desc "read_config", "Prints configuration for every environment"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
     def read_config
       Baustelle::Commands::ReadConfig.call(specification_file)
+    end
+
+    desc 'peer_vpc_config VPC_NAME', "Prints JSON CloudFormation template for peer VPC configuration"
+    def peer_vpc_config(vpc_name)
+      Aws.config[:region] = region
+
+      template = Baustelle::CloudFormation::Template.new
+
+      if peering_connection_id = Baustelle::CloudFormation::PeerVPC.
+                                 list(name)[template.camelize(vpc_name)]
+        template.resource "VPC#{template.camelize(name)}Route",
+                          Type: 'AWS::EC2::Route',
+                          Properties: {
+                            DestinationCidrBlock: Baustelle::CloudFormation::VPC.cidr_block(name),
+                            RouteTableId: "REPLACE WITH ROUTE TABLE ID REFERENCE",
+                            VpcPeeringConnectionId: peering_connection_id
+                          }
+      end
+
+      puts JSON.pretty_generate(template.as_json)
+
     end
 
     desc "ami SUBCOMMAND", "Manages AMI images"

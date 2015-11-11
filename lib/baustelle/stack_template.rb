@@ -7,7 +7,7 @@ module Baustelle
     def build(name, template: CloudFormation::Template.new)
       # Prepare VPC
       vpc = CloudFormation::VPC.apply(template, vpc_name: name,
-                                      cdir_block: config.fetch('vpc').fetch('cidr'),
+                                      cidr_block: config.fetch('vpc').fetch('cidr'),
                                       subnets: config.fetch('vpc').fetch('subnets'))
 
       peer_vpcs = config.fetch('vpc').fetch('peers', {}).map do |name, peer_config|
