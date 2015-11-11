@@ -15,9 +15,9 @@ module Baustelle
         stack = solution_stack(template, app_config.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        eb_dns = template.join('-', [stack_name,
+        eb_dns = template.join('-', stack_name,
                                      template.ref('AWS::Region'),
-                                     "#{env_name}-#{app_name}".gsub('_', '-')])
+                                     "#{env_name}-#{app_name}".gsub('_', '-'))
 
         template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                           Type: "AWS::ElasticBeanstalk::Environment",
