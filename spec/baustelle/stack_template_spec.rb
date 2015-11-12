@@ -46,6 +46,8 @@ applications:
     scale:
       min: 1
       max: 1
+    elb:
+      visibility: internal
   hello_world:
     stack: ruby
     instance_type: t2.small
@@ -147,6 +149,33 @@ environments:
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        config: {'RAILS_ENV' => 'staging'}
+
+      include_examples "Application in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'staging',
+                       camelized_environment: 'Staging',
+                       app_name: "custom_hello_world",
+                       camelized_app_name: "CustomHelloWorld",
+                       instance_type: "t2.small",
+                       min_size: 1, max_size: 1,
+                       solution_stack_name: 'Ruby AWS EB Solution',
+                       availability_zones: %w(a b),
+                       elb_public: false
+
+      include_examples "Application in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'production',
+                       camelized_environment: 'Production',
+                       app_name: "custom_hello_world",
+                       camelized_app_name: "CustomHelloWorld",
+                       instance_type: "t2.small",
+                       min_size: 1, max_size: 1,
+                       solution_stack_name: 'Ruby AWS EB Solution',
+                       availability_zones: %w(a b),
+                       elb_public: false
+
 
       include_examples "Backend RabbitMQ in environment",
                        stack_name: 'foo',

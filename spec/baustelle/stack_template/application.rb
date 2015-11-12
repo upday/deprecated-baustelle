@@ -4,7 +4,8 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
                                                  instance_type:, min_size:, max_size:,
                                                  solution_stack_name: nil,
                                                  availability_zones:,
-                                                 config: {}|
+                                                 config: {},
+                                                 elb_public: true|
 
   context "Application #{app_name} in #{environment} environment" do
     it "ElasticBeanstalk Application" do
@@ -35,6 +36,9 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
 
         expect(option_settings['aws:elasticbeanstalk:application']['Application Healthcheck URL']).
           to eq('/health')
+
+        expect(option_settings['aws:ec2:vpc']['ELBScheme']).
+          to eq(elb_public ? 'external' : 'internal')
 
         config.each do |key, value|
           expect(option_settings['aws:elasticbeanstalk:application:environment'][key]).
