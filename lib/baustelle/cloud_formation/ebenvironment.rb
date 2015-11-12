@@ -43,7 +43,9 @@ module Baustelle
                                 'VPCId' => vpc.id,
                                 'Subnets' => template.join(',', *vpc.zone_identifier),
                                 'ELBSubnets' => template.join(',', *vpc.zone_identifier),
-                                'AssociatePublicIpAddress' => 'true'
+                                'AssociatePublicIpAddress' => 'true',
+                                'ELBScheme' => app_config.fetch('elb', {}).
+                                              fetch('visibility', 'external')
                               },
                               'aws:elasticbeanstalk:application' => {
                                 'Application Healthcheck URL' => '/health'
