@@ -49,6 +49,10 @@ module Documentation
     "[[#{title}|#{ref}]]"
   end
 
+  def breadcrumbs
+    "[[Home|Home]] > " + link_to(current_category)
+  end
+
   def render_home
     ERB.new(File.read(File.join("doc", "Home.md"))).result(binding)
   end
