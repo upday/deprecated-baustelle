@@ -9,3 +9,4 @@
 /tmp/
 /ext/*/build
 /ext/*/.gradle
+docks-compiled
