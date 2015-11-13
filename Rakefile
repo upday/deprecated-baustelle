@@ -48,11 +48,19 @@ module Documentation
     ref = [category, article].join('-')
     "[[#{title}|#{ref}]]"
   end
+
+  def render_home
+    ERB.new(File.read(File.join("doc", "Home.md"))).result(binding)
+  end
 end
 
 task :doc do
   destdir = ENV.fetch("DESTDIR", "docs-compiled")
   system "mkdir -p #{destdir} && rm -fr #{destdir}/*"
+
+  File.open(File.join(destdir, "Home.md"), 'w') do |file|
+    file.puts Documentation.render_home
+  end
 
   Documentation.index_tree.each do |category, articles|
     Documentation.current_category = category
