@@ -64,6 +64,14 @@ applications:
     scale:
       min: 1
       max: 1
+  application_only_staging:
+    disabled: true
+    stack: ruby
+    instance_type: t2.small
+    scale:
+      min: 1
+      max: 1
+
 environments:
   production: {}
   staging:
@@ -82,6 +90,8 @@ environments:
           max: 1
         config:
           RAILS_ENV: staging
+      application_only_staging:
+        disabled: false
   loadtest:
     applications:
       application_not_in_loadtest:
@@ -265,6 +275,12 @@ environments:
 
       it 'does not include disabled applications' do
         expect(template[:Resources]['ApplicationNotInLoadtestEnvLoadtest']).to be_nil
+      end
+
+      xit 'allows to override disabled flag with false' do
+        expect_resource template, 'ApplicationOnlyStagingEnvStaging'
+        expect(template[:Resources]['ApplicationOnlyStagingEnvProd']).to be_nil
+        expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
       end
     end
   end
