@@ -27,7 +27,8 @@ module Baustelle
                             EnvironmentName: env_hash,
                             SolutionStackName: stack.fetch(:name),
                             Tags: [
-                              { 'Key' => 'Name',        'Value' => "#{app_name}.#{env_name}" },
+                              { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
+                              { 'Key' => 'Application', 'Value' => app_name },
                               { 'Key' => 'Stack',       'Value' => stack_name },
                               { 'Key' => 'Environment', 'Value' => env_name },
                             ],

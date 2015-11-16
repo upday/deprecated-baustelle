@@ -45,7 +45,8 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
             to eq(value)
 
         expect(properties[:Tags]).to eq([
-          { 'Key' => 'Name',        'Value' => "#{app_name}.#{environment}" },
+          { 'Key' => 'FQN',         'Value' => "#{app_name}.#{environment}.#{stack_name}" },
+          { 'Key' => 'Application', 'Value' => app_name },
           { 'Key' => 'Stack',       'Value' => stack_name },
           { 'Key' => 'Environment', 'Value' => environment },
         ])
