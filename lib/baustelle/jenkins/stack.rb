@@ -60,28 +60,30 @@ module Baustelle
       def create_jobs
         Baustelle::Config.for_every_environment(config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
-            job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
-            template = Baustelle::Jenkins::JobTemplate.new(
-              File.read("jobs/#{app_config['stack']}.groovy.erb"),
-              {
-                app_config: app_config,
-                jenkins_options: jenkins_options,
-                region: @region,
-                eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
-                  eb_env_name(@name, application, environment),
-                eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_'))
-              }
-            )
+            unless app_config.fetch('disabled', false)
+              job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
+              template = Baustelle::Jenkins::JobTemplate.new(
+                File.read("jobs/#{app_config['stack']}.groovy.erb"),
+                {
+                  app_config: app_config,
+                  jenkins_options: jenkins_options,
+                  region: @region,
+                  eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
+                    eb_env_name(@name, application, environment),
+                  eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_'))
+                }
+              )
 
-            jobs = template.render(prefix: job_name_prefix)
+              jobs = template.render(prefix: job_name_prefix)
 
-            jobs.each do |job_name, xml|
-              jenkins.job.create_or_update(job_name, xml)
+              jobs.each do |job_name, xml|
+                jenkins.job.create_or_update(job_name, xml)
+              end
+
+              jenkins.job.chain(jobs.keys.sort, 'success', ['all'])
+
+              @generated_jobs.merge!(jobs)
             end
-
-            jenkins.job.chain(jobs.keys.sort, 'success', ['all'])
-
-            @generated_jobs.merge!(jobs)
           end
         end
       end
