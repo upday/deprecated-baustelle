@@ -19,13 +19,18 @@ module Baustelle
                                      template.ref('AWS::Region'),
                                      "#{env_name}-#{app_name}".gsub('_', '-'))
 
-        template.resource env_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
+        template.resource resource_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                           Type: "AWS::ElasticBeanstalk::Environment",
                           Properties: {
                             ApplicationName: app_ref,
                             CNAMEPrefix: eb_dns,
                             EnvironmentName: env_hash,
                             SolutionStackName: stack.fetch(:name),
+                            Tags: [
+                              { 'Key' => 'Name',        'Value' => "#{app_name}.#{env_name}" },
+                              { 'Key' => 'Stack',       'Value' => stack_name },
+                              { 'Key' => 'Environment', 'Value' => env_name },
+                            ],
                             OptionSettings: {
                               'aws:autoscaling:launchconfiguration' => {
                                 'EC2KeyName' => 'kitchen',
@@ -72,7 +77,7 @@ module Baustelle
                               end
                             end.flatten
                           }
-        template.ref(env_name)
+        template.ref(resource_name)
       end
 
       def eb_env_name(stack_name, app_name, env_name)
