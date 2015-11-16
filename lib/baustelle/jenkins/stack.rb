@@ -71,7 +71,7 @@ module Baustelle
                   eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
                     eb_env_name(@name, application, environment),
                   eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_')),
-                  deployment_dependency: env_config.fetch('deployment_dependency')
+                  eb_application_version_source: env_config.fetch('eb_application_version_source')
                 }
               )
 
