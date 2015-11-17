@@ -45,6 +45,13 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
         config.each do |key, value|
           expect(option_settings['aws:elasticbeanstalk:application:environment'][key]).
             to eq(value)
+
+        expect(properties[:Tags]).to eq([
+          { 'Key' => 'FQN',         'Value' => "#{app_name}.#{environment}.#{stack_name}" },
+          { 'Key' => 'Application', 'Value' => app_name },
+          { 'Key' => 'Stack',       'Value' => stack_name },
+          { 'Key' => 'Environment', 'Value' => environment },
+        ])
         end
       end
     end
