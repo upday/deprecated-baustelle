@@ -29,6 +29,7 @@ module Baustelle
                             OptionSettings: {
                               'aws:autoscaling:launchconfiguration' => {
                                 'EC2KeyName' => 'kitchen',
+                                'IamInstanceProfile' => template.ref('IAMInstanceProfile'),
                                 'InstanceType' => app_config.fetch('instance_type')
                               },
                               'aws:autoscaling:updatepolicy:rollingupdate' => {
