@@ -31,6 +31,7 @@ module Baustelle
                           Properties: {
                             Subnets: vpc.zone_identifier,
                             Scheme: 'internet-facing',
+                            SecurityGroups: [template.ref('ELBSecurityGroup')],
                             Listeners: [
                               {InstancePort: 5672, InstanceProtocol: 'tcp',
                                LoadBalancerPort: 5672, Protocol: 'tcp'},

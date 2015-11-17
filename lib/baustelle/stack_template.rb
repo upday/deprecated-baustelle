@@ -25,6 +25,16 @@ module Baustelle
                           ]
                         }
 
+      template.resource "ELBSecurityGroup",
+                        Type: "AWS::EC2::SecurityGroup",
+                        Properties: {
+                          VpcId: vpc.id,
+                          GroupDescription: "#{name} baustelle stack ELB Security Group",
+                          SecurityGroupIngress: [
+                            {IpProtocol: 'tcp', FromPort: 0, ToPort: 65535, CidrIp: '0.0.0.0/0'}
+                          ]
+                        }
+
       template.resource "IAMRole",
                         Type: "AWS::IAM::Role",
                         Properties: {
