@@ -31,7 +31,7 @@ module Baustelle
                           Properties: {
                             Subnets: vpc.zone_identifier,
                             Scheme: 'internet-facing',
-                            SecurityGroups: [template.ref('ELBSecurityGroup')],
+                            SecurityGroups: [template.ref('ELBSecurityGroupg')],
                             Listeners: [
                               {InstancePort: 5672, InstanceProtocol: 'tcp',
                                LoadBalancerPort: 5672, Protocol: 'tcp'},
@@ -71,7 +71,7 @@ module Baustelle
         host = {'Fn::GetAtt' => ["RabbitMQ#{template.camelize(name)}ELB", 'DNSName']}
 
         {
-          'url' => {'Fn::Join' => ['', ['amqp://', host, ':5672']] },
+          'url' => {'Fn::Join' => ['', ['amqp://yana:_yana101_@', host, ':5672']] },
           'host' => host,
           'port' => 5672
         }
