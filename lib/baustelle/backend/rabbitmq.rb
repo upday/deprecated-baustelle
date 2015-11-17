@@ -18,7 +18,7 @@ module Baustelle
                           Type: 'AWS::AutoScaling::LaunchConfiguration',
                           Properties: {
                             AssociatePublicIpAddress: true,
-#                            KeyName: 'kitchen',
+                            KeyName: 'kitchen',
                             ImageId: template.find_in_regional_mapping('BackendAMIs', ami_name),
                             InstanceType: options.fetch('instance_type',
                                                         default_instance_type),
