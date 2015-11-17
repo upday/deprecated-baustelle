@@ -25,6 +25,8 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
 
         expect(option_settings["aws:autoscaling:launchconfiguration"]["InstanceType"]).
           to eq(instance_type)
+        expect(option_settings["aws:autoscaling:launchconfiguration"]["IamInstanceProfile"]).
+          to eq(ref('IAMInstanceProfile'))
         expect(option_settings["aws:autoscaling:asg"]["MinSize"].to_i).
           to eq(min_size)
         expect(option_settings["aws:autoscaling:asg"]["MaxSize"].to_i).
