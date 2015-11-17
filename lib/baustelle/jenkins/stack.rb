@@ -57,6 +57,7 @@ module Baustelle
         views.each { |view| jenkins.view.delete(view) }
       end
 
+      public
       def create_jobs
         Baustelle::Config.for_every_environment(config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
@@ -71,7 +72,7 @@ module Baustelle
                   eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
                     eb_env_name(@name, application, environment),
                   eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_')),
-                  eb_application_version_source: env_config.fetch('eb_application_version_source')
+                  eb_application_version_source: env_config.fetch('eb_application_version_source', NIL)
                 }
               )
 
@@ -89,6 +90,7 @@ module Baustelle
         end
       end
 
+      private
       def cleanup_jobs
         jobs_to_delete = (jenkins.job.list("^baustelle-#{name}-#{region}") -
                           @generated_jobs.keys)
