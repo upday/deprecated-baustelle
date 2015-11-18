@@ -233,8 +233,8 @@ environments:
           expect(app_env["RABBITMQ_URL"]).
             to eq({'Fn::Join' =>
                    ['', [
-                      'amqp://',
-                      {'Fn::GetAtt' => [ref("RabbitMQProductionMainELB"), 'DNSName']},
+                      'amqp://yana:_yana101_@',
+                      {'Fn::GetAtt' => ["RabbitMQProductionMainELB", 'DNSName']},
                       ':5672'
                     ]
                    ]
