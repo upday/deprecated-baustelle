@@ -10,6 +10,11 @@ describe Baustelle::StackTemplate do
   let(:config) {
     YAML.load(<<-YAML)
 ---
+https: &https
+  https: true
+  ssl_certificate: arn:aws:iam::123456789012:server-certificate/baustelle_com
+  ssl_reference_policy: ELBSecurityPolicy-2015-05
+
 stacks:
   ruby:
     solution: Ruby AWS EB Solution
@@ -58,6 +63,14 @@ applications:
       RAILS_ENV: production
       RABBITMQ_URL: backend(RabbitMQ:main:url)
       DATABASE_URL: backend(External:postgres:url)
+  https_hello_world:
+    stack: ruby2.2-with-datadog
+    instance_type: t2.small
+    scale:
+      min: 1
+      max: 1
+    elb:
+      <<: *https
   application_not_in_loadtest:
     stack: ruby
     instance_type: t2.small
@@ -112,11 +125,10 @@ environments:
   end
 
   def group_option_settings(option_settings)
-    initial_acc = Hash.new { |h, k| h[k] = {} }
+    initial_acc = {}
     option_settings.inject(initial_acc) do |acc, entry|
+      acc[entry[:Namespace]] ||= {}
       acc[entry[:Namespace]][entry[:OptionName]] = entry[:Value]
-      entry[:Namespace]
-      acc[entry[:Namespace]]
       acc
     end
   end
@@ -223,6 +235,42 @@ environments:
         expect_resource template, 'IAMInstanceProfile',
                         of_type: 'AWS::IAM::InstanceProfile' do |properties|
           expect(properties[:Roles]).to include(ref('IAMRole'))
+        end
+      end
+
+      it 'creates no ssl configuration when https is not enabled' do
+        expect_resource template, 'HelloWorldEnvProduction' do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+
+          elb_listeners = option_settings.select { |key,_| key.start_with?('aws:elb:listener:') }
+          expect(elb_listeners).to be_empty
+
+          expect(option_settings['aws:elb:policies:SSL']).to be_nil
+        end
+      end
+
+      it 'creates ssl configuration when https is enabled' do
+        expect_resource template, 'HttpsHelloWorldEnvProduction' do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+
+          elb_listeners = option_settings.select { |key,_| key.start_with?('aws:elb:listener:') }
+          expect(elb_listeners.length).to eq(2)
+
+          expect(elb_listeners['aws:elb:listener:80']).to eq({
+            'ListenerEnabled' => 'false',
+          })
+
+          expect(elb_listeners['aws:elb:listener:443']).to eq({
+            'ListenerProtocol' => 'HTTPS',
+            'InstanceProtocol' => 'HTTP',
+            'InstancePort' => '80',
+            'SSLCertificateId' => 'arn:aws:iam::123456789012:server-certificate/baustelle_com',
+            'PolicyNames' => 'SSL'
+          })
+
+          expect(option_settings['aws:elb:policies:SSL']).to eq({
+            'SSLReferencePolicy' => 'ELBSecurityPolicy-2015-05',
+          })
         end
       end
 
