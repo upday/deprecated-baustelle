@@ -80,7 +80,7 @@ describe Baustelle::Jenkins::Stack, '#create_jobs' do
 
       expect(@template_instance).to receive(:render)
       expect(@jenkins_instance).to receive(:job)
-      stack.create_jobs
+      stack.send(:create_jobs)
     end
   end
 end
