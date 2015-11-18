@@ -45,7 +45,7 @@ describe Baustelle::Jenkins::Stack, '#create_jobs' do
       :region=>'TestRegion1',
       :eb_environment_name=>"#{environment}-#{hash_lookup[application]}",
       :eb_application_name=>"TestStack1#{application}",
-      :eb_application_version_source=>config['environments'][environment]['eb_application_version_source']
+      :eb_application_version_source=>config['environments'][environment].fetch('eb_application_version_source', nil)
     }
   end
 
