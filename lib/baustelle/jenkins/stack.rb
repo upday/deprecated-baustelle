@@ -57,7 +57,7 @@ module Baustelle
         views.each { |view| jenkins.view.delete(view) }
       end
 
-      public
+
       def create_jobs
         Baustelle::Config.for_every_environment(config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
@@ -90,7 +90,7 @@ module Baustelle
         end
       end
 
-      private
+
       def cleanup_jobs
         jobs_to_delete = (jenkins.job.list("^baustelle-#{name}-#{region}") -
                           @generated_jobs.keys)
