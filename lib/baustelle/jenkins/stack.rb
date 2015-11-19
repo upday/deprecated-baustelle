@@ -78,11 +78,17 @@ module Baustelle
 
               jobs = template.render(prefix: job_name_prefix)
 
-              jobs.each do |job_name, xml|
+              jobs.select { |name, _| name =~/^#{job_name_prefix}-\d+-.*/ }.
+                each do |job_name, xml|
                 jenkins.job.create_or_update(job_name, xml)
               end
 
               jenkins.job.chain(jobs.keys.sort, 'success', ['all'])
+
+
+
+
+
 
               @generated_jobs.merge!(jobs)
             end
