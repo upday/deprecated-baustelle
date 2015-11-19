@@ -1,5 +1,10 @@
 # Applications
 
+Your application must listen on port 5000 in order to receive requests. You can either
+hard-code this in your application configuration or set an environment variable
+(see `SERVER_PORT: 5000` in the example below) which will be passed to your applicaiton
+process on startup.
+
 Example:
 ```
 applications:
@@ -21,6 +26,7 @@ applications:
       ssl_certificate: arn:aws:iam::123456789012:server-certificate/baustelle_com
       ssl_reference_policy: ELBSecurityPolicy-2015-05
     config:
+      SERVER_PORT: 5000
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
 
   another_application:
@@ -81,3 +87,7 @@ The AWS ARN of the ssl certificate to use for HTTPS.
 The AWS SSL reference policy to use. This only configures the SSL ciphers in the loadbalancer that are safe to use.
 AWS creates new updated policies regularily, so always try to keep this value to the most recent policy available.
 * required when `applications.<app_name>.elb.https=true`
+
+#### `applications.<app_name>.config.<env_var_name>`
+Environment variable passed to the application process. In the example above, 2 environment variables will be created:
+`SERVER_PORT=5000` and `MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION=foo`
