@@ -40,12 +40,13 @@ describe Baustelle::Jenkins::Stack, '#create_jobs' do
       'TestApp2'=>'409580fd62'
     }
     temp_result = {
-      :app_config=>config['applications'][application],
-      :jenkins_options=>'',
+      :app_config => config['applications'][application],
+      :jenkins_options => '',
       :region=>'TestRegion1',
       :eb_environment_name=>"#{environment}-#{hash_lookup[application]}",
       :eb_application_name=>"TestStack1#{application}",
-      :eb_application_version_source=>config['environments'][environment].fetch('eb_application_version_source', nil)
+      :eb_application_version_source=>config['environments'][environment].fetch('eb_application_version_source', nil),
+      :endpoint => "TestStack1-TestRegion1-#{environment}-#{application}.elasticbeanstalk.com"
     }
   end
 
