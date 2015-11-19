@@ -16,8 +16,8 @@ module Baustelle
                                stack_configurations: stack_configurations)
 
         eb_dns = template.join('-', stack_name,
-                                     template.ref('AWS::Region'),
-                                     "#{env_name}-#{app_name}".gsub('_', '-'))
+                               template.ref('AWS::Region'),
+                               "#{env_name}-#{app_name}".gsub('_', '-'))
 
         template.resource resource_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
                           Type: "AWS::ElasticBeanstalk::Environment",
@@ -56,6 +56,10 @@ module Baustelle
                               },
                               'aws:elasticbeanstalk:application' => {
                                 'Application Healthcheck URL' => '/health'
+                              },
+                              'aws:elasticbeanstalk:command' => {
+                                'BatchSize' => 1,
+                                'BatchSizeType' => 'Fixed'
                               },
                               'aws:elb:healthcheck' => {
                                 'Interval' => 10,
