@@ -61,6 +61,9 @@ module Baustelle
                                 'BatchSize' => 1,
                                 'BatchSizeType' => 'Fixed'
                               },
+                              'aws:elb:loadbalancer' => {
+                                'CrossZone' => true
+                              },
                               'aws:elb:healthcheck' => {
                                 'Interval' => 10,
                                 'Timeout' => 5,
