@@ -72,7 +72,8 @@ module Baustelle
                   eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
                     eb_env_name(@name, application, environment),
                   eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_')),
-                  eb_application_version_source: env_config.fetch('eb_application_version_source', NIL)
+                  eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
+                  endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com"
                 }
               )
 
