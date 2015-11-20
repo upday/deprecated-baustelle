@@ -69,7 +69,7 @@ module Baustelle
                               },
                               'aws:elb:healthcheck' => {
                                 'Interval' => 5,
-                                'Timeout' => 5,
+                                'Timeout' => 4,
                                 'HealthyThreshold' => 2,
                                 'UnhealthyThreshold' => 2
                               },
