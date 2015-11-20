@@ -49,8 +49,8 @@ shared_examples "Application in environment" do |stack_name:, camelized_stack_na
 
         expect(option_settings['aws:elasticbeanstalk:command']).
           to eq({
-                  'BatchSize' => '1',
-                  'BatchSizeType' => 'Fixed'
+                  'BatchSize' => '50',
+                  'BatchSizeType' => 'Percentage'
                 })
 
         expect(properties[:Tags]).to eq([

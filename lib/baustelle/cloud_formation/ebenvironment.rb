@@ -58,8 +58,8 @@ module Baustelle
                                 'Application Healthcheck URL' => '/health'
                               },
                               'aws:elasticbeanstalk:command' => {
-                                'BatchSize' => 1,
-                                'BatchSizeType' => 'Fixed'
+                                'BatchSize' => 50,
+                                'BatchSizeType' => 'Percentage'
                               },
                               'aws:elb:loadbalancer' => {
                                 'CrossZone' => true
