@@ -70,6 +70,10 @@ module Baustelle
                                 'HealthyThreshold' => 2,
                                 'UnhealthyThreshold' => 2
                               },
+                              'aws:elb:policies' => {
+                                'ConnectionDrainingEnabled' => true,
+                                'ConnectionDrainingTimeout' => 20,
+                              },
                               'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
                                                                                                                    backends, template)
                             }.tap do |settings|
