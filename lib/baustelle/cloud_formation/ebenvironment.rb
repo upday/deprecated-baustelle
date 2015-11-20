@@ -54,6 +54,9 @@ module Baustelle
                                 'ELBScheme' => app_config.fetch('elb', {}).
                                               fetch('visibility', 'external')
                               },
+                              'aws:elasticbeanstalk:environment' => {
+                                'ServiceRole' => 'aws-elasticbeanstalk-service-role'
+                              },
                               'aws:elasticbeanstalk:application' => {
                                 'Application Healthcheck URL' => '/health'
                               },
@@ -65,14 +68,17 @@ module Baustelle
                                 'CrossZone' => true
                               },
                               'aws:elb:healthcheck' => {
-                                'Interval' => 10,
+                                'Interval' => 5,
                                 'Timeout' => 5,
                                 'HealthyThreshold' => 2,
                                 'UnhealthyThreshold' => 2
                               },
                               'aws:elb:policies' => {
                                 'ConnectionDrainingEnabled' => true,
-                                'ConnectionDrainingTimeout' => 20,
+                                'ConnectionDrainingTimeout' => 10,
+                              },
+                              'aws:elasticbeanstalk:healthreporting:system' => {
+                                'SystemType' => 'enhanced'
                               },
                               'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
                                                                                                                    backends, template)
