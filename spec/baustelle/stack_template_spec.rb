@@ -325,7 +325,7 @@ environments:
         expect(template[:Resources]['ApplicationNotInLoadtestEnvLoadtest']).to be_nil
       end
 
-      xit 'allows to override disabled flag with false' do
+      it 'allows to override disabled flag with false' do
         expect_resource template, 'ApplicationOnlyStagingEnvStaging'
         expect(template[:Resources]['ApplicationOnlyStagingEnvProd']).to be_nil
         expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
