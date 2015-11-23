@@ -1,5 +1,5 @@
 require 'yaml'
-require 'deep_merge'
+require 'active_support/core_ext/hash'
 
 module Baustelle
   module Config
@@ -24,7 +24,7 @@ module Baustelle
 
     def for_environment(config, environment)
       if override = config.fetch('environments', {})[environment]
-        override.deep_merge(config.reject { |k,_| k == 'environments' })
+        config.reject { |k,_| k == 'environments' }.deep_merge(override)
       else
         config
       end
