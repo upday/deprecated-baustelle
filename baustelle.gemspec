@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.extensions << "ext/jenkins_dsl/extconf.rb"
 
-  spec.add_dependency "deep_merge", "~> 1.0.1"
+  spec.add_dependency "activesupport", "~> 4.2.5"
   spec.add_dependency "thor", "~> 0.19"
   spec.add_dependency "aws-sdk"
   spec.add_dependency "jenkins_api_client", "~> 1.4.1"
