@@ -13,10 +13,20 @@ shared_examples "Backend Redis in environment" do  |stack_name:, camelized_stack
         expect(properties[:AutomaticFailoverEnabled]).to eq(cluster_size < 2 ? false : true)
         expect(properties[:AutoMinorVersionUpgrade]).to be_true
         expect(properties[:CacheNodeType]).to eq(instance_type)
+        expect(properties[:CacheSubnetGroupName]).to eq(template.ref(resource_prefix + "SubnetGroup"))
         expect(properties[:Engine]).to eq('redis')
         expect(properties[:EngineVersion]).to eq('2.8.19')
         expect(properties[:NumCacheClusters]).to eq(cluster_size)
         expect(properties[:SecurityGroupIds]).to eq([template.ref("GlobalSecurityGroup")])
+      end
+    end
+
+    it 'cache subnet group' do
+      expect_resoure template, resource_prefix + "ReplicationGroup",
+                     of_type: 'AWS::ElastiCache::SubnetGroup' do |properties|
+        expect(properties[:SubnetIds]).
+          to eq(availability_zones.
+                 map { |az| template.ref("#{stack_name}Subnet#{az.upcase}")})
       end
     end
   end
