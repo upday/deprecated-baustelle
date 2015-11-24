@@ -3,7 +3,7 @@ module Baustelle
     class Redis
       def initialize(name, options, vpc:)
         @name = name
-        p @options = options
+        @options = options
         @vpc = vpc
       end
 
@@ -24,7 +24,7 @@ module Baustelle
                             CacheSubnetGroupName: template.ref(sg),
                             Engine: 'redis',
                             EngineVersion: '2.8.19',
-                            NumCacheClusters: 5,
+                            NumCacheClusters: @options['cluster_size'],
                             SecurityGroupIds: [template.ref('GlobalSecurityGroup')]
                           }
 
