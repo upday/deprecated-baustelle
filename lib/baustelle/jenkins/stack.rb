@@ -64,7 +64,7 @@ module Baustelle
             unless app_config.fetch('disabled', false)
               job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
               template = Baustelle::Jenkins::JobTemplate.new(
-                File.read("jobs/#{app_config['stack']}.groovy.erb"),
+                "jobs/#{app_config['stack']}.groovy.erb",
                 {
                   app_config: app_config,
                   jenkins_options: jenkins_options,

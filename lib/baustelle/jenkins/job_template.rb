@@ -3,8 +3,8 @@ require 'tempfile'
 module Baustelle
   module Jenkins
     class JobTemplate
-      def initialize(template, options={})
-        @template = template
+      def initialize(template_path, options={})
+        @template_path = template_path
         @options = options
       end
 
@@ -26,7 +26,7 @@ module Baustelle
       end
 
       def render_groovy
-        ERB.new(@template).result(binding)
+        ERB.new(File.read(@template_path)).result(binding)
       end
 
       def method_missing(name)
@@ -35,9 +35,9 @@ module Baustelle
 
       private
 
-      def include(path)
+      def include(partial_path)
         template_dir = File.dirname(@template_path)
-        File.read(File.join(template_dir, path, '.groovy'))
+        ERB.new(File.read(File.expand_path(File.join(template_dir, partial_path + '.groovy')))).result(binding)
       end
 
       def job_dsl_dir

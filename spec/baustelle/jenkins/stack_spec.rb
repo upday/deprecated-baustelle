@@ -70,9 +70,9 @@ describe Baustelle::Jenkins::Stack, '#create_jobs' do
     it 'should call JobTemplate with correct params' do
 
       config['environments'].each do |environment,_|
-        config['applications'].each do |application,_|
+        config['applications'].each do |application,app_config|
           expect(@template).to receive(:new).with(
-            '',
+            "jobs/#{app_config['stack']}.groovy.erb",
             calculate_hash(config,environment,application)
           )
         end
