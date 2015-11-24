@@ -73,7 +73,9 @@ module Baustelle
         {
           'url' => {'Fn::Join' => ['', ['amqp://yana:_yana101_@', host, ':5672']] },
           'host' => host,
-          'port' => 5672
+          'port' => 5672,
+          'username' => 'yana',
+          'password' => '_yana101_'
         }
       end
 
