@@ -35,6 +35,11 @@ module Baustelle
 
       private
 
+      def include(path)
+        template_dir = File.dirname(@template_path)
+        File.read(File.join(template_dir, path, '.groovy'))
+      end
+
       def job_dsl_dir
         File.expand_path(File.join(__FILE__, '../../../../ext/jenkins_dsl'))
       end
