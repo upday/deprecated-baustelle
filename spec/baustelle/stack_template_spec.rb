@@ -2,6 +2,7 @@ require 'spec_helper'
 require_relative 'stack_template/vpc'
 require_relative 'stack_template/application'
 require_relative 'stack_template/backend/rabbitmq'
+require_relative 'stack_template/backend/redis'
 require_relative 'stack_template/peer_vpc'
 
 describe Baustelle::StackTemplate do
@@ -40,6 +41,10 @@ backends:
         us-east-1: ami-123456
       instance_type: m4.large
       cluster_size: 4
+  Redis:
+    main:
+      cache_node_type: cache.m1.medium
+      cluster_size: 2
   External:
     postgres:
       url: postgres://production
@@ -220,6 +225,17 @@ environments:
                        availability_zones: %w(a b),
                        instance_type: 'm4.large',
                        cluster_size: 1
+
+      include_examples "Backend Redis in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'production',
+                       camelized_environment: 'Production',
+                       name: "main",
+                       camelized_name: "Main",
+                       availability_zones: %w(a b),
+                       instance_type: 'cache.m1.medium',
+                       cluster_size: 2
 
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",
