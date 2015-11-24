@@ -237,6 +237,17 @@ environments:
                        instance_type: 'cache.m1.medium',
                        cluster_size: 2
 
+      include_examples "Backend Redis in environment",
+                       stack_name: 'foo',
+                       camelized_stack_name: "Foo",
+                       environment: 'staging',
+                       camelized_environment: 'Staging',
+                       name: "main",
+                       camelized_name: "Main",
+                       availability_zones: %w(a b),
+                       instance_type: 'cache.m1.medium',
+                       cluster_size: 2
+
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",
                         of_type: 'AWS::EC2::SecurityGroup'
