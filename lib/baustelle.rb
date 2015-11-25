@@ -22,4 +22,5 @@ module Baustelle
   require 'baustelle/commands/read_config'
   require 'baustelle/backend/rabbitmq'
   require 'baustelle/backend/external'
+  require 'baustelle/backend/redis'
 end
