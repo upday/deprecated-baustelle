@@ -4,8 +4,6 @@ require 'baustelle/cloud_formation/ebenvironment'
 module Baustelle
   module Jenkins
     class Stack
-      include Baustelle::Camelize
-
       def initialize(name, config:, region:)
         @name = name
         @config = config
@@ -71,7 +69,7 @@ module Baustelle
                   region: @region,
                   eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
                     eb_env_name(@name, application, environment),
-                  eb_application_name: camelize("#{@name}-#{application}".gsub('-', '_')),
+                  eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
                   eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
                   endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-')
                 }

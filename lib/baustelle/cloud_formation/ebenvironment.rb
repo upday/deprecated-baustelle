@@ -5,7 +5,6 @@ module Baustelle
   module CloudFormation
     module EBEnvironment
       extend self
-      extend Baustelle::Camelize
 
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
 
@@ -19,7 +18,7 @@ module Baustelle
                                template.ref('AWS::Region'),
                                "#{env_name}-#{app_name}".gsub('_', '-'))
 
-        template.resource resource_name = "#{camelize(app_name)}Env#{camelize(env_name)}",
+        template.resource resource_name = "#{app_name}_env_#{env_name}".camelize,
                           Type: "AWS::ElasticBeanstalk::Environment",
                           Properties: {
                             ApplicationName: app_ref,
@@ -107,7 +106,7 @@ module Baustelle
 
       def solution_stack(template, stack_name, stack_configurations:)
         stack = stack_configurations.fetch(stack_name)
-        stack_name = camelize(stack_name.gsub('-', '_').gsub(/[^A-Z0-9_]/i, ''))
+        stack_name = stack_name.gsub('-', '_').gsub(/[^A-Z0-9_]/i, '').camelize
         ami_selector = nil
 
         if amis = stack['ami']

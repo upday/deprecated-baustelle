@@ -1,11 +1,13 @@
-shared_examples "Application in environment" do |stack_name:, camelized_stack_name:,
-                                                 environment:, camelized_environment:,
-                                                 app_name:, camelized_app_name:,
+shared_examples "Application in environment" do |stack_name:, environment:, app_name:,
                                                  instance_type:, min_size:, max_size:,
                                                  solution_stack_name: nil,
                                                  availability_zones:,
                                                  config: {},
                                                  elb_public: true|
+
+  camelized_stack_name = stack_name.camelize
+  camelized_environment = environment.camelize
+  camelized_app_name = app_name.camelize
 
   context "Application #{app_name} in #{environment} environment" do
     it "ElasticBeanstalk Application" do

@@ -60,8 +60,8 @@ module Baustelle
       template = Baustelle::CloudFormation::Template.new
 
       if peering_connection_id = Baustelle::CloudFormation::PeerVPC.
-                                 list(name)[template.camelize(vpc_name)]
-        template.resource "VPC#{template.camelize(name)}Route",
+                                 list(name)[vpc_name.camelize]
+        template.resource "VPC#{name.camelize}Route",
                           Type: 'AWS::EC2::Route',
                           Properties: {
                             DestinationCidrBlock: Baustelle::CloudFormation::VPC.cidr_block(name),

@@ -147,17 +147,13 @@ environments:
       include_examples "VPC resource declaration"
 
       include_examples "Peer VPC", name: 'staging',
-                       camelized_name: 'Staging',
                        vpc_id: 'vpc-123456',
                        cidr: '172.30.0.0/16'
 
       include_examples "Application in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'production',
-                       camelized_environment: 'Production',
                        app_name: "hello_world",
-                       camelized_app_name: "HelloWorld",
                        instance_type: "t2.small",
                        min_size: 2, max_size: 4,
                        solution_stack_name: 'Ruby AWS EB Solution',
@@ -166,11 +162,8 @@ environments:
 
       include_examples "Application in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'staging',
-                       camelized_environment: 'Staging',
                        app_name: "hello_world",
-                       camelized_app_name: "HelloWorld",
                        instance_type: "t2.micro",
                        min_size: 1, max_size: 1,
                        solution_stack_name: 'Ruby AWS EB Solution',
@@ -179,11 +172,8 @@ environments:
 
       include_examples "Application in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'staging',
-                       camelized_environment: 'Staging',
                        app_name: "custom_hello_world",
-                       camelized_app_name: "CustomHelloWorld",
                        instance_type: "t2.small",
                        min_size: 1, max_size: 1,
                        solution_stack_name: 'Ruby AWS EB Solution',
@@ -192,11 +182,8 @@ environments:
 
       include_examples "Application in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'production',
-                       camelized_environment: 'Production',
                        app_name: "custom_hello_world",
-                       camelized_app_name: "CustomHelloWorld",
                        instance_type: "t2.small",
                        min_size: 1, max_size: 1,
                        solution_stack_name: 'Ruby AWS EB Solution',
@@ -206,22 +193,16 @@ environments:
 
       include_examples "Backend RabbitMQ in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'production',
-                       camelized_environment: 'Production',
                        name: "main",
-                       camelized_name: "Main",
                        availability_zones: %w(a b),
                        instance_type: 'm4.large',
                        cluster_size: 4
 
       include_examples "Backend RabbitMQ in environment",
                        stack_name: 'foo',
-                       camelized_stack_name: "Foo",
                        environment: 'staging',
-                       camelized_environment: 'Staging',
                        name: "main",
-                       camelized_name: "Main",
                        availability_zones: %w(a b),
                        instance_type: 'm4.large',
                        cluster_size: 1
