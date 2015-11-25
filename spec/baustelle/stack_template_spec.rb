@@ -97,6 +97,9 @@ environments:
       RabbitMQ:
         main:
           cluster_size: 1
+      Redis:
+        main:
+          cluster_size: 1
       External:
         postgres:
           url: postgres://staging
@@ -227,7 +230,7 @@ environments:
                        camelized_name: "Main",
                        availability_zones: %w(a b),
                        instance_type: 'cache.m1.medium',
-                       cluster_size: 2
+                       cluster_size: 1
 
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",

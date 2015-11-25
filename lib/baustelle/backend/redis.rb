@@ -19,7 +19,7 @@ module Baustelle
                           Type: 'AWS::ElastiCache::ReplicationGroup',
                           Properties: {
                             ReplicationGroupDescription: @name,
-                            AutomaticFailoverEnabled: true,
+                            AutomaticFailoverEnabled: @options.fetch('cluster_size') > 1,
                             AutoMinorVersionUpgrade: true,
                             CacheNodeType: 'cache.m1.medium',
                             CacheSubnetGroupName: template.ref(sg),
