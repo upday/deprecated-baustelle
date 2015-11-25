@@ -166,9 +166,11 @@ module Baustelle
       def extrapolate_applications(config, stack_name, env_name, template)
         config.inject({}) do |acc, (key, value)|
           if application = value.to_s.match(APPLICATION_REF_REGEX)
-            hostname = application_dns_endpoint(template, stack_name,
-                                                env_name,
-                                                application[:name])
+            hostname = template.join('.',
+                                     application_dns_endpoint(template, stack_name,
+                                                              env_name,
+                                                              application[:name]),
+                                     'elasticbeanstalk.com')
 
             acc[key] = {
               'host' => hostname,
@@ -183,11 +185,9 @@ module Baustelle
       end
 
       def application_dns_endpoint(template, stack_name, env_name, app_name)
-        template.join('.',
-                      template.join('-', stack_name,
-                                    template.ref('AWS::Region'),
-                                    "#{env_name}-#{app_name}".gsub('_', '-')),
-                      'elasticbeanstalk.com')
+        template.join('-', stack_name,
+                      template.ref('AWS::Region'),
+                      "#{env_name}-#{app_name}".gsub('_', '-'))
       end
     end
   end

@@ -23,6 +23,9 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
         expect(properties[:ApplicationName]).to eq(ref(camelized_stack_name + camelized_app_name))
         expect(properties[:EnvironmentName]).to match(/^#{environment}-[0-9a-f]+$/)
         expect(properties[:SolutionStackName]).to eq(solution_stack_name)
+        expect(properties[:CNAMEPrefix]).
+          to eq({'Fn::Join' => ['-', [stack_name, ref('AWS::Region'),
+                                      "#{environment}-#{app_name}".gsub('_', '-')]]})
         option_settings = group_option_settings(properties[:OptionSettings])
 
         expect(option_settings["aws:autoscaling:launchconfiguration"]["InstanceType"]).
