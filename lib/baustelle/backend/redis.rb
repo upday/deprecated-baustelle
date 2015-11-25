@@ -12,12 +12,14 @@ module Baustelle
         template.resource sg = "Redis#{template.camelize(@name)}SubnetGroup",
                           Type: 'AWS::ElastiCache::SubnetGroup',
                           Properties: {
+                            Description: 'SubnetGroup',
                             SubnetIds: @vpc.subnets.map(&:id)
                           }
 
         template.resource rg = "Redis#{template.camelize(@name)}ReplicationGroup",
                           Type: 'AWS::ElastiCache::ReplicationGroup',
                           Properties: {
+                            ReplicationGroupDescription: 'foo',
                             AutomaticFailoverEnabled: true,
                             AutoMinorVersionUpgrade: true,
                             CacheNodeType: 'cache.m1.medium',
