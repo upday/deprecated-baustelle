@@ -2,9 +2,9 @@ require "baustelle/version"
 
 module Baustelle
   # Your code goes here...
+  require 'active_support/core_ext/string'
   require 'baustelle/config'
   require 'baustelle/ami'
-  require 'baustelle/camelize'
   require 'baustelle/stack_template'
   require 'baustelle/cloud_formation'
   require 'baustelle/cloud_formation/remote_template'

@@ -6,7 +6,8 @@ module Baustelle
       OUTPUT_REGEX = /PeeringConnectionVPC(.*)/
 
       def apply(template, vpc, peer_name, peer_config)
-        peering_connection_id = "PeerVPC#{template.camelize(peer_name)}PeeringConnection"
+        prefix = "PeerVPC#{peer_name.camelize}"
+        peering_connection_id = "#{prefix}PeeringConnection"
         template.resource peering_connection_id,
                           Type: "AWS::EC2::VPCPeeringConnection",
                           Properties: {
@@ -17,7 +18,7 @@ module Baustelle
                             ]
                           }
 
-        template.resource "PeerVPC#{template.camelize(peer_name)}Route",
+        template.resource "#{prefix}Route",
                           Type: 'AWS::EC2::Route',
                           Properties: {
                             DestinationCidrBlock: peer_config.fetch('cidr'),
@@ -25,7 +26,7 @@ module Baustelle
                             VpcPeeringConnectionId: template.ref(peering_connection_id)
                           }
 
-        template.output "PeeringConnectionVPC#{template.camelize(peer_name)}",
+        template.output "PeeringConnectionVPC#{peer_name.camelize}",
                         template.ref(peering_connection_id),
                         description: "Peering connection ID for #{peer_name} VPC"
       end

@@ -14,7 +14,9 @@ module Baustelle
           template.add_to_region_mapping "BackendAMIs", region, ami_name, ami
         end
 
-        template.resource lc = "RabbitMQ#{template.camelize(name)}LaunchConfiguration",
+        prefix = "RabbitMQ#{name.camelize}"
+
+        template.resource lc = "#{prefix}LaunchConfiguration",
                           Type: 'AWS::AutoScaling::LaunchConfiguration',
                           Properties: {
                             AssociatePublicIpAddress: true,
@@ -26,7 +28,7 @@ module Baustelle
                             IamInstanceProfile: template.ref('IAMInstanceProfile')
                           }
 
-        template.resource elb = "RabbitMQ#{template.camelize(name)}ELB",
+        template.resource elb = "#{prefix}ELB",
                           Type: 'AWS::ElasticLoadBalancing::LoadBalancer',
                           Properties: {
                             Subnets: vpc.zone_identifier,
@@ -44,7 +46,7 @@ module Baustelle
                             ]
                           }
 
-        template.resource "RabbitMQ#{template.camelize(name)}ASG",
+        template.resource "#{prefix}ASG",
                           Type: 'AWS::AutoScaling::AutoScalingGroup',
                           Properties: {
                             AvailabilityZones: vpc.availability_zones,
@@ -56,8 +58,8 @@ module Baustelle
                             LaunchConfigurationName: template.ref(lc),
                             Tags: [
                               {PropagateAtLaunch: true, Key: 'BaustelleBackend', Value: 'RabbitMQ'},
-                              {PropagateAtLaunch: true, Key: 'BaustelleName', Value: template.camelize(name)},
-                              {PropagateAtLaunch: true, Key: 'Name', Value: "RabbitMQ#{template.camelize(name)}"},
+                              {PropagateAtLaunch: true, Key: 'BaustelleName', Value: name.camelize},
+                              {PropagateAtLaunch: true, Key: 'Name', Value: prefix},
                             ]
                           },
                           UpdatePolicy: {
@@ -68,7 +70,7 @@ module Baustelle
       end
 
       def output(template)
-        host = {'Fn::GetAtt' => ["RabbitMQ#{template.camelize(name)}ELB", 'DNSName']}
+        host = {'Fn::GetAtt' => ["RabbitMQ#{name.camelize}ELB", 'DNSName']}
 
         {
           'url' => {'Fn::Join' => ['', ['amqp://yana:_yana101_@', host, ':5672']] },

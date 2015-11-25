@@ -1,8 +1,6 @@
 module Baustelle
   module CloudFormation
     class Template
-      include Baustelle::Camelize
-
       def initialize
         @resources = {}
         @mappings = {}
@@ -14,9 +12,9 @@ module Baustelle
       end
 
       def add_to_region_mapping(name, region, key, value)
-        map = (@mappings[camelize(name)] ||= {})
+        map = (@mappings[name.camelize] ||= {})
         map[region] ||= {}
-        map[region][camelize(key)] = value
+        map[region][key.camelize] = value
       end
 
       def resource(name, **params)
@@ -56,7 +54,7 @@ module Baustelle
       end
 
       def find_in_regional_mapping(name,  key)
-        {'Fn::FindInMap' => [camelize(name), ref('AWS::Region'), camelize(key)]}
+        {'Fn::FindInMap' => [name.camelize, ref('AWS::Region'), key.camelize]}
       end
     end
   end
