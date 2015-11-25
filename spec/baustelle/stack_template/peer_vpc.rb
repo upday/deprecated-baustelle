@@ -1,4 +1,5 @@
-shared_examples "Peer VPC" do |vpc_id:, cidr:, name:, camelized_name:|
+shared_examples "Peer VPC" do |vpc_id:, cidr:, name:|
+  camelized_name = name.camelize
   context "peers with #{name} VPC" do
     it "creates peering connection" do
       expect_resource template, "PeerVPC#{camelized_name}PeeringConnection",
