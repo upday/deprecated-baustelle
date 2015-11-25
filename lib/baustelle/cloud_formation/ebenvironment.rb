@@ -7,6 +7,7 @@ module Baustelle
       extend self
 
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
+      APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:)
@@ -14,9 +15,13 @@ module Baustelle
         stack = solution_stack(template, app_config.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        eb_dns = template.join('-', stack_name,
-                               template.ref('AWS::Region'),
-                               "#{env_name}-#{app_name}".gsub('_', '-'))
+        eb_dns = application_dns_endpoint(template, stack_name, env_name, app_name)
+
+        application_config = extrapolate_applications(extrapolate_backends(app_config.fetch('config', {}),
+                                                                           backends, template),
+                                                      stack_name,
+                                                      env_name,
+                                                      template)
 
         template.resource resource_name = "#{app_name}_env_#{env_name}".camelize,
                           Type: "AWS::ElasticBeanstalk::Environment",
@@ -79,8 +84,7 @@ module Baustelle
                               'aws:elasticbeanstalk:healthreporting:system' => {
                                 'SystemType' => 'enhanced'
                               },
-                              'aws:elasticbeanstalk:application:environment' => EBEnvironment.extrapolate_backends(app_config.fetch('config', {}),
-                                                                                                                   backends, template)
+                              'aws:elasticbeanstalk:application:environment' => application_config
                             }.tap do |settings|
                               if ami = stack.fetch(:ami)
                                 settings['aws:autoscaling:launchconfiguration']['ImageId'] = ami
@@ -157,6 +161,31 @@ module Baustelle
           end
           acc
         end
+      end
+
+      def extrapolate_applications(config, stack_name, env_name, template)
+        config.inject({}) do |acc, (key, value)|
+          if application = value.to_s.match(APPLICATION_REF_REGEX)
+            hostname = application_dns_endpoint(template, stack_name,
+                                                env_name,
+                                                application[:name])
+
+            acc[key] = {
+              'host' => hostname,
+              'url' => template.join('', 'http://', hostname),
+              'secure_url' => template.join('', 'https://', hostname)
+            }.fetch(application[:property])
+          else
+            acc[key] = value
+          end
+          acc
+        end
+      end
+
+      def application_dns_endpoint(template, stack_name, env_name, app_name)
+        template.join('-', stack_name,
+                      template.ref('AWS::Region'),
+                      "#{env_name}-#{app_name}".gsub('_', '-'))
       end
     end
   end

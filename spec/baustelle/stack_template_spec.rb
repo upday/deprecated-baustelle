@@ -68,6 +68,7 @@ applications:
       RAILS_ENV: production
       RABBITMQ_URL: backend(RabbitMQ:main:url)
       DATABASE_URL: backend(External:postgres:url)
+      CUSTOM_HELLO_URL: application(custom_hello_world:url)
   https_hello_world:
     stack: ruby2.2-with-datadog
     instance_type: t2.small
@@ -268,20 +269,20 @@ environments:
           expect(elb_listeners.length).to eq(2)
 
           expect(elb_listeners['aws:elb:listener:80']).to eq({
-            'ListenerEnabled' => 'false',
-          })
+                                                               'ListenerEnabled' => 'false',
+                                                             })
 
           expect(elb_listeners['aws:elb:listener:443']).to eq({
-            'ListenerProtocol' => 'HTTPS',
-            'InstanceProtocol' => 'HTTP',
-            'InstancePort' => '80',
-            'SSLCertificateId' => 'arn:aws:iam::123456789012:server-certificate/baustelle_com',
-            'PolicyNames' => 'SSL'
-          })
+                                                                'ListenerProtocol' => 'HTTPS',
+                                                                'InstanceProtocol' => 'HTTP',
+                                                                'InstancePort' => '80',
+                                                                'SSLCertificateId' => 'arn:aws:iam::123456789012:server-certificate/baustelle_com',
+                                                                'PolicyNames' => 'SSL'
+                                                              })
 
           expect(option_settings['aws:elb:policies:SSL']).to eq({
-            'SSLReferencePolicy' => 'ELBSecurityPolicy-2015-05',
-          })
+                                                                  'SSLReferencePolicy' => 'ELBSecurityPolicy-2015-05',
+                                                                })
         end
       end
 
@@ -312,6 +313,22 @@ environments:
           option_settings = group_option_settings(properties[:OptionSettings])
           app_env = option_settings["aws:elasticbeanstalk:application:environment"]
           expect(app_env["DATABASE_URL"]).to eq("postgres://staging")
+        end
+      end
+
+      it 'links application within the same environment' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["CUSTOM_HELLO_URL"]).
+            to eq({'Fn::Join' =>
+                   ['', ['http://',
+                         {'Fn::Join' => ['-', ['foo',
+                                               {'Ref' => 'AWS::Region'},
+                                               'production-custom-hello-world']]}
+                        ]
+                   ]
+                  })
         end
       end
 
