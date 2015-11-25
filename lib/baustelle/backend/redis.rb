@@ -19,7 +19,7 @@ module Baustelle
         template.resource rg = "Redis#{template.camelize(@name)}ReplicationGroup",
                           Type: 'AWS::ElastiCache::ReplicationGroup',
                           Properties: {
-                            ReplicationGroupDescription: 'foo',
+                            ReplicationGroupDescription: @name,
                             AutomaticFailoverEnabled: true,
                             AutoMinorVersionUpgrade: true,
                             CacheNodeType: 'cache.m1.medium',
@@ -33,10 +33,14 @@ module Baustelle
       end
 
       def output(template)
-        @options.inject({}) do |output, (key, value)|
-          output[key.to_s] = value
-          output
-        end
+         host = {'Fn::GetAtt' => ["Redis#{template.camelize(@name)}ReplicationGroup", 'PrimaryEndPoint.Address']}
+         port = {'Fn::GetAtt' => ["Redis#{template.camelize(@name)}ReplicationGroup", 'PrimaryEndPoint.Port']}
+
+        {
+          'url' => {'Fn::Join' => ['', ['redis://', host, ':', port]] },
+          'host' => host,
+          'port' => port
+        } 
       end
     end
   end
