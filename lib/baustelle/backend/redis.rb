@@ -8,15 +8,14 @@ module Baustelle
       end
 
       def build(template)
-
-        template.resource sg = "Redis#{template.camelize(@name)}SubnetGroup",
+        template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::ElastiCache::SubnetGroup',
                           Properties: {
                             Description: 'SubnetGroup',
                             SubnetIds: @vpc.subnets.map(&:id)
                           }
 
-        template.resource rg = "Redis#{template.camelize(@name)}ReplicationGroup",
+        template.resource "#{prefix}ReplicationGroup",
                           Type: 'AWS::ElastiCache::ReplicationGroup',
                           Properties: {
                             ReplicationGroupDescription: @name,
@@ -26,21 +25,27 @@ module Baustelle
                             CacheSubnetGroupName: template.ref(sg),
                             Engine: 'redis',
                             EngineVersion: '2.8.19',
-                            NumCacheClusters: @options['cluster_size'],
+                            NumCacheClusters: @options.fetch('cluster_size'),
                             SecurityGroupIds: [template.ref('GlobalSecurityGroup')]
                           }
 
       end
 
       def output(template)
-         host = {'Fn::GetAtt' => ["Redis#{template.camelize(@name)}ReplicationGroup", 'PrimaryEndPoint.Address']}
-         port = {'Fn::GetAtt' => ["Redis#{template.camelize(@name)}ReplicationGroup", 'PrimaryEndPoint.Port']}
+         host = {'Fn::GetAtt' => ["#{prefix}ReplicationGroup", 'PrimaryEndPoint.Address']}
+         port = {'Fn::GetAtt' => ["#{prefix}ReplicationGroup", 'PrimaryEndPoint.Port']}
 
         {
           'url' => {'Fn::Join' => ['', ['redis://', host, ':', port]] },
           'host' => host,
           'port' => port
-        } 
+        }
+      end
+
+      private
+
+      def prefix
+        "Redis#{@name.camelize}"
       end
     end
   end
