@@ -183,9 +183,11 @@ module Baustelle
       end
 
       def application_dns_endpoint(template, stack_name, env_name, app_name)
-        template.join('-', stack_name,
-                      template.ref('AWS::Region'),
-                      "#{env_name}-#{app_name}".gsub('_', '-'))
+        template.join('.',
+                      template.join('-', stack_name,
+                                    template.ref('AWS::Region'),
+                                    "#{env_name}-#{app_name}".gsub('_', '-')),
+                      'elasticbeanstalk.com')
       end
     end
   end

@@ -323,9 +323,12 @@ environments:
           expect(app_env["CUSTOM_HELLO_URL"]).
             to eq({'Fn::Join' =>
                    ['', ['http://',
-                         {'Fn::Join' => ['-', ['foo',
-                                               {'Ref' => 'AWS::Region'},
-                                               'production-custom-hello-world']]}
+                         {'Fn::Join' => ['.', [
+                                           {'Fn::Join' => ['-', ['foo',
+                                                                 {'Ref' => 'AWS::Region'},
+                                                                 'production-custom-hello-world']]},
+                                           'elasticbeanstalk.com'
+                                         ]]}
                         ]
                    ]
                   })
