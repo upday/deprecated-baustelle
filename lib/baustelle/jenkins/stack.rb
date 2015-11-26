@@ -64,6 +64,7 @@ module Baustelle
               template = Baustelle::Jenkins::JobTemplate.new(
                 "jobs/#{app_config['stack']}.groovy.erb",
                 {
+                  stack_name: name,
                   app_config: app_config,
                   jenkins_options: jenkins_options,
                   region: @region,

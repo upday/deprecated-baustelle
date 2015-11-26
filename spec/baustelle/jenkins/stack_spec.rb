@@ -40,6 +40,7 @@ describe Baustelle::Jenkins::Stack, '#create_jobs' do
       'TestApp2'=>'409580fd62'
     }
     temp_result = {
+      :stack_name => 'TestStack1',
       :app_config => config['applications'][application],
       :jenkins_options => '',
       :region=>'TestRegion1',
