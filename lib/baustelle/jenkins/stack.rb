@@ -60,34 +60,66 @@ module Baustelle
         Baustelle::Config.for_every_environment(config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
             unless app_config.fetch('disabled', false)
-              job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
-              template = Baustelle::Jenkins::JobTemplate.new(
-                "jobs/#{app_config['stack']}.groovy.erb",
-                {
-                  stack_name: name,
-                  app_config: app_config,
-                  jenkins_options: jenkins_options,
-                  region: @region,
-                  eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
-                    eb_env_name(@name, application, environment),
-                  eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
-                  eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
-                  endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-')
-                }
-              )
-
-              jobs = template.render(prefix: job_name_prefix)
-
-              jobs.each do |job_name, xml|
-                jenkins.job.create_or_update(job_name, xml)
-              end
-
-              jobs_to_chain = jobs.keys.grep(/^#{job_name_prefix}\d+-.*/).sort
-              jenkins.job.chain(jobs_to_chain, 'success', ['all'])
-              @generated_jobs.merge!(jobs)
+              systemtest_job_name = create_systemtest(environment, env_config, application, app_config)
+              create_pipline(environment, env_config, application, app_config, systemtest_job_name)
             end
           end
         end
+      end
+
+      def create_template(environment, env_config, application, app_config, template_file, system_test_job_name=nil)
+        job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
+        template_file = template_file || "jobs/#{app_config['stack']}.groovy.erb"
+        Baustelle::Jenkins::JobTemplate.new(
+          template_file,
+          {
+            stack_name: @name,
+            app_config: app_config,
+            jenkins_options: jenkins_options,
+            region: @region,
+            eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
+              eb_env_name(@name, application, environment),
+            eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
+            eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
+            endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-'),
+            system_test_job_name: system_test_job_name
+          }
+        )
+        template.render(prefix: job_name_prefix)
+      end
+
+      def upload_jobs(jobs)
+        jobs.each do |job_name, xml|
+          jenkins.job.create_or_update(job_name, xml)
+        end
+      end
+
+      def create_pipline(environment, env_config, application, app_config, system_test_job_name)
+
+        jobs = create_template(
+          environment,
+          env_config,
+          application,
+          app_config,
+          "jobs/#{app_config['stack']}.groovy.erb",
+          system_test_job_name
+        )
+        upload_jobs(jobs)
+        jobs_to_chain = jobs.keys.grep(/^#{job_name_prefix}\d+-.*/).sort
+        jenkins.job.chain(jobs_to_chain, 'success', ['all'])
+        @generated_jobs.merge!(jobs)
+      end
+
+      def create_systemtest(environment, env_config, application, app_config)
+        jobs = create_template(
+          environment,
+          env_config,
+          application,
+          app_config,
+          "jobs/#{app_config['stack']}.systemtests.groovy.erb"
+        )
+        upload_jobs(jobs)
+        jobs.keys.first
       end
 
 
