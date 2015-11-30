@@ -3,6 +3,7 @@ require_relative 'stack_template/vpc'
 require_relative 'stack_template/application'
 require_relative 'stack_template/backend/rabbitmq'
 require_relative 'stack_template/backend/redis'
+require_relative 'stack_template/backend/kinesis'
 require_relative 'stack_template/peer_vpc'
 
 describe Baustelle::StackTemplate do
@@ -45,6 +46,9 @@ backends:
     main:
       cache_node_type: cache.m1.medium
       cluster_size: 2
+  Kinesis:
+    main:
+      shard_count: 2
   External:
     postgres:
       url: postgres://production
@@ -101,6 +105,9 @@ environments:
       Redis:
         main:
           cluster_size: 1
+      Kinesis:
+        main:
+          shard_count: 1
       External:
         postgres:
           url: postgres://staging
@@ -232,6 +239,18 @@ environments:
                        availability_zones: %w(a b),
                        instance_type: 'cache.m1.medium',
                        cluster_size: 1
+
+      include_examples "Backend Kinesis in environment",
+                       stack_name: 'foo',
+                       environment: 'production',
+                       name: "main",
+                       shard_count: 2
+
+      include_examples "Backend Kinesis in environment",
+                       stack_name: 'foo',
+                       environment: 'staging',
+                       name: "main",
+                       shard_count: 1
 
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",
