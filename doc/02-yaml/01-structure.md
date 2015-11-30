@@ -14,6 +14,8 @@ This section is used by `baustelle ami` subcommand. It declares named images use
 the stack and describes what AWS AMIs should be used as a base, how to connect to these
 base AMIs. More info [TODO LINK]
 
+The configuration in this section cannot be overriden by environments section.
+
 ## stacks
 
 This section is used to define the environment of an application deployed in
@@ -30,10 +32,14 @@ Here the basic configuration of the infrastructure stack VPC is defined:
 * subnets and availablity zones
 * peering connections to other VPCs
 
+The configuration in this section cannot be overriden by environments section.
+
 ## jenkins
 
 This section contains configuration used when provisioning a Jenkins server
 with generated jobs. It provides login credentials and specific plugin parameters.
+
+The configuration in this section cannot be overriden by environments section.
 
 ## backends
 
@@ -78,4 +84,38 @@ and
 
 ## applications
 
+This section lists all applications building the system **in one environment**.
+The configuration allows to choose the stack for every application, scaling options,
+to link backend services etc.
+
+For every application in every environment appropiate Jenkins jobs
+and resources in AWS ElasticBeanstalk will be created.
+
+For details please refer to
+<%= link_to '02-yaml', '02-applications.md', title: 'application section documentation' %>
+
 ## environments
+
+This section lists all environments which should be created for the infrastructure stack
+(i.e. staging or production) and allows to define overrides of the configuration settings
+declared in sections described above (unless documentation of a section states otherwise).
+
+Example usages:
+
+* modify type or number of backend service instances
+* alter an External backend properties
+* alter feature flags in application environment variables configuration
+* change scaling rules of an application
+* change the solution stack and AMI for an application stack for testing
+* change the AMI used by backend service in order to test new image in
+  the separate environment
+
+Invalid usages:
+
+* pass the environment name to the application so it can determien its behavior.
+  It's a bad practice causing that creation of a new environment is harder.
+  Please use environment variables as feature flags instead.
+* overriding environment variables which should be extracted as backend
+  external service. If there is an override for a backing service property in
+  given environment it's better to do it in backends section - all apps will
+  benefit from a change in single place (DRY).
