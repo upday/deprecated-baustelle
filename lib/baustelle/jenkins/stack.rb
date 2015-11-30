@@ -42,33 +42,33 @@ module Baustelle
       end
 
       def create_views
-        jenkins.view.create_list_view(name: "Baustelle #{name} (#{region})",
-                                      regex: "baustelle-#{name}-#{region}-.*")
+        jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region})",
+                                      regex: "baustelle-#{@name}-#{@region}-.*")
         Baustelle::Config.for_every_environment(config) do |environment, _|
-          jenkins.view.create_list_view(name: "Baustelle #{name} (#{region}) #{environment} DEPLOY",
-                                        regex: "baustelle-#{name}-#{region}-#{environment}-.*-00-deploy")
+          jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region}) #{environment} DEPLOY",
+                                        regex: "baustelle-#{@name}-#{@region}-#{environment}-.*-00-deploy")
         end
       end
 
       def delete_views
-        views = jenkins.view.list("Baustelle #{name}.*#{region}.*")
+        views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
         views.each { |view| jenkins.view.delete(view) }
       end
 
 
       def create_jobs
-        Baustelle::Config.for_every_environment(config) do |environment, env_config|
+        Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
             unless app_config.fetch('disabled', false)
               systemtest_job_name = create_systemtest(environment, env_config, application, app_config)
-              create_pipline(environment, env_config, application, app_config, systemtest_job_name)
+              create_pipeline(environment, env_config, application, app_config, systemtest_job_name)
             end
           end
         end
       end
 
       def create_template(environment, env_config, application, app_config, template_file, system_test_job_name=nil)
-        job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
+        job_name_prefix = "baustelle-#{@name}-#{@region}-#{environment}-#{application}-"
         template_file = template_file || "jobs/#{app_config['stack']}.groovy.erb"
         Baustelle::Jenkins::JobTemplate.new(
           template_file,
@@ -94,7 +94,7 @@ module Baustelle
         end
       end
 
-      def create_pipline(environment, env_config, application, app_config, system_test_job_name)
+      def create_pipeline(environment, env_config, application, app_config, system_test_job_name)
 
         jobs = create_template(
           environment,
@@ -124,7 +124,7 @@ module Baustelle
 
 
       def cleanup_jobs
-        jobs_to_delete = (jenkins.job.list("^baustelle-#{name}-#{region}") -
+        jobs_to_delete = (jenkins.job.list("^baustelle-#{@name}-#{@region}") -
                           @generated_jobs.keys)
         jobs_to_delete.each { |job| jenkins.job.delete(job) }
       end
