@@ -81,7 +81,7 @@ module Baustelle
               eb_env_name(@name, application, environment),
             eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
             eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
-            endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-'),
+            endpoint: "#{@name}-#{@region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-'),
             system_test_job_name: system_test_job_name
           }
         )
