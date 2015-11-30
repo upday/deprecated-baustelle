@@ -1,5 +1,7 @@
 # General structure
 
+<%= breadcrumbs %>
+
 The YAML file is a central point of the infrastructure declaration. It defines
 all environments, applications, resources and dependencies between them.
 The declaration is the source to produce CloudFormation templates used to
@@ -34,6 +36,43 @@ This section contains configuration used when provisioning a Jenkins server
 with generated jobs. It provides login credentials and specific plugin parameters.
 
 ## backends
+
+This secrion lists possible resources, other than another application, which
+the applications deployed to the infrastructure stack can depend on. There
+are multiple backends supported by baustelle, like RabbitMQ or Redis.
+If given backend type is not supported by baustelle, there is always possibility
+to declare an external backend, so all dependencies are managed in the same way.
+
+Every environment is provisioned with own copy of every backend, so there is no
+need to declare separate backends for staging and production. In case of natively
+supported backends, there is still possibility to deploy multiple backends of
+the same type in every environment, if your business logic requires that, i.e.
+to separate a job queue Redis cluster from cache Redis cluster you would declare
+the following:
+
+``` yaml
+backends:
+  Redis:
+    cache:
+      cache_node_type: cache.m1.medium
+      cluster_size: 1
+    queue:
+      cache_node_type: cache.m1.medium
+      cluster_size: 1
+```
+
+The code above would deploy two Redis clusters **in every environment**. In configuration
+it would be possible to access them using following references:
+
+``` yaml
+CACHE_REDIS_URL: backend(Redis:cache:url)
+QUEUE_REDIS_URL: backend(Redis:queue:url)
+```
+
+Two environment variables with the URLs would be exposed to the application.
+
+For details please refer to <%= link_to '02-yaml', '02-applications' %> and
+[TODO: link to backend outputs definitions]
 
 ## applications
 

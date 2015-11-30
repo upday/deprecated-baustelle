@@ -1,5 +1,7 @@
 # Applications
 
+<%= breadcrumbs %>
+
 Your application must listen on port 5000 in order to receive requests. You can either
 hard-code this in your application configuration or set an environment variable
 (see `SERVER_PORT: 5000` in the example below) which will be passed to your applicaiton
