@@ -75,7 +75,28 @@ module Baustelle
                                   }
                                 ]
                               }
+                            },
+                            {
+                              PolicyName: 'KinesisApplication',
+                              PolicyDocument: {
+                                Version: '2012-10-17',
+                                Statement: [
+                                  {
+                                    Action: [
+                                      'kinesis:DescribeStream',
+                                      'kinesis:ListStreams',
+                                      'kinesis:PutRecord',
+                                      'kinesis:PutRecords',
+                                      'kinesis:GetShardIterator',
+                                      'kinesis:GetRecords'
+                                    ],
+                                    Effect: 'Allow',
+                                    Resource: '*'
+                                  }
+                                ]
+                              }
                             }
+
                           ]
                         }
 
