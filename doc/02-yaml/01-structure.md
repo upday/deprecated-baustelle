@@ -71,7 +71,9 @@ QUEUE_REDIS_URL: backend(Redis:queue:url)
 
 Two environment variables with the URLs would be exposed to the application.
 
-For details please refer to <%= link_to '02-yaml', '02-applications' %> and
+For details please refer to
+<%= link_to '02-yaml', '02-applications.md', title: 'application section documentation' %>
+and
 [TODO: link to backend outputs definitions]
 
 ## applications
