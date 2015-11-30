@@ -23,4 +23,5 @@ module Baustelle
   require 'baustelle/backend/rabbitmq'
   require 'baustelle/backend/external'
   require 'baustelle/backend/redis'
+  require 'baustelle/backend/kinesis'
 end
