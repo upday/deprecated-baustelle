@@ -3,21 +3,47 @@ require 'tempfile'
 
 module Baustelle
   describe Config do
+    def write_config(filename, content)
+      Tempfile.open('config.yml') do |config_file|
+        begin
+          config_file.puts content
+          config_file.close
+          yield config_file.path
+        ensure
+          config_file.close
+          config_file.unlink
+        end
+      end
+    end
+
     describe '#read' do
       it 'reads the YAML file' do
-        Tempfile.open('config.yml') do |config_file|
-          begin
-            config_file.puts <<-YAML
+        write_config('config.yml', <<-YAML) do |path|
 ---
 name: Hello
             YAML
-            config_file.close
+          expect(Config.read(path)).to eq({'name' => 'Hello'})
+        end
+      end
 
-            expect(Config.read(config_file.path)).to eq({'name' => 'Hello'})
-
-          ensure
-            config_file.close
-            config_file.unlink
+      it 'allows to include other config files' do
+        write_config('include.yml', <<-YAML) do |include_path|
+---
+name: Hello
+YAML
+          write_config('config.yml', <<-YAML) do |path|
+---
+foo: include(#{include_path})
+config:
+  nested: include(#{include_path})
+YAML
+            expect(Config.read(path)).
+              to eq({
+                      'foo' => {'name' => 'Hello'},
+                      'config' => {
+                        'nested' => {'name' => 'Hello'}
+                      }
+                    })
           end
         end
       end

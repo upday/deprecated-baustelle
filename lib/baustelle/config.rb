@@ -6,7 +6,7 @@ module Baustelle
     extend self
 
     def read(filepath)
-      YAML.load(File.read(filepath))
+      parse YAML.load(File.read(filepath))
     end
 
     def for_every_environment(config)
@@ -40,6 +40,20 @@ module Baustelle
 
     def app_config(config, name)
       config.fetch('applications').fetch(name)
+    end
+
+    def parse(hash)
+      hash.inject({}) do |parsed_hash, (key, value)|
+        parsed_hash[key] = case value
+                           when /include\((.*)\)$/
+                             read($1)
+                           when Hash
+                             parse(value)
+                           else
+                             value
+                           end
+        parsed_hash
+      end
     end
   end
 end
