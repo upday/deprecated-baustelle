@@ -45,6 +45,8 @@ module Baustelle
     def parse(hash)
       hash.inject({}) do |parsed_hash, (key, value)|
         parsed_hash[key] = case value
+                           when /include\(([^,]*),\s*(.*)\)$/
+                             lookup(read($1), $2)
                            when /include\((.*)\)$/
                              read($1)
                            when Hash
@@ -53,6 +55,14 @@ module Baustelle
                              value
                            end
         parsed_hash
+      end
+    end
+
+    private
+
+    def lookup(hash, path)
+      path.split('.').inject(hash) do |value, key|
+        value.fetch(key)
       end
     end
   end

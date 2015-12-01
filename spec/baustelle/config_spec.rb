@@ -47,6 +47,32 @@ YAML
           end
         end
       end
+
+      it 'allows to include parts other config files' do
+        write_config('include.yml', <<-YAML) do |include_path|
+---
+worker:
+  name: Hello
+web:
+  main:
+    name: World
+YAML
+          write_config('config.yml', <<-YAML) do |path|
+---
+foo: include(#{include_path},worker)
+config:
+  nested: include(#{include_path}, web.main)
+YAML
+            expect(Config.read(path)).
+              to eq({
+                      'foo' => {'name' => 'Hello'},
+                      'config' => {
+                        'nested' => {'name' => 'World'}
+                      }
+                    })
+          end
+        end
+      end
     end
 
     describe '#for_environment' do
