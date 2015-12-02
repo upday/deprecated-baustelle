@@ -60,17 +60,17 @@ module Baustelle
         Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
             unless app_config.fetch('disabled', false)
-              systemtest_job_name = create_systemtest(environment, env_config, application, app_config)
-              create_pipeline(environment, env_config, application, app_config, systemtest_job_name)
+              job_name_prefix = "baustelle-#{@name}-#{@region}-#{environment}-#{application}-"
+              systemtest_job_name = create_systemtests(environment, env_config, application, app_config, job_name_prefix)
+              create_pipeline(environment, env_config, application, app_config, job_name_prefix, systemtest_job_name)
             end
           end
         end
       end
 
-      def create_template(environment, env_config, application, app_config, template_file, system_test_job_name=nil)
-        job_name_prefix = "baustelle-#{@name}-#{@region}-#{environment}-#{application}-"
+      def create_template(environment, env_config, application, app_config, template_file, job_name_prefix, system_test_job_name='')
         template_file = template_file || "jobs/#{app_config['stack']}.groovy.erb"
-        Baustelle::Jenkins::JobTemplate.new(
+        template = Baustelle::Jenkins::JobTemplate.new(
           template_file,
           {
             stack_name: @name,
@@ -80,7 +80,7 @@ module Baustelle
             eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
               eb_env_name(@name, application, environment),
             eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
-            eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
+            eb_application_version_source: env_config.fetch('eb_application_version_source', 'git'),
             endpoint: "#{@name}-#{@region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-'),
             system_test_job_name: system_test_job_name
           }
@@ -94,7 +94,7 @@ module Baustelle
         end
       end
 
-      def create_pipeline(environment, env_config, application, app_config, system_test_job_name)
+      def create_pipeline(environment, env_config, application, app_config, job_name_prefix, system_test_job_name)
 
         jobs = create_template(
           environment,
@@ -102,6 +102,7 @@ module Baustelle
           application,
           app_config,
           "jobs/#{app_config['stack']}.groovy.erb",
+          job_name_prefix,
           system_test_job_name
         )
         upload_jobs(jobs)
@@ -110,13 +111,14 @@ module Baustelle
         @generated_jobs.merge!(jobs)
       end
 
-      def create_systemtest(environment, env_config, application, app_config)
+      def create_systemtests(environment, env_config, application, app_config, job_name_prefix)
         jobs = create_template(
           environment,
           env_config,
           application,
           app_config,
-          "jobs/#{app_config['stack']}.systemtests.groovy.erb"
+          "jobs/#{app_config['stack']}.systemtests.groovy.erb",
+          job_name_prefix
         )
         upload_jobs(jobs)
         jobs.keys.first
