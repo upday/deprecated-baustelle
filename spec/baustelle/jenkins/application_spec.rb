@@ -86,6 +86,7 @@ TEMPLATE
       allow(File).to receive(:read){ "#{template}"}
     end
     it 'should generate systemtest jobs' do
+      puts template
       expect(generate_tests_object(systemtests_config_java).generate_systemtests.keys.length).to eq(1)
     end
     it 'should not generate disabled systemtest jobs' do
