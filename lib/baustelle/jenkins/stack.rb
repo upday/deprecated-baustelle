@@ -61,7 +61,7 @@ module Baustelle
         Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
             unless app_config.fetch('disabled', false)
-              application_jobs = Baustelle::Jenkins::ApplicationJob.new(
+              application_jobs = Baustelle::Jenkins::ApplicationJobs.new(
                 @name,
                 @region,
                 jenkins_options,
@@ -71,7 +71,7 @@ module Baustelle
                 env_config.fetch('eb_application_version_source', 'git')
               )
               pipeline_jobs = application_jobs.generate_pipeline
-              systemtests_jobs = application_jobs.generate_system_tests
+              systemtests_jobs = application_jobs.generate_systemtests
               upload_jobs(systemtests_jobs)
               upload_jobs(pipeline_jobs)
 
