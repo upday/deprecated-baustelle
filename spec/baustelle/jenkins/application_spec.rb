@@ -29,17 +29,36 @@ describe Baustelle::Jenkins::ApplicationJobs do
       'maven' => {
         'goals_options' => 'TestMavenGoalsOptions',
         'path_to_artifact' => '/path/to/artifact'
-      },
-      'systemtests' => {
-        'git' => {
-          'repo' => 'SystemTestRepo',
-          'branch' => 'SystemTestBranch'
-        },
-        'maven' => 'SystemTestMavenGoalsOptions'
       }
-
     }
   }
+
+  let(:systemtests_disabled){
+    {
+      'systemtests' => false
+    }
+  }
+
+  let(:systemtests_referenced){
+    {
+      'systemtests' => 'TestReference'
+    }
+  }
+
+  let(:systemtests_config_java){
+    {
+      'systemtests' => {
+        'git' => {
+          'repo' => 'SystemTestsRepo',
+          'branch' => '**/SystemTestsBranch'
+        },
+        'maven' => {
+          'goals_options' => 'SystemtestsMavenGoalsOptions',
+        }
+      }
+    }
+  }
+
   let(:template) {
 <<-TEMPLATE
 //<% @options.select{|key,value| value != nil}.each do |key,value| %>
@@ -53,20 +72,37 @@ job('TestJob') {
 }
 TEMPLATE
 }
+  def generate_tests_object(systemtests_config)
+    Baustelle::Jenkins::ApplicationJobs.new(
+      'TestStack',
+      'TestRegion',
+      jenkins_options,
+      'TestEnvironment-TestHash',
+      'TestApplication',
+      app_config.merge!(systemtests_config),
+      'git'
+    )
+  end
 
   describe '#generate_systemtests' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
     end
     it 'should generate systemtest jobs' do
-      expect(application_jobs.generate_systemtests.keys.length).to eq(1)
+      expect(generate_tests_object(systemtests_config_java).generate_systemtests.keys.length).to eq(1)
+    end
+    it 'should not generate systemtest jobs' do
+      expect(generate_tests_object(systemtests_disabled).generate_systemtests.keys.length).to eq(0)
+      expect(generate_tests_object(systemtests_referenced).generate_systemtests.keys.length).to eq(0)
+      expect(generate_tests_object({}).generate_systemtests.keys.length).to eq(0)
     end
   end
+
   describe '#generate_pipeline' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
     end
-    it 'should generate systemtest jobs' do
+    it 'should generate job pipeline' do
       expect(application_jobs.generate_pipeline.keys.length).to eq(1)
     end
   end

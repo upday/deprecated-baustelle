@@ -15,7 +15,7 @@ module Baustelle
       end
 
       def generate_systemtests
-        if @app_config.key?('systemtests') && @app_config.fetch('systemtests', false)
+        if @app_config.fetch('systemtests', false).is_a?(Hash)
           create_template(
             template_file(:systemtests)
           )
@@ -52,12 +52,11 @@ module Baustelle
         if systemtests_config.is_a? Hash
           "#{job_name_prefix}systemtests"
         else
-          "#{identifier}-#{@name}-#{@region}-#{@environment}-#{@application}-#{systemtests_config}-systemtests"
+          "#{identifier}-#{@name}-#{@region}-#{@environment}-#{systemtests_config}-systemtests"
         end
       end
 
       def create_template(template_file, system_test_job_name='')
-        template_string = File.read(template_file)
         template = Baustelle::Jenkins::JobTemplate.new(
           File.read(template_file),
           File.dirname(template_file),
