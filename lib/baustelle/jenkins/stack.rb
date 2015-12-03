@@ -1,5 +1,6 @@
 require 'jenkins_api_client'
 require 'baustelle/cloud_formation/ebenvironment'
+require 'baustelle/jenkins/application'
 
 module Baustelle
   module Jenkins
@@ -42,57 +43,57 @@ module Baustelle
       end
 
       def create_views
-        jenkins.view.create_list_view(name: "Baustelle #{name} (#{region})",
-                                      regex: "baustelle-#{name}-#{region}-.*")
+        jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region})",
+                                      regex: "baustelle-#{@name}-#{@region}-.*")
         Baustelle::Config.for_every_environment(config) do |environment, _|
-          jenkins.view.create_list_view(name: "Baustelle #{name} (#{region}) #{environment} DEPLOY",
-                                        regex: "baustelle-#{name}-#{region}-#{environment}-.*-00-deploy")
+          jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region}) #{environment} DEPLOY",
+                                        regex: "baustelle-#{@name}-#{@region}-#{environment}-.*-00-deploy")
         end
       end
 
       def delete_views
-        views = jenkins.view.list("Baustelle #{name}.*#{region}.*")
+        views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
         views.each { |view| jenkins.view.delete(view) }
       end
 
 
       def create_jobs
-        Baustelle::Config.for_every_environment(config) do |environment, env_config|
+        Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
             unless app_config.fetch('disabled', false)
-              job_name_prefix = "baustelle-#{name}-#{region}-#{environment}-#{application}-"
-              template = Baustelle::Jenkins::JobTemplate.new(
-                "jobs/#{app_config['stack']}.groovy.erb",
-                {
-                  stack_name: name,
-                  app_config: app_config,
-                  jenkins_options: jenkins_options,
-                  region: @region,
-                  eb_environment_name: Baustelle::CloudFormation::EBEnvironment.
-                    eb_env_name(@name, application, environment),
-                  eb_application_name: "#{@name}-#{application}".gsub('-', '_').underscore.camelize,
-                  eb_application_version_source: env_config.fetch('eb_application_version_source', nil),
-                  endpoint: "#{name}-#{region}-#{environment}-#{application}.elasticbeanstalk.com".gsub('_', '-')
-                }
+              application_jobs = Baustelle::Jenkins::ApplicationJobs.new(
+                @name,
+                @region,
+                jenkins_options,
+                environment,
+                application,
+                app_config,
+                env_config.fetch('eb_application_version_source', 'git')
               )
+              pipeline_jobs = application_jobs.generate_pipeline
+              systemtests_jobs = application_jobs.generate_systemtests
+              upload_jobs(systemtests_jobs)
+              upload_jobs(pipeline_jobs)
 
-              jobs = template.render(prefix: job_name_prefix)
-
-              jobs.each do |job_name, xml|
-                jenkins.job.create_or_update(job_name, xml)
-              end
-
-              jobs_to_chain = jobs.keys.grep(/^#{job_name_prefix}\d+-.*/).sort
+              jobs_to_chain = pipeline_jobs.keys.sort
               jenkins.job.chain(jobs_to_chain, 'success', ['all'])
-              @generated_jobs.merge!(jobs)
+
+              @generated_jobs.merge!(systemtests_jobs)
+              @generated_jobs.merge!(pipeline_jobs)
             end
           end
         end
       end
 
+      def upload_jobs(jobs)
+        jobs.each do |job_name, xml|
+          jenkins.job.create_or_update(job_name, xml)
+        end
+      end
+
 
       def cleanup_jobs
-        jobs_to_delete = (jenkins.job.list("^baustelle-#{name}-#{region}") -
+        jobs_to_delete = (jenkins.job.list("^baustelle-#{@name}-#{@region}") -
                           @generated_jobs.keys)
         jobs_to_delete.each { |job| jenkins.job.delete(job) }
       end
