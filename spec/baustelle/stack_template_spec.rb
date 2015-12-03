@@ -94,9 +94,20 @@ applications:
     scale:
       min: 1
       max: 1
+  application_with_dns_in_production:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 1
 
 environments:
-  production: {}
+  production:
+    applications:
+      application_with_dns_in_production:
+        dns:
+          hosted_zone: baustelle.org
+          name: myapp.baustelle.org
   staging:
     backends:
       RabbitMQ:
@@ -305,10 +316,19 @@ environments:
         end
       end
       
-      it 'creates a dns entry for an application' do
-        expect_resource template, "HttpsHelloWorldEnvProductionDnsRecord" do |properties|
-          expect(properties['Type']).to eq('AWS::Route53::RecordSet')
+      it 'creates a dns resource for an application that is configured so' do
+        expect_resource template, "ApplicationWithDnsInProductionEnvProductionDnsRecord",
+                        of_type: 'AWS::Route53::RecordSet' do |properties|
+          expect(properties[:HostedZoneName]).to eq('baustelle.org')
+          expect(properties[:Name]).to eq('myapp.baustelle.org')
+          expect(properties[:Type]).to eq('CNAME')
+          expect(properties[:ResourceRecords]).to eq([{ 'Fn::GetAtt': [ 'ApplicationWithDnsInProductionEnvProduction', 'EndpointURL' ] }])
+          expect(properties[:TTL]).to eq(60)
         end 
+      end
+      
+      it 'creates no dns resource for an application where no dns property is configured' do
+        expect(template[:Resources]['ApplicationWithDnsInProductionEnvStagingDnsRecord']).to be_nil
       end
 
       it 'links RabbitMQ server to the app' do
