@@ -140,7 +140,7 @@ module Baustelle
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
           unless app_config.fetch('disabled', false)
-            CloudFormation::EBEnvironment.apply(template,
+            resource_name = CloudFormation::EBEnvironment.apply(template,
                                                 stack_name: name,
                                                 env_name: env_name,
                                                 app_ref: app.ref,
@@ -149,6 +149,8 @@ module Baustelle
                                                 app_config: app_config,
                                                 stack_configurations: env_config.fetch('stacks'),
                                                 backends: environment_backends)
+                       
+            CloudFormation::Route53.apply(template, resource_name + "DnsRecord")
           end
         end
       end

@@ -304,6 +304,12 @@ environments:
                                                                 })
         end
       end
+      
+      it 'creates a dns entry for an application' do
+        expect_resource template, "HttpsHelloWorldEnvProductionDnsRecord" do |properties|
+          expect(properties['Type']).to eq('AWS::Route53::RecordSet')
+        end 
+      end
 
       it 'links RabbitMQ server to the app' do
         expect_resource template, "HelloWorldEnvProduction" do |properties|
