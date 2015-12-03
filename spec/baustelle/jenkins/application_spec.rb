@@ -61,9 +61,6 @@ describe Baustelle::Jenkins::ApplicationJobs do
 
   let(:template) {
 <<-TEMPLATE
-//<% @options.select{|key,value| value != nil}.each do |key,value| %>
-//<%= key %>: <%= value.to_json %>
-//<% end %>
 
 job('TestJob') {
   steps {
@@ -91,9 +88,13 @@ TEMPLATE
     it 'should generate systemtest jobs' do
       expect(generate_tests_object(systemtests_config_java).generate_systemtests.keys.length).to eq(1)
     end
-    it 'should not generate systemtest jobs' do
+    it 'should not generate disabled systemtest jobs' do
       expect(generate_tests_object(systemtests_disabled).generate_systemtests.keys.length).to eq(0)
+    end
+    it 'should not generate referenced systemtest jobs' do
       expect(generate_tests_object(systemtests_referenced).generate_systemtests.keys.length).to eq(0)
+    end
+    it 'should not generate empty systemtest jobs' do
       expect(generate_tests_object({}).generate_systemtests.keys.length).to eq(0)
     end
   end
