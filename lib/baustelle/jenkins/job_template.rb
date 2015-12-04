@@ -3,9 +3,10 @@ require 'tempfile'
 module Baustelle
   module Jenkins
     class JobTemplate
-      def initialize(template_path, options={})
-        @template_path = template_path
+      def initialize(template, working_dir,  options={})
+        @template = template
         @options = options
+        @working_dir = working_dir
       end
 
       def render(prefix: '')
@@ -15,7 +16,7 @@ module Baustelle
         Dir.mktmpdir do |output_dir|
           Dir.chdir(job_dsl_dir) do
             path = File.join('jobs', File.basename(groovy_template.path))
-            system "gradle -q xml -Psource=#{path} -PoutputDir=#{output_dir}"
+            system "./gradlew -q xml -Psource=#{path} -PoutputDir=#{output_dir}"
           end
 
           Dir[File.join(output_dir, "*.xml")].inject({}) do |result, filename|
@@ -26,7 +27,7 @@ module Baustelle
       end
 
       def render_groovy
-        ERB.new(File.read(@template_path)).result(binding)
+        ERB.new(@template).result(binding)
       end
 
       def method_missing(name)
@@ -36,8 +37,7 @@ module Baustelle
       private
 
       def include(partial_path)
-        template_dir = File.dirname(@template_path)
-        ERB.new(File.read(File.expand_path(File.join(template_dir, partial_path + '.groovy')))).result(binding)
+        ERB.new(File.read(File.expand_path(File.join(@working_dir, partial_path + '.groovy')))).result(binding)
       end
 
       def job_dsl_dir
