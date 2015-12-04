@@ -35,7 +35,7 @@ applications:
         repo: git@github.com:as-ideas/yana-contentmachine-systemtests.git
         branch: **/DO-127
       maven:
-        opptions_goals: clean verify -Psystem-tests
+        goals_options: clean verify -Psystem-tests
     config:
       SERVER_PORT: 5000
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
