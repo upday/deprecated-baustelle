@@ -27,18 +27,15 @@ applications:
       https: true
       ssl_certificate: arn:aws:iam::123456789012:server-certificate/baustelle_com
       ssl_reference_policy: ELBSecurityPolicy-2015-05
-<<<<<<< 063a3f1fc62975ec578f42636b9bb9536f7458c1
     dns:
       name: user-profile-service.baustelle.org
       hosted_zone: baustelle.org.
-=======
     systemtests:
       git:
         repo: git@github.com:as-ideas/yana-contentmachine-systemtests.git
         branch: **/DO-127
       maven:
         opptions_goals: clean verify -Psystem-tests
->>>>>>> Add yaml documentation for systemtests
     config:
       SERVER_PORT: 5000
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
