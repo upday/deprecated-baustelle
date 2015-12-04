@@ -27,6 +27,9 @@ applications:
       https: true
       ssl_certificate: arn:aws:iam::123456789012:server-certificate/baustelle_com
       ssl_reference_policy: ELBSecurityPolicy-2015-05
+    dns:
+      name: user-profile-service.baustelle.org
+      hosted_zone: baustelle.org.
     config:
       SERVER_PORT: 5000
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
@@ -89,6 +92,15 @@ The AWS ARN of the ssl certificate to use for HTTPS.
 The AWS SSL reference policy to use. This only configures the SSL ciphers in the loadbalancer that are safe to use.
 AWS creates new updated policies regularily, so always try to keep this value to the most recent policy available.
 * required when `applications.<app_name>.elb.https=true`
+
+#### `applications.<app_name>.dns.name`
+An optional dns name that will point to the loadbalancer of the application. If not given, the application can still be reached
+via the `elasticbeanstalk.com` domain.
+* optional
+
+#### `applications.<app_name>.dns.hosted_zone`
+The AWS hosted zone name where the domain `applications.<app_name>.dns.name` should be created in (must end with a period).
+* required when `applications.<app_name>.dns.name` is given
 
 #### `applications.<app_name>.config.<env_var_name>`
 Environment variable passed to the application process. In the example above, 2 environment variables will be created:
