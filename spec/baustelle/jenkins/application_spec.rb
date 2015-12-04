@@ -61,7 +61,6 @@ describe Baustelle::Jenkins::ApplicationJobs do
 
   let(:template) {
 <<-TEMPLATE
-
 job('TestJob') {
   steps {
     shell('echo 1')
@@ -84,7 +83,6 @@ TEMPLATE
   describe '#generate_systemtests' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
-      #allow_any_instance_of(Object).to receive(:system).and_return(true)
     end
     it 'should generate systemtest jobs' do
 
@@ -104,7 +102,6 @@ TEMPLATE
   describe '#generate_pipeline' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
-      #allow_any_instance_of(Object).to receive(:system).and_return(true)
     end
     it 'should generate job pipeline' do
       expect(generate_tests_object.generate_pipeline.keys.length).to eq(1)
