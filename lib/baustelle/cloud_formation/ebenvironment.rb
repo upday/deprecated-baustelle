@@ -23,7 +23,8 @@ module Baustelle
                                                       env_name,
                                                       template)
 
-        template.resource resource_name = "#{app_name}_env_#{env_name}".camelize,
+        resource_name = "#{app_name}_env_#{env_name}".camelize
+        template.resource resource_name,
                           Type: "AWS::ElasticBeanstalk::Environment",
                           Properties: {
                             ApplicationName: app_ref,
@@ -102,6 +103,7 @@ module Baustelle
                             end.flatten
                           }
         template.ref(resource_name)
+        resource_name
       end
 
       def eb_env_name(stack_name, app_name, env_name)
