@@ -30,6 +30,12 @@ applications:
     dns:
       name: user-profile-service.baustelle.org
       hosted_zone: baustelle.org.
+    systemtests:
+      git:
+        repo: git@github.com:as-ideas/yana-contentmachine-systemtests.git
+        branch: **/DO-127
+      maven:
+        goals_options: clean verify -Psystem-tests
     config:
       SERVER_PORT: 5000
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
@@ -101,6 +107,29 @@ via the `elasticbeanstalk.com` domain.
 #### `applications.<app_name>.dns.hosted_zone`
 The AWS hosted zone name where the domain `applications.<app_name>.dns.name` should be created in (must end with a period).
 * required when `applications.<app_name>.dns.name` is given
+
+#### `applications.<app_name>.systemtests`
+The systemtests definition for this application.
+Allowed values:
+- `false` or no value: disable the systemtests for this application.
+- String: Name of the application which's systemtests will be executed
+- Hash: configuration of the systemtests
+
+### `applications.<app_name>.systemtests.git.repo`
+URL to git repository of the systemtests.
+* required
+
+### `applications.<app_name>.systemtests.git.branch`
+The branch which will be used by the systemtests.
+* required
+
+### `applications.<app_name>.systemtests.maven.goals_options`
+The maven goals and options to use for the systemtests job. Basically the string following `mvn`
+* required for java applications
+
+### `applications.<app_name>.systemtests.command`
+The command to execute the systemtests
+* required for ruby applications
 
 #### `applications.<app_name>.config.<env_var_name>`
 Environment variable passed to the application process. In the example above, 2 environment variables will be created:
