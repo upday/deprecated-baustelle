@@ -14,21 +14,12 @@ module Baustelle
         @application_version_source = application_version_source
       end
 
-      def generate_systemtests
-        if @app_config.fetch('systemtests', false).is_a?(Hash)
-          create_template(
-            template_file(:systemtests)
-          )
-        else
-          {}
+      def generate_jobs
+        jobs = {}
+        if generate_systemtests?
+          jobs.merge!(generate_systemtests)
         end
-      end
-
-      def generate_pipeline
-        create_template(
-          template_file(:pipeline),
-          systemtest_job_name(@app_config.fetch('systemtests', {}))
-        )
+        jobs.merge!(generate_pipeline)
       end
 
       def identifier
@@ -46,7 +37,24 @@ module Baustelle
         }[template_type]
       end
 
+      def generate_systemtests?
+        @app_config.fetch('systemtests', false).is_a?(Hash)
+      end
+
       private
+
+      def generate_systemtests
+        create_template(
+          template_file(:systemtests)
+        )
+      end
+
+      def generate_pipeline
+        create_template(
+          template_file(:pipeline),
+          systemtest_job_name(@app_config.fetch('systemtests', {}))
+        )
+      end
 
       def systemtest_job_name(systemtests_config)
         if systemtests_config.is_a? Hash
@@ -56,7 +64,7 @@ module Baustelle
         end
       end
 
-      def create_template(template_file, system_test_job_name='')
+      def create_template(template_file, system_test_job_name='systemtests')
         template = Baustelle::Jenkins::JobTemplate.new(
           File.read(template_file),
           File.dirname(template_file),

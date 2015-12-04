@@ -70,12 +70,9 @@ module Baustelle
                 app_config,
                 env_config.fetch('eb_application_version_source', 'git')
               )
-              pipeline_jobs = application_jobs.generate_pipeline
-              systemtests_jobs = application_jobs.generate_systemtests
-              upload_jobs(systemtests_jobs)
-              upload_jobs(pipeline_jobs)
 
-              jobs_to_chain = pipeline_jobs.keys.sort
+              jobs = application_jobs.generate_jobs
+              jobs_to_chain = jobs.keys.grep(/^#{application_jobs.job_name_prefix}\d+-.*/).sort
               jenkins.job.chain(jobs_to_chain, 'success', ['all'])
 
               @generated_jobs.merge!(systemtests_jobs)

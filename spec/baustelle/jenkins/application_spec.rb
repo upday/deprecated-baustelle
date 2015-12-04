@@ -61,13 +61,14 @@ describe Baustelle::Jenkins::ApplicationJobs do
 
   let(:template) {
 <<-TEMPLATE
-job('TestJob') {
+job('<%= eb_application_name %>-<%= system_test_job_name %>') {
   steps {
     shell('echo 1')
   }
 }
 TEMPLATE
-}
+  }
+
   def generate_tests_object(systemtests_config={})
     Baustelle::Jenkins::ApplicationJobs.new(
       'TestStack',
@@ -80,31 +81,25 @@ TEMPLATE
     )
   end
 
-  describe '#generate_systemtests' do
+  describe '#generate_jobs' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
     end
-    it 'should generate systemtest jobs' do
-
-      expect(generate_tests_object(systemtests_config_java).generate_systemtests.keys.length).to eq(1)
+    it 'should generate systemtest job and pipeline job' do
+      expect(generate_tests_object(systemtests_config_java).generate_jobs.keys.length).to eq(2)
     end
-    it 'should not generate disabled systemtest jobs' do
-      expect(generate_tests_object(systemtests_disabled).generate_systemtests.keys.length).to eq(0)
+    it 'should not generate disabled systemtest job but pipeline job' do
+      expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
+      expect(generate_tests_object(systemtests_disabled).generate_jobs.keys.length).to eq(1)
     end
-    it 'should not generate referenced systemtest jobs' do
-      expect(generate_tests_object(systemtests_referenced).generate_systemtests.keys.length).to eq(0)
+    it 'should not generate referenced systemtest job but pipeline job' do
+      expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
+      expect(generate_tests_object(systemtests_referenced).generate_jobs.keys.length).to eq(1)
     end
-    it 'should not generate empty systemtest jobs' do
-      expect(generate_tests_object.generate_systemtests.keys.length).to eq(0)
-    end
-  end
-
-  describe '#generate_pipeline' do
-    before(:example) do
-      allow(File).to receive(:read){ "#{template}"}
-    end
-    it 'should generate job pipeline' do
-      expect(generate_tests_object.generate_pipeline.keys.length).to eq(1)
+    it 'should not generate empty systemtest job but pipeline job' do
+      expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
+      expect(generate_tests_object.generate_jobs.keys.length).to eq(1)
     end
   end
+
 end
