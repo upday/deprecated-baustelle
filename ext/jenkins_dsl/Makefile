@@ -8,4 +8,4 @@ clean:
 install: build
 
 build:
-	gradlew build
+	echo "Nothing to, using gradle wrapper"
