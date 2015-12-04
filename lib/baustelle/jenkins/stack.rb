@@ -75,8 +75,7 @@ module Baustelle
               jobs_to_chain = jobs.keys.grep(/^#{application_jobs.job_name_prefix}\d+-.*/).sort
               jenkins.job.chain(jobs_to_chain, 'success', ['all'])
 
-              @generated_jobs.merge!(systemtests_jobs)
-              @generated_jobs.merge!(pipeline_jobs)
+              @generated_jobs.merge!(jobs)
             end
           end
         end
