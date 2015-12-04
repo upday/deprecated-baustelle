@@ -8,4 +8,4 @@ clean:
 install: build
 
 build:
-	gradle build
+	gradlew build
