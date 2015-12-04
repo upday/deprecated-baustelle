@@ -69,7 +69,7 @@ job('TestJob') {
 }
 TEMPLATE
 }
-  def generate_tests_object(systemtests_config)
+  def generate_tests_object(systemtests_config={})
     Baustelle::Jenkins::ApplicationJobs.new(
       'TestStack',
       'TestRegion',
@@ -84,9 +84,10 @@ TEMPLATE
   describe '#generate_systemtests' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
+      #allow_any_instance_of(Object).to receive(:system).and_return(true)
     end
     it 'should generate systemtest jobs' do
-      puts template
+
       expect(generate_tests_object(systemtests_config_java).generate_systemtests.keys.length).to eq(1)
     end
     it 'should not generate disabled systemtest jobs' do
@@ -96,16 +97,17 @@ TEMPLATE
       expect(generate_tests_object(systemtests_referenced).generate_systemtests.keys.length).to eq(0)
     end
     it 'should not generate empty systemtest jobs' do
-      expect(generate_tests_object({}).generate_systemtests.keys.length).to eq(0)
+      expect(generate_tests_object.generate_systemtests.keys.length).to eq(0)
     end
   end
 
   describe '#generate_pipeline' do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
+      #allow_any_instance_of(Object).to receive(:system).and_return(true)
     end
     it 'should generate job pipeline' do
-      expect(application_jobs.generate_pipeline.keys.length).to eq(1)
+      expect(generate_tests_object.generate_pipeline.keys.length).to eq(1)
     end
   end
 end
