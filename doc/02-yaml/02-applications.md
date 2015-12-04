@@ -112,7 +112,7 @@ The AWS hosted zone name where the domain `applications.<app_name>.dns.name` sho
 The systemtests definition for this application.
 Allowed values:
 - `false` or no value: disable the systemtests for this application.
-- String: reference the systemtests of another application
+- String: Name of the application which's systemtests will be executed
 - Hash: configuration of the systemtests
 
 ### `applications.<app_name>.systemtests.git.repo`
