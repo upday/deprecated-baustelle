@@ -16,7 +16,7 @@ module Baustelle
 
       def generate_jobs
         jobs = {}
-        if generate_systemtests?
+        if should_generate_systemtests?
           jobs.merge!(generate_systemtests)
         end
         jobs.merge!(generate_pipeline)
@@ -37,7 +37,7 @@ module Baustelle
         }[template_type]
       end
 
-      def generate_systemtests?
+      def should_generate_systemtests?
         @app_config.fetch('systemtests', false).is_a?(Hash)
       end
 
