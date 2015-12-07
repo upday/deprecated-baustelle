@@ -76,11 +76,6 @@ jenkins:
 
   describe '#create_jobs' do
     it 'should execute expected methods' do
-      #expect(Baustelle::Config).to receive(:for_every_environment).with(config)
-      #                               .and_yield(:TestEnvironment, environment[:TestEnvironment])
-      #expect(Baustelle::Config).to receive(:for_every_application)
-      #                               .and_yield(:TestApplication, application[:TestApplication])
-      #expect(stack).to receive(:jenkins_options) {}
       expect(Baustelle::Jenkins::ApplicationJobs).to receive(:new) { application_jobs }
       expect(application_jobs).to receive(:generate_jobs) { jobs }
       expect(application_jobs).to receive(:job_name_prefix) { 'TestPrefix' }
