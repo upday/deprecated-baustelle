@@ -72,6 +72,7 @@ module Baustelle
               )
 
               jobs = application_jobs.generate_jobs
+              upload_jobs(jobs)
               jobs_to_chain = jobs.keys.grep(/^#{application_jobs.job_name_prefix}\d+-.*/).sort
               jenkins.job.chain(jobs_to_chain, 'success', ['all'])
 
