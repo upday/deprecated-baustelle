@@ -7,7 +7,7 @@ module Baustelle
       long_desc <<-LONGDESC
         Common examples:
         \x5> baustelle script wait-until-app staging-b3f3681be4 status Ready --region eu-west-1
-        \x5> baustelle app wait-until-app staging-b3f3681be4 health Green --region eu-west-1
+        \x5> baustelle script wait-until-app staging-b3f3681be4 health Green --region eu-west-1
       LONGDESC
       option "timeout", desc: "Max number of seconds to wait", default: 60
       def wait_until_app(env_name, attribute, expected)
