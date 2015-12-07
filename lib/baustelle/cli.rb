@@ -1,7 +1,7 @@
 require 'thor'
 require 'baustelle'
 require 'baustelle/ami/cli'
-require "baustelle/application/cli"
+require "baustelle/script/cli"
 require "baustelle/jenkins/cli"
 
 module Baustelle
@@ -88,8 +88,8 @@ module Baustelle
     option "name", desc: 'name of the baustelle stack', default: 'baustelle'
     subcommand "jenkins", Jenkins::CLI
 
-    desc "app SUBCOMMAND", "Manages applications"
-    subcommand "app", Application::CLI
+    desc "script SUBCOMMAND", "Scripts used for deployment in jenkins jobs"
+    subcommand "script", Script::CLI
 
     private
 

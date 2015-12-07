@@ -1,18 +1,16 @@
-require "timeout"
-
 module Baustelle
-  module Application
+  module Script
     class CLI < Thor
 
-      desc "wait-until ENVIRONMENT_NAME ATTRIBUTE EXPECTED_VALUE",
+      desc "wait-until-app ENVIRONMENT_NAME ATTRIBUTE EXPECTED_VALUE",
            "Wait for an attribute of the application environment to match a certain value"
       long_desc <<-LONGDESC
         Common examples:
-        \x5> baustelle app wait-until staging-b3f3681be4 status Ready --region eu-west-1
-        \x5> baustelle app wait-until staging-b3f3681be4 health Green --region eu-west-1
+        \x5> baustelle script wait-until-app staging-b3f3681be4 status Ready --region eu-west-1
+        \x5> baustelle app wait-until-app staging-b3f3681be4 health Green --region eu-west-1
       LONGDESC
       option "timeout", desc: "Max number of seconds to wait", default: 60
-      def wait_until(env_name, attribute, expected)
+      def wait_until_app(env_name, attribute, expected)
         Timeout::timeout(options["timeout"]) do
           loop do
             value = describe_environment(env_name)[attribute]
@@ -23,15 +21,19 @@ module Baustelle
         end
       end
 
-      desc "printenv APPLICATION_NAME ENVIRONMENT_NAME", "Prints the environment variables of the application"
-      def printenv(app_name, env_name)
+      desc "systemtests-env APPLICATION_NAME ENVIRONMENT_NAME",
+           "Prints the environment variables that can be injected in jenkins systemtests jobs"
+      option "alternate-dns", desc: "Alternate dns name instead of using the <app>.elasticbeanstalk.com domain as HOST variable"
+      def systemtests_env(app_name, env_name)
         env = env_vars(app_name, env_name)
-        env.each { |k,v| puts "#{k}=#{v}" }
-      end
 
-      desc "get ENVIRONMENT_NAME ATTRIBUTE", "Prints the value of the attribute of the application"
-      def get_attr(env_name, attribute)
-        puts describe_environment(env_name)[attribute]
+        # remove environment variables that break the jenkins build
+        env.delete_if { |k,v| k.start_with?("M2") || k.start_with?("JAVA_HOME") }
+
+        # set hostname where the application is running on
+        env['HOST'] = options['alternate-dns'] || describe_environment(env_name).cname
+
+        env.each { |k,v| puts "#{k}=#{v}" }
       end
 
 
