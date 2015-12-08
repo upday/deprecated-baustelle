@@ -7,12 +7,12 @@ module Baustelle
       end
 
       def env_vars()
-        env = @options.select { |o| o.namespace == "aws:elasticbeanstalk:application:environment" }
+        env = @options.select { |opt| opt.namespace == "aws:elasticbeanstalk:application:environment" }
         env.each_with_object({}) { |opt,map| map[opt.option_name] = opt.value }
       end
 
       def protocol()
-        option = @options.detect { |o| o.namespace == "aws:elb:policies:SSL" && o.option_name == 'LoadBalancerPorts' }
+        option = @options.detect { |opt| opt.namespace == "aws:elb:policies:SSL" && opt.option_name == 'LoadBalancerPorts' }
         # we do not support other ports than 443 for now, so this is safe:
         if option && option.value == '443'
           "https"
