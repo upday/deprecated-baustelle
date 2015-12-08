@@ -2,8 +2,8 @@ module Baustelle
   module ElasticBeanstalk
     class EnvironmentConfiguration
 
-      def initialize(configuration_settings)
-        @options = configuration_settings.option_settings
+      def initialize(eb_configuration_settings)
+        @options = eb_configuration_settings.option_settings
       end
 
       def env_vars
