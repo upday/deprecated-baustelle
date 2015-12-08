@@ -58,14 +58,9 @@ jenkins:
   let(:application_jobs){
     double = instance_double(Baustelle::Jenkins::ApplicationJobs)
   }
-  let(:jobs){
-    {
-      'TestJob1': 'TestXML1',
-      'TestJob2': 'TestXML2'
-    }
-  }
+
   let(:jenkins){
-    double = instance_double(JenkinsApi::Client)
+    instance_double(JenkinsApi::Client)
   }
   let(:jenkins_job){
     double(JenkinsApi::Client::Job)
@@ -73,19 +68,63 @@ jenkins:
   let(:baustelle_config){
     class_double(Baustelle::Config).as_stubbed_const(:transfer_nested_constants => true)
   }
+  let(:test_prefix){
+    'TestPrefix-'
+  }
 
   describe '#create_jobs' do
-    it 'should execute expected methods' do
+    before(:example) do
       expect(Baustelle::Jenkins::ApplicationJobs).to receive(:new) { application_jobs }
-      expect(application_jobs).to receive(:generate_jobs) { jobs }
-      expect(application_jobs).to receive(:job_name_prefix) { 'TestPrefix' }
+      expect(application_jobs).to receive(:job_name_prefix) { test_prefix }
       expect(stack).to receive(:jenkins) { jenkins }
       expect(jenkins).to receive(:job) { jenkins_job }
-      expect(jenkins_job).to receive(:chain).with([], 'success', ['all'])
-      expect(stack).to receive(:upload_jobs).with(jobs) {}
       expect(stack).to receive(:cleanup_jobs) {}
       expect(stack).to receive(:delete_views) {}
       expect(stack).to receive(:create_views) {}
+    end
+    it 'should execute expected methods' do
+      jobs = {
+        'TestJob1': 'TestXML1',
+        'TestJob2': 'TestXML2'
+      }
+      expect(application_jobs).to receive(:generate_jobs) { jobs }
+      expect(jenkins_job).to receive(:chain).with([], 'success', ['all'])
+      expect(stack).to receive(:upload_jobs).with(jobs)
+
+      stack.update
+    end
+
+    it 'should chain jobs in the correct order' do
+      jobs = {
+        "#{test_prefix}20-JobName"=> 'String',
+        "#{test_prefix}00-JobName"=> 'String',
+        "#{test_prefix}10-JobName"=> 'String'
+      }
+      expect(application_jobs).to receive(:generate_jobs) { jobs }
+      expect(stack).to receive(:upload_jobs).with(jobs)
+      expect(jenkins_job).to receive(:chain).with(
+        ["#{test_prefix}00-JobName", "#{test_prefix}10-JobName", "#{test_prefix}20-JobName"],
+        'success',
+        ['all']
+      )
+
+      stack.update
+    end
+
+    it 'should filter out jobs which do not match the RegEx' do
+      jobs = {
+        "#{test_prefix}00-JobName"=> 'String',
+        "#{test_prefix}JobName"=> 'String',
+        "Arbitrary-Job-Name-with-dashes"=> 'String',
+        "ArbitraryJobNameWithoutDashes"=> 'String'
+      }
+      expect(application_jobs).to receive(:generate_jobs) { jobs }
+      expect(stack).to receive(:upload_jobs).with(jobs)
+      expect(jenkins_job).to receive(:chain).with(
+        ["#{test_prefix}00-JobName"],
+        'success',
+        ['all']
+      )
 
       stack.update
     end
