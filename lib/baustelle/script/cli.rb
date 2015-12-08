@@ -13,7 +13,7 @@ module Baustelle
       LONGDESC
       option "timeout", desc: "Max number of seconds to wait", default: 60, type: :numeric
       def wait_until_app(env_name, attribute, expected)
-        eb = Baustelle::ElasticBeanstalk::Client.new(region())
+        eb = Baustelle::ElasticBeanstalk::Client.new(region)
 
         Timeout::timeout(options['timeout']) do
           loop do
@@ -29,10 +29,10 @@ module Baustelle
            "Prints the environment variables that can be injected in jenkins systemtests jobs"
       option "alternate-dns", desc: "Alternate dns name instead of using the <app>.elasticbeanstalk.com domain as HOST variable"
       def systemtests_env(app_name, env_name)
-        eb = Baustelle::ElasticBeanstalk::Client.new(region())
+        eb = Baustelle::ElasticBeanstalk::Client.new(region)
 
         env_config = eb.configuration(app_name, env_name)
-        env = env_config.env_vars()
+        env = env_config.env_vars
 
         # remove environment variables that break the jenkins build
         env.delete_if { |k,v| k.start_with?("M2") || k.start_with?("JAVA_HOME") }
@@ -48,12 +48,12 @@ module Baustelle
       private
 
       def url(eb, env_name, env_config)
-        protocol = env_config.protocol()
+        protocol = env_config.protocol
         host = options['alternate-dns'] || eb.info(env_name).cname
         "#{protocol}://#{host}"
       end
 
-      def region()
+      def region
         options.fetch("region", ENV.fetch("AWS_DEFAULT_REGION", "us-east-1"))
       end
       

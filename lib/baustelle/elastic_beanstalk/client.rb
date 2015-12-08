@@ -1,4 +1,4 @@
-require "baustelle/elastic_beanstalk/environment"
+require "baustelle/elastic_beanstalk/environment_configuration"
 
 module Baustelle
   module ElasticBeanstalk
@@ -6,14 +6,14 @@ module Baustelle
 
       def initialize(region)
         Aws.config[:region] = region
-        @eb = Aws::ElasticBeanstalk::Client.new()
+        @eb = Aws::ElasticBeanstalk::Client.new
       end
 
       def info(env_name)
         result = @eb.describe_environments(environment_names: [env_name])
         envs = result.environments
         
-        if envs.length() == 0
+        if envs.length == 0
           raise Thor::Error.new("No application found with name #{env_name}")
         else
           envs[0]
