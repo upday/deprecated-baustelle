@@ -3,95 +3,79 @@ require "baustelle/script/cli"
 
 describe Baustelle::Script::CLI do
 
-  context "systemtest-env" do
+  describe "#systemtest_env" do
+    let(:eb){
+      mock_eb_client(
+        describe_environments: environment(cname: cname),
+        describe_configuration_settings: option_settings(opts))
+    }
+    let(:cname){
+      "foo-cname"
+    }
+    before(:each)do
+      expect(Aws::ElasticBeanstalk::Client).to receive(:new).and_return(eb)
+    end
 
-    it "displays the environment variables and the cname in APPLICATION_URL" do
-      opts = [option("some-ignored-namespace", "fooz", "baz"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
-      eb = mock_eb_client(
-          describe_environments: environment(cname: "foo-cname"),
-          describe_configuration_settings: option_settings(opts))
+    context "using http" do
+      let(:protocol){
+        "http"
+      }
+      let(:opts){
+        [option("some-ignored-namespace", "fooz", "baz"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
+      }
 
-      expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
-FOO_VAR=bar
-FOO_VAR2=bar2
-APPLICATION_URL=http://foo-cname
-HOST=http://foo-cname
-ENV
-      ).to_stdout
+      it "displays the environment variables and the cname in APPLICATION_URL" do
+        expect { subject.systemtests_env("foo-app", "foo-env") }.to output(generate_env(protocol,cname)).to_stdout
 
-      expect(eb).to have_received(:describe_configuration_settings)
-                .with(application_name: "foo-app", environment_name: "foo-env")
-      expect(eb).to have_received(:describe_environments)
-                .with(environment_names: ["foo-env"])
+        expect(eb).to have_received(:describe_configuration_settings)
+                  .with(application_name: "foo-app", environment_name: "foo-env")
+        expect(eb).to have_received(:describe_environments)
+                  .with(environment_names: ["foo-env"])
+      end
+
+      it "displays the environment variables and the alternate dns in APPLICATION_URL" do
+        subject.options = { "alternate-dns" => "custom-foo-domain" }
+        expect { subject.systemtests_env("foo-app", "foo-env") }.to output(generate_env(protocol,"custom-foo-domain")).to_stdout
+
+        expect(eb).to have_received(:describe_configuration_settings)
+                  .with(application_name: "foo-app", environment_name: "foo-env")
+        expect(eb).not_to have_received(:describe_environments)
+      end
     end
 
 
-    it "displays the environment variables and the alternate dns in APPLICATION_URL" do
-      opts = [option("some-ignored-namespace", "fooz", "baz"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
-      eb = mock_eb_client(
-          describe_environments: environment(cname: "foo-cname"),
-          describe_configuration_settings: option_settings(opts))
+    context "using https"do
+      let(:opts){
+        [option("aws:elb:policies:SSL", "LoadBalancerPorts", "443"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
+      }
+      let(:protocol){
+        "https"
+      }
 
-      subject.options = { "alternate-dns" => "custom-foo-domain" }
-      expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
-FOO_VAR=bar
-FOO_VAR2=bar2
-APPLICATION_URL=http://custom-foo-domain
-HOST=http://custom-foo-domain
-ENV
-      ).to_stdout
+      it "uses https://<cname> as APPLICATION_URL" do
+        expect { subject.systemtests_env("foo-app", "foo-env") }.to output(generate_env(protocol,cname)).to_stdout
+      end
 
-      expect(eb).to have_received(:describe_configuration_settings)
-                .with(application_name: "foo-app", environment_name: "foo-env")
-      expect(eb).not_to have_received(:describe_environments)
+
+      it "uses https://<alternate-dns> as APPLICATION_URL" do
+        subject.options = { "alternate-dns" => "custom-foo-domain" }
+        expect { subject.systemtests_env("foo-app", "foo-env") }.to output(generate_env(protocol,"custom-foo-domain")).to_stdout
+      end
     end
 
+    context "using no specific protocol"do
+        let(:opts){
+          [envvar("JAVA_HOME_foo", "bar2"), envvar("FOO_VAR", "bar"), envvar("M2_HOME", "bar2")]
+        }
 
-    it "uses https://<cname> as APPLICATION_URL" do
-      opts = [option("aws:elb:policies:SSL", "LoadBalancerPorts", "443"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
-      eb = mock_eb_client(
-          describe_environments: environment(cname: "foo-cname"),
-          describe_configuration_settings: option_settings(opts))
-
-      expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
-FOO_VAR=bar
-FOO_VAR2=bar2
-APPLICATION_URL=https://foo-cname
-HOST=https://foo-cname
-ENV
-      ).to_stdout
-    end
-
-
-    it "uses https://<alternate-dns> as APPLICATION_URL" do
-      opts = [option("aws:elb:policies:SSL", "LoadBalancerPorts", "443"), envvar("FOO_VAR", "bar"), envvar("FOO_VAR2", "bar2")]
-      eb = mock_eb_client(
-          describe_environments: environment(cname: "foo-cname"),
-          describe_configuration_settings: option_settings(opts))
-
-      subject.options = { "alternate-dns" => "custom-foo-domain" }
-      expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
-FOO_VAR=bar
-FOO_VAR2=bar2
-APPLICATION_URL=https://custom-foo-domain
-HOST=https://custom-foo-domain
-ENV
-      ).to_stdout
-    end
-
-
-    it "removes environment variables starting with M2 and JAVA_HOME" do
-      opts = [envvar("JAVA_HOME_foo", "bar2"), envvar("FOO_VAR", "bar"), envvar("M2_HOME", "bar2")]
-      eb = mock_eb_client(
-          describe_environments: environment(cname: "foo-cname"),
-          describe_configuration_settings: option_settings(opts))
-
-      expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
+      it "removes environment variables starting with M2 and JAVA_HOME" do
+        expect { subject.systemtests_env("foo-app", "foo-env") }.to output(<<-ENV
 FOO_VAR=bar
 APPLICATION_URL=http://foo-cname
 HOST=http://foo-cname
 ENV
-      ).to_stdout
+        ).to_stdout
+      end
     end
   end
 
@@ -99,9 +83,7 @@ ENV
   private
 
   def mock_eb_client(methods = default_eb_client_methods)
-    eb = instance_double(Aws::ElasticBeanstalk::Client, methods)
-    allow(Aws::ElasticBeanstalk::Client).to receive(:new).and_return(eb)
-    eb
+    instance_double(Aws::ElasticBeanstalk::Client, methods)
   end
 
   def environment(methods)
@@ -121,11 +103,13 @@ ENV
   def option(namespace, key, value)
     instance_double("option", namespace: namespace, option_name: key, value: value)
   end
-
-  def default_eb_client_methods()
-    {
-      describe_environments: environment(cname: "foo-cname"),
-      describe_configuration_settings: option_settings([])
-    }
+  def generate_env(protocol, dns)
+<<-ENV
+FOO_VAR=bar
+FOO_VAR2=bar2
+APPLICATION_URL=#{protocol}://#{dns}
+HOST=#{protocol}://#{dns}
+ENV
   end
+
 end
