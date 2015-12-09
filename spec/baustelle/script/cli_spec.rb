@@ -13,7 +13,7 @@ describe Baustelle::Script::CLI do
       "foo-cname"
     }
     before(:each)do
-      allow(Aws::ElasticBeanstalk::Client).to receive(:new).and_return(eb)
+      expect(Aws::ElasticBeanstalk::Client).to receive(:new).and_return(eb)
     end
 
     context "using http" do
