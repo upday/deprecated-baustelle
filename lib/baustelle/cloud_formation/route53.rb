@@ -10,7 +10,7 @@ module Baustelle
             HostedZoneName: hosted_zone_name,
             Name: dns_name,
             Type: 'CNAME',
-            ResourceRecords: [{ 'Fn::GetAtt': [ app_resource_name, 'EndpointURL' ] }],
+            ResourceRecords: [{ 'Fn::GetAtt' => [ app_resource_name, 'EndpointURL' ] }],
             TTL: ttl
           }
         })

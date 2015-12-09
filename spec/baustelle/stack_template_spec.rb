@@ -322,7 +322,7 @@ environments:
           expect(properties[:HostedZoneName]).to eq('baustelle.org')
           expect(properties[:Name]).to eq('myapp.baustelle.org')
           expect(properties[:Type]).to eq('CNAME')
-          expect(properties[:ResourceRecords]).to eq([{ 'Fn::GetAtt': [ 'ApplicationWithDnsInProductionEnvProduction', 'EndpointURL' ] }])
+          expect(properties[:ResourceRecords]).to eq([{ 'Fn::GetAtt' => [ 'ApplicationWithDnsInProductionEnvProduction', 'EndpointURL' ] }])
           expect(properties[:TTL]).to eq(60)
         end 
       end
