@@ -15,6 +15,7 @@ describe Baustelle::Script::CLI do
     before(:each)do
       allow(Aws::ElasticBeanstalk::Client).to receive(:new).and_return(eb)
     end
+
     context "using http" do
       let(:protocol){
         "http"
