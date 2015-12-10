@@ -36,7 +36,9 @@ shared_examples "Backend RabbitMQ in environment" do  |stack_name:, environment:
 
     it 'load balancer' do
       expect_resource template, resource_prefix + "ELB",
-                      of_type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+                      of_type: 'AWS::ElasticLoadBalancing::LoadBalancer' do |properties|
+        expect(properties[:CrossZone]).to eq(true)
+      end
     end
   end
 end
