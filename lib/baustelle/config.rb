@@ -1,5 +1,6 @@
 require 'yaml'
 require 'active_support/core_ext/hash'
+require 'baustelle/config/application'
 
 module Baustelle
   module Config
@@ -7,6 +8,20 @@ module Baustelle
 
     def read(filepath)
       parse YAML.load(File.read(filepath))
+    end
+
+    # reads the specification from filepath and returns
+    # the app_config for the given application in the given environment
+    def read_app_config(filepath, app_name, env_name)
+      config = Baustelle::Config.read(filepath)
+
+      environments = Baustelle::Config.environments(config)
+      if !environments.include?(env_name) 
+        raise Thor::Error.new("No environment found with name #{env_name}")
+      end
+
+      env_config = Baustelle::Config.for_environment(config, env_name)
+      Baustelle::Config.app_config(env_config, app_name)
     end
 
     def for_every_environment(config)
@@ -18,7 +33,7 @@ module Baustelle
 
     def for_every_application(config)
       config['applications'].each do |app_name, app_config|
-        yield app_name, app_config
+        yield app_name, Baustelle::Config::Application.new(app_config)
       end
     end
 
@@ -39,7 +54,8 @@ module Baustelle
     end
 
     def app_config(config, name)
-      config.fetch('applications').fetch(name)
+      cfg = config.fetch('applications').fetch(name)
+      Baustelle::Config::Application.new(cfg)
     end
 
     def parse(hash)

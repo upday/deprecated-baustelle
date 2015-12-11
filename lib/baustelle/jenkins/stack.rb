@@ -60,7 +60,7 @@ module Baustelle
       def create_jobs
         Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
-            unless app_config.fetch('disabled', false)
+            unless app_config.disabled?
               application_jobs = Baustelle::Jenkins::ApplicationJobs.new(
                 @name,
                 @region,

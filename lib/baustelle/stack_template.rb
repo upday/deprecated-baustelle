@@ -107,12 +107,10 @@ module Baustelle
                           Roles: [template.ref('IAMRole')]
                         }
 
-      # Create Beanstalk applications
       applications = Baustelle::Config.applications(config).map do |app_name|
-        canonical_app_name = [name, app_name].join('_')
-        OpenStruct.new(name: app_name,
-                       canonical_name: canonical_app_name,
-                       ref: CloudFormation::Application.apply(template, canonical_app_name))
+        app = CloudFormation::Application.new(name, app_name)
+        app.apply(template)
+        app
       end
 
       # For every environemnt
@@ -139,23 +137,23 @@ module Baustelle
         applications.each do |app|
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
-          unless app_config.fetch('disabled', false)
+          unless app_config.disabled?
             resource_name = CloudFormation::EBEnvironment.apply(template,
                                                 stack_name: name,
                                                 env_name: env_name,
-                                                app_ref: app.ref,
+                                                app_ref: app.ref(template),
                                                 app_name: app.name,
                                                 vpc: vpc,
                                                 app_config: app_config,
                                                 stack_configurations: env_config.fetch('stacks'),
                                                 backends: environment_backends)
 
-            if app_config['dns']
+            if app_config.dns_name
               CloudFormation::Route53.apply(template,
                                             app_resource_name: resource_name,
-                                            hosted_zone_name: app_config['dns'].fetch('hosted_zone'),
-                                            dns_name: app_config['dns'].fetch('name'),
-                                            ttl: app_config['dns'].fetch('ttl', 60))
+                                            hosted_zone_name: app_config.raw['dns'].fetch('hosted_zone'),
+                                            dns_name: app_config.dns_name,
+                                            ttl: app_config.raw['dns'].fetch('ttl', 60))
             end
           end
         end
