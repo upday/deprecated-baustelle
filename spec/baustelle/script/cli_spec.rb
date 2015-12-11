@@ -84,13 +84,20 @@ describe 'Baustelle::Script::CLI' do
       end
     end
 
-    context "with java or maven environment variables" do
-      let(:opts){
-        [envvar("JAVA_HOME_foo", "bar2"), envvar("FOO_VAR", "bar"), envvar("M2_HOME", "bar2"), envvar("FOO_VAR2", "bar2")]
+    context "specifying environment variable names that should be included from the application" do
+      let(:app_config) {
+        {'systemtests' => { 'config_from_application_whitelist' => ["FOO_VAR", "FOO_VAR2"] }}
       }
 
-      it "removes environment variables starting with M2 and JAVA_HOME" do
-        expect { run(["script", "systemtest-env", "user_service", "staging"]) }.to output(generate_env("http", cname)).to_stdout
+      it "includes the configured environment variables in the output" do
+        expect { run(["script", "systemtest-env", "user_service", "staging"]) }.to output(
+<<-ENV
+FOO_VAR=bar
+FOO_VAR2=bar2
+APPLICATION_URL=http://#{cname}
+HOST=http://#{cname}
+ENV
+        ).to_stdout
       end
     end
 
@@ -130,8 +137,6 @@ describe 'Baustelle::Script::CLI' do
 
   def generate_env(protocol, dns)
 <<-ENV
-FOO_VAR=bar
-FOO_VAR2=bar2
 APPLICATION_URL=#{protocol}://#{dns}
 HOST=#{protocol}://#{dns}
 ENV
