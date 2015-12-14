@@ -32,7 +32,7 @@ module Baustelle
                           Type: 'AWS::ElasticLoadBalancing::LoadBalancer',
                           Properties: {
                             Subnets: vpc.zone_identifier,
-                            Scheme: 'internet-facing',
+                            Scheme: 'internal',
                             SecurityGroups: [template.ref('ELBSecurityGroup')],
                             CrossZone: true,
                             Listeners: [
