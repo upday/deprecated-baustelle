@@ -41,8 +41,8 @@ module Baustelle
         env_config = eb.configuration(app_name, env_name, stack_name)
         env = env_config.env_vars
 
-        # remove environment variables that break the jenkins build
-        env.delete_if { |k,v| k.start_with?("M2") || k.start_with?("JAVA_HOME") }
+        config_from_app = app_config.raw.fetch('systemtests', {}).fetch('config_from_application_whitelist', [])
+        env.delete_if { |k,v| !config_from_app.include?(k) }
 
         env['APPLICATION_URL'] = url(eb, app_config, app_name, env_name)
         # for backwards compatibility, deprecated

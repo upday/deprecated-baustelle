@@ -30,15 +30,17 @@ applications:
     dns:
       name: user-profile-service.baustelle.org
       hosted_zone: baustelle.org.
+    config:
+      SERVER_PORT: 5000
+      MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
     systemtests:
       git:
         repo: git@github.com:as-ideas/yana-contentmachine-systemtests.git
         branch: **/DO-127
       maven:
         goals_options: clean verify -Psystem-tests
-    config:
-      SERVER_PORT: 5000
-      MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
+      config_from_application_whitelist:
+        - MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION
 
   another_application:
     git:
@@ -108,6 +110,10 @@ via the `elasticbeanstalk.com` domain.
 The AWS hosted zone name where the domain `applications.<app_name>.dns.name` should be created in (must end with a period).
 * required when `applications.<app_name>.dns.name` is given
 
+#### `applications.<app_name>.config.<env_var_name>`
+Environment variable passed to the application process. In the example above, 2 environment variables will be created:
+`SERVER_PORT=5000` and `MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION=foo`
+
 #### `applications.<app_name>.systemtests`
 The systemtests definition for this application.
 Allowed values:
@@ -131,6 +137,9 @@ The maven goals and options to use for the systemtests job. Basically the string
 The command to execute the systemtests
 * required for ruby applications
 
-#### `applications.<app_name>.config.<env_var_name>`
-Environment variable passed to the application process. In the example above, 2 environment variables will be created:
-`SERVER_PORT=5000` and `MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION=foo`
+### `applications.<app_name>.systemtests.config_from_application_whitelist`
+The application has certain environment variables passed to it (those from `applications.<app_name>.config.`).
+With this option, you can define which of those environment variables should also be passed to the systemtest process.
+Additionally to that list, APPLICATION_URL and HOST (deprecated) are also added to the systemtest process. The value
+of those 2 variables is the base URL to the application (e.g. HOST=http://baustelle-eu-west-1-staging-my-app.elasticbeanstalk.com)
+* optional. Default is an empty list
