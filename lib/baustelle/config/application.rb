@@ -16,10 +16,6 @@ module Baustelle
         @raw.fetch('elb', {}).fetch('https', false)
       end
 
-      def https?
-        @raw.fetch('elb', {}).fetch('https', false)
-      end
-
       def dns_name
         @raw.fetch('dns', {})['name']
       end
