@@ -32,13 +32,13 @@ module Baustelle
 
       def template_file(template_type)
         {
-          :systemtests => "jobs/#{@app_config['stack']}.systemtests.groovy.erb",
-          :pipeline => "jobs/#{@app_config['stack']}.groovy.erb"
+          :systemtests => "jobs/#{@app_config.raw['stack']}.systemtests.groovy.erb",
+          :pipeline => "jobs/#{@app_config.raw['stack']}.groovy.erb"
         }[template_type]
       end
 
       def should_generate_systemtests?
-        @app_config.fetch('systemtests', false).is_a?(Hash)
+        @app_config.raw.fetch('systemtests', false).is_a?(Hash)
       end
 
       private
@@ -52,7 +52,7 @@ module Baustelle
       def generate_pipeline
         create_template(
           template_file(:pipeline),
-          systemtest_job_name(@app_config.fetch('systemtests', {}))
+          systemtest_job_name(@app_config.raw.fetch('systemtests', {}))
         )
       end
 
@@ -70,7 +70,8 @@ module Baustelle
           File.dirname(template_file),
           {
             stack_name: @name,
-            app_config: @app_config,
+            app_name: @application,
+            app_config: @app_config.raw,
             jenkins_options: @jenkins_options,
             region: @region,
             eb_environment_name: Baustelle::CloudFormation::EBEnvironment.

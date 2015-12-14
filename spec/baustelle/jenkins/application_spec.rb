@@ -2,24 +2,13 @@ require 'spec_helper'
 
 
 describe Baustelle::Jenkins::ApplicationJobs do
-  let(:application_jobs) {
-    Baustelle::Jenkins::ApplicationJobs.new(
-      'TestStack',
-      'TestRegion',
-      jenkins_options,
-      'TestEnvironment-TestHash',
-      'TestApplication',
-      app_config,
-      'git'
-    )
-  }
   let(:jenkins_options) {
     {
       'credentials_id' => 'TestCredentials',
       'maven_settings_id' => 'TestMavenSettings'
     }
   }
-  let(:app_config) {
+  let(:raw_app_config) {
     {
       'git' => {
         'repo' => 'TestGitRepo',
@@ -76,7 +65,7 @@ TEMPLATE
       jenkins_options,
       'TestEnvironment-TestHash',
       'TestApplication',
-      app_config.merge!(systemtests_config),
+      Baustelle::Config::Application.new(raw_app_config.merge!(systemtests_config)),
       'git'
     )
   end
