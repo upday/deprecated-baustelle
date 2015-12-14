@@ -13,15 +13,15 @@ module Baustelle
     # reads the specification from filepath and returns
     # the app_config for the given application in the given environment
     def read_app_config(filepath, app_name, env_name)
-      config = Baustelle::Config.read(filepath)
+      config = read(filepath)
 
-      environments = Baustelle::Config.environments(config)
+      environments = environments(config)
       if !environments.include?(env_name) 
         raise Thor::Error.new("No environment found with name #{env_name}")
       end
 
-      env_config = Baustelle::Config.for_environment(config, env_name)
-      Baustelle::Config.app_config(env_config, app_name)
+      env_config = for_environment(config, env_name)
+      app_config(env_config, app_name)
     end
 
     def for_every_environment(config)
