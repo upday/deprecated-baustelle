@@ -4,6 +4,7 @@ module Baustelle
   # Your code goes here...
   require 'active_support/core_ext/string'
   require 'baustelle/config'
+  require 'baustelle/config/validator'
   require 'baustelle/ami'
   require 'baustelle/stack_template'
   require 'baustelle/cloud_formation'
@@ -21,6 +22,7 @@ module Baustelle
   require 'baustelle/commands/jenkins/seed'
   require 'baustelle/commands/jenkins/delete'
   require 'baustelle/commands/read_config'
+  require 'baustelle/commands/validate_config'
   require 'baustelle/backend/rabbitmq'
   require 'baustelle/backend/external'
   require 'baustelle/backend/redis'
