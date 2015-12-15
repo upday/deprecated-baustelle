@@ -19,7 +19,12 @@ module Baustelle
           'vpc' => {
             'cidr' => cidr,
             'subnets' => hash_of(enum(%w(a b c d e)) => cidr),
-            optional('peers') => Hash
+            optional('peers') => hash_of(
+              String => {
+                'vpc_id' => predicate("valid vpc id") { |v| v.is_a?(String) && v =~ /^vpc-.+$/ },
+                'cidr' => cidr
+              }
+            )
           },
           'stacks' => Hash,
           'backends' => Hash,
