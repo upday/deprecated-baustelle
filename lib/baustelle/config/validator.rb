@@ -1,4 +1,5 @@
 require 'rschema'
+require 'rschema/cidr_schema'
 
 module Baustelle
   module Config
@@ -15,7 +16,11 @@ module Baustelle
         RSchema.schema {{
           optional('base_amis') => Hash,
           optional('jenkins') => Hash,
-          'vpc' => Hash,
+          'vpc' => {
+            'cidr' => cidr,
+            'subnets' => Hash,
+            optional('peers') => Hash
+          },
           'stacks' => Hash,
           'backends' => Hash,
           'applications' => Hash,
