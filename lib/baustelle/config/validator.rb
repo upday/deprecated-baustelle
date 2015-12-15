@@ -18,7 +18,7 @@ module Baustelle
           optional('jenkins') => Hash,
           'vpc' => {
             'cidr' => cidr,
-            'subnets' => Hash,
+            'subnets' => hash_of(enum(%w(a b c d e)) => cidr),
             optional('peers') => Hash
           },
           'stacks' => Hash,
