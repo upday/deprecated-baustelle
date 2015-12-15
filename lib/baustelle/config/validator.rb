@@ -28,7 +28,17 @@ module Baustelle
                 spec
               }
             ),
-            optional('jenkins') => Hash,
+            optional('jenkins') => {
+              'connection' => {
+                'server_url' => String,
+                'username' => String,
+                'password' => String
+              },
+              'options' => {
+                optional('credentials_id') => String,
+                optional('maven_settings_id') => String
+              }
+            },
             'vpc' => {
               'cidr' => cidr,
               'subnets' => hash_of(enum(%w(a b c d e)) => cidr),
