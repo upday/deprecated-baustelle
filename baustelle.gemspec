@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "thor", "~> 0.19"
   spec.add_dependency "aws-sdk"
   spec.add_dependency "jenkins_api_client", "~> 1.4.1"
+  spec.add_dependency "rschema", "~> 1.3.0"
 
 
   spec.add_development_dependency "bundler", "~> 1.10"
