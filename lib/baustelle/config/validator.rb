@@ -1,6 +1,7 @@
 require 'rschema'
 require 'rschema/cidr_schema'
 require 'rschema/aws_region'
+require 'rschema/aws_ami'
 
 module Baustelle
   module Config
@@ -19,11 +20,10 @@ module Baustelle
         RSchema.schema {
           {
             optional('base_amis') => hash_of(
-              String => in_each_region {
-                predicate("valid ami id") { |v| v.is_a?(String) && v =~ /^ami-.*$/ }
-              }.merge('user' => String,
-                      'system' => enum(%w(ubuntu amazon)),
-                      optional('user_data') => String)
+              String => in_each_region { |region| existing_ami(region) }.
+                       merge('user' => String,
+                             'system' => enum(%w(ubuntu amazon)),
+                             optional('user_data') => String)
             ),
             optional('jenkins') => {
               'connection' => {
@@ -50,9 +50,7 @@ module Baustelle
             'backends' => {
               optional('RabbitMQ') => hash_of(
                 String => {
-                  'ami' => in_each_region {
-                    predicate("valid ami id") { |v| v.is_a?(String) && v =~ /^ami-.*$/ }
-                  },
+                  'ami' => in_each_region { |region| existing_ami(region) },
                   'cluster_size' => Fixnum
                 }
               ),
