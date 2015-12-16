@@ -50,7 +50,19 @@ module Baustelle
               )
             },
             'stacks' => Hash,
-            'backends' => Hash,
+            'backends' => {
+              optional('RabbitMQ') => hash_of(
+                String => {
+                  'ami' => REGIONS.inject({}) { |map, region|
+                    map.merge(optional(region) => predicate("valid ami id") { |v| v.is_a?(String) && v =~ /^ami-.*$/ })
+                  },
+                  'cluster_size' => Fixnum
+                }
+              ),
+              optional('Redis') => Hash,
+              optional('Kinesis') => Hash,
+              optional('External') => Hash
+            },
             'applications' => Hash,
             'environments' => Hash
           }
