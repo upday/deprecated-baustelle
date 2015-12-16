@@ -59,9 +59,18 @@ module Baustelle
                   'cluster_size' => Fixnum
                 }
               ),
-              optional('Redis') => Hash,
-              optional('Kinesis') => Hash,
-              optional('External') => Hash
+              optional('Redis') => hash_of(
+                String => {
+                  'cache_node_type' => String,
+                  'cluster_size' => Fixnum
+                }
+              ),
+              optional('Kinesis') => hash_of(
+                String => {
+                  'shard_count' => Fixnum
+                }
+              ),
+              optional('External') => hash_of(String => Hash)
             },
             'applications' => Hash,
             'environments' => Hash
