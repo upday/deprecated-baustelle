@@ -10,7 +10,7 @@ module Baustelle
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
-                stack_configurations:, backends:)
+                stack_configurations:, backends:, env_config:)
         env_hash = eb_env_name(stack_name, app_name, env_name)
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
@@ -21,6 +21,7 @@ module Baustelle
                                                                            backends, template),
                                                       stack_name,
                                                       env_name,
+                                                      env_config,
                                                       template)
 
         resource_name = "#{app_name}_env_#{env_name}".camelize
@@ -164,10 +165,12 @@ module Baustelle
         end
       end
 
-      def extrapolate_applications(config, stack_name, env_name, template)
+      def extrapolate_applications(config, stack_name, env_name, env_config, template)
         config.inject({}) do |acc, (key, value)|
           if application = value.to_s.match(APPLICATION_REF_REGEX)
-            hostname = template.join('.',
+            app_config = Baustelle::Config.app_config(env_config, application[:name])
+            hostname = app_config.dns_name ||
+                       template.join('.',
                                      application_dns_endpoint(template, stack_name,
                                                               env_name,
                                                               application[:name]),
@@ -175,8 +178,7 @@ module Baustelle
 
             acc[key] = {
               'host' => hostname,
-              'url' => template.join('', 'http://', hostname),
-              'secure_url' => template.join('', 'https://', hostname)
+              'url' => template.join('', app_config.https? ? "https://" : "http://", hostname),
             }.fetch(application[:property])
           else
             acc[key] = value

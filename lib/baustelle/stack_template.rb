@@ -145,6 +145,7 @@ module Baustelle
                                                 app_name: app.name,
                                                 vpc: vpc,
                                                 app_config: app_config,
+                                                env_config: env_config,
                                                 stack_configurations: env_config.fetch('stacks'),
                                                 backends: environment_backends)
 
