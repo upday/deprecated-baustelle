@@ -68,7 +68,9 @@ module Baustelle
               ),
               optional('External') => hash_of(String => Hash)
             },
-            'applications' => hash_of(String => Validator::Application.schema(config_hash)),
+            'applications' => hash_of(
+              String => Validator::Application.new(config_hash).schema
+            ),
             'environments' => Hash
           }
         }
