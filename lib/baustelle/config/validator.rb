@@ -2,6 +2,7 @@ require 'rschema'
 require 'rschema/cidr_schema'
 require 'rschema/aws_region'
 require 'rschema/aws_ami'
+require 'baustelle/config/validator/application'
 
 module Baustelle
   module Config
@@ -11,12 +12,12 @@ module Baustelle
       extend self
 
       def call(config_hash)
-        RSchema.validation_error(schema, config_hash)
+        RSchema.validation_error(schema(config_hash), config_hash)
       end
 
       private
 
-      def schema
+      def schema(config_hash)
         RSchema.schema {
           {
             optional('base_amis') => hash_of(
@@ -67,7 +68,7 @@ module Baustelle
               ),
               optional('External') => hash_of(String => Hash)
             },
-            'applications' => Hash,
+            'applications' => hash_of(String => Validator::Application.schema(config_hash)),
             'environments' => Hash
           }
         }
