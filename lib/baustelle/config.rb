@@ -7,7 +7,7 @@ module Baustelle
     extend self
 
     def read(filepath)
-      parse YAML.load(File.read(filepath))
+      parse YAML.load_file(filepath)
     end
 
     # reads the specification from filepath and returns
@@ -16,7 +16,7 @@ module Baustelle
       config = read(filepath)
 
       environments = environments(config)
-      if !environments.include?(env_name) 
+      if !environments.include?(env_name)
         raise Thor::Error.new("No environment found with name #{env_name}")
       end
 
