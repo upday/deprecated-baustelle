@@ -58,7 +58,7 @@ module Baustelle
               ),
               optional('Redis') => hash_of(
                 String => {
-                  'cache_node_type' => String,
+                  'cache_node_type' => instance_type(:cache),
                   'cluster_size' => Fixnum,
                   optional('instance_type') => instance_type
                 }
