@@ -2,6 +2,7 @@ require 'rschema'
 require 'rschema/cidr_schema'
 require 'rschema/aws_region'
 require 'rschema/aws_ami'
+require 'rschema/aws_instance_type'
 require 'baustelle/config/validator/application'
 
 module Baustelle
@@ -58,7 +59,8 @@ module Baustelle
               optional('Redis') => hash_of(
                 String => {
                   'cache_node_type' => String,
-                  'cluster_size' => Fixnum
+                  'cluster_size' => Fixnum,
+                  optional('instance_type') => instance_type
                 }
               ),
               optional('Kinesis') => hash_of(
