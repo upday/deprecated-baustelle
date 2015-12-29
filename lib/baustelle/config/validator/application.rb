@@ -35,7 +35,7 @@ module Baustelle
 
         def schema
           {
-            'git' => {
+            'git' => git = {
               'repo' => String,
               optional('branch') => String
             },
@@ -50,7 +50,13 @@ module Baustelle
                                         backends: backends)
             ),
             optional('systemtests') => either(enum(applications),
-                                              Hash),
+                                              {
+                                                'git' => git,
+                                                optional('command') => String,
+                                                optional('cron') => String,
+                                                'config_from_application_whitelist' => [String],
+                                                optional('maven') => hash_of(String => String)
+                                              }),
             optional('elb') => Hash,
             optional('maven') => Hash
           }
