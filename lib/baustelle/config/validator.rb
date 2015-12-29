@@ -34,7 +34,10 @@ module Baustelle
                 'password' => String
               },
               'options' => {
-                optional('credentials_id') => String,
+                'credentials' => {
+                  'git' => String,
+                  optional('dockerhub') => String
+                },
                 optional('maven_settings_id') => String
               }
             },
