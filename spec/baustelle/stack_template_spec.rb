@@ -73,6 +73,7 @@ applications:
       RABBITMQ_URL: backend(RabbitMQ:main:url)
       DATABASE_URL: backend(External:postgres:url)
       CUSTOM_HELLO_URL: application(custom_hello_world:url)
+      HTTPS_APP_URL: application(https_hello_world:url)
   https_hello_world:
     stack: ruby2.2-with-datadog
     instance_type: t2.small
@@ -81,6 +82,9 @@ applications:
       max: 1
     elb:
       <<: *https
+    dns:
+      hosted_zone: example.com
+      name: app.example.com
   application_not_in_loadtest:
     stack: ruby
     instance_type: t2.small
@@ -377,6 +381,15 @@ environments:
                         ]
                    ]
                   })
+        end
+      end
+
+      it 'links HTTPS application within the same environment' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["HTTPS_APP_URL"]).
+            to eq({'Fn::Join' => ['', ['https://', 'app.example.com']]})
         end
       end
 
