@@ -15,7 +15,8 @@ module RSchema
                                                                   {name: 'virtualization-type',
                                                                    values: [virtualization_type]}]).
                                       images.any?
-                                  rescue Aws::EC2::Errors::InvalidAMIIDNotFound
+                                  rescue Aws::EC2::Errors::InvalidAMIIDNotFound,
+                                         Aws::EC2::Errors::InvalidAMIIDMalformed
                                     false
                                   end
     end
