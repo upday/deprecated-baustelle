@@ -8,6 +8,8 @@ require 'baustelle/config/validator/application'
 module Baustelle
   module Config
     module Validator
+      include RSchema::DSL::Base
+
       REGIONS = %w(us-east-1 eu-west-1 eu-central-1)
 
       extend self
@@ -19,6 +21,48 @@ module Baustelle
       private
 
       def schema(config_hash)
+        root = root_schema(config_hash)
+
+        root.merge('environments' => hash_of(
+                     String => optional_tree(root).merge(environment_schema(config_hash))
+                   ))
+      end
+
+      def environment_schema(config_hash)
+        environments = Set.new(config_hash.fetch('environments', {}).keys)
+        RSchema.schema {
+          {
+            optional('eb_application_version_source') => enum(environments + ['git'])
+          }
+        }
+      end
+
+      def optional_tree(root)
+        case root
+        when Hash
+          root.inject({}) { |result, (key, value)|
+            result.merge(optional_key(key) => optional_tree(value))
+          }
+        when RSchema::GenericHashSchema
+          RSchema::GenericHashSchema.new(optional_key(root.key_subschema),
+                                         optional_tree(root.value_subschema))
+        when RSchema::EitherSchema
+          RSchema::EitherSchema.new(root.alternatives.map(&method(:optional_tree)))
+        when Array
+          root.map(&method(:optional_tree))
+        else
+          root
+        end
+      end
+
+      def optional_key(key)
+        case key
+        when RSchema::OptionalHashKey, Class, Struct then key
+        else RSchema::OptionalHashKey.new(key)
+        end
+      end
+
+      def root_schema(config_hash)
         RSchema.schema {
           {
             optional('base_amis') => hash_of(
