@@ -49,6 +49,7 @@ module Baustelle
               String => ConfigEntry.new(applications: applications,
                                         backends: backends)
             ),
+            optional('disabled') => boolean,
             optional('systemtests') => either(enum(applications),
                                               {
                                                 'git' => git,
@@ -57,7 +58,16 @@ module Baustelle
                                                 'config_from_application_whitelist' => [String],
                                                 optional('maven') => hash_of(String => String)
                                               }),
-            optional('elb') => Hash,
+            optional('elb') => {
+              optional('https') => boolean,
+              optional('ssl_certificate') => predicate("is a ARN resource of a server certificate") { |value| value =~ /^arn:aws:iam::\d+:server-certificate\/.*/ },
+              optional('ssl_reference_policy') => String,
+              optional('visibility') => enum(%w(internal external))
+            },
+            optional('dns') =>{
+              'hosted_zone' => String,
+              'name' => String
+            },
             optional('maven') => Hash
           }
         end
