@@ -9,9 +9,6 @@ module Baustelle
   module Config
     module Validator
       include RSchema::DSL::Base
-
-      REGIONS = %w(us-east-1 eu-west-1 eu-central-1)
-
       extend self
 
       def call(config_hash)
