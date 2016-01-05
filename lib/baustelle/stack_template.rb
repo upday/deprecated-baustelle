@@ -36,12 +36,21 @@ module Baustelle
                         }
 
       global_iam_role = CloudFormation::IAMRole.new('', {'describe_tags' => {
-                                         'action' => 'ec2:DescribeTags'
-                                       },
-                                       'describe_instances' => {
-                                         'action' => 'ec2:DescribeInstances'
-                                       }
-                                      }).apply(template)
+                                                           'action' => 'ec2:DescribeTags'
+                                                         },
+                                                         'describe_instances' => {
+                                                           'action' => 'ec2:DescribeInstances'
+                                                         },
+                                                         'elastic_beanstalk_bucket_access' => {
+                                                           'action' => ['s3:Get*', 's3:List*', 's3:PutObject'],
+                                                           'resource' => [
+                                                             "arn:aws:s3:::elasticbeanstalk-*-*",
+                                                             "arn:aws:s3:::elasticbeanstalk-*-*/*",
+                                                             "arn:aws:s3:::elasticbeanstalk-*-*-*",
+                                                             "arn:aws:s3:::elasticbeanstalk-*-*-*/*"
+                                                           ]
+                                                         }
+                                                        }).apply(template)
 
       applications = Baustelle::Config.applications(config).map do |app_name|
         app = CloudFormation::Application.new(name, app_name)
