@@ -26,7 +26,8 @@ module Baustelle
 
         resource_name = "#{app_name}_env_#{env_name}".camelize
 
-        iam_role = base_iam_role.inherit("#{app_name}_#{env_name}", {}).
+        iam_role = base_iam_role.inherit("#{app_name}_#{env_name}",
+                                         app_config.fetch('iam_instance_profile', {})).
           apply(template)
 
         template.resource resource_name,

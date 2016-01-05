@@ -68,7 +68,14 @@ module Baustelle
               'hosted_zone' => String,
               'name' => String
             },
-            optional('maven') => Hash
+            optional('maven') => Hash,
+            optional('iam_instance_profile') => hash_of(
+              String => {
+                optional('effect') => enum(%w(Allow Deny)),
+                optional('resource') => String,
+                'action' => either(String, [String])
+              }
+            )
           }
         end
 
