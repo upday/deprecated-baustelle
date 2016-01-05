@@ -27,8 +27,9 @@ module Baustelle
         resource_name = "#{app_name}_env_#{env_name}".camelize
 
         iam_role = base_iam_role.inherit("#{app_name}_#{env_name}",
-                                         application_config.fetch('iam_instance_profile', {})).
-          apply(template)
+                                         extrapolate_backends(app_config.raw.fetch('iam_instance_profile', {}),
+                                                                backends, template)).
+                   apply(template)
 
         template.resource resource_name,
                           Type: "AWS::ElasticBeanstalk::Environment",
@@ -157,7 +158,9 @@ module Baustelle
 
       def extrapolate_backends(config, backends, template)
         config.inject({}) do |acc, (key, value)|
-          if backend = value.to_s.match(BACKEND_REGEX)
+          if value.is_a?(Hash)
+            acc[key] = extrapolate_backends(value, backends, template)
+          elsif backend = value.to_s.match(BACKEND_REGEX)
             backend_output = backends[backend[:type]][backend[:name]].
                              output(template)
 
