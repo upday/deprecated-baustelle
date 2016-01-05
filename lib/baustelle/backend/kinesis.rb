@@ -18,7 +18,8 @@ module Baustelle
 
       def output(template)
         {
-          'id' => {'Ref' => "#{prefix}Stream"}
+          'id' => {'Ref' => "#{prefix}Stream"},
+          'arn' => {'Fn::GetAtt' => ["#{prefix}Stream", "Arn"]}
         }
       end
 
