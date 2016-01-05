@@ -35,77 +35,13 @@ module Baustelle
                           ]
                         }
 
-      template.resource "IAMRole",
-                        Type: "AWS::IAM::Role",
-                        Properties: {
-                          Path: '/',
-                          AssumeRolePolicyDocument: {
-                            Version: '2012-10-17',
-                            Statement: [
-                              {
-                                Effect: 'Allow',
-                                Principal: {Service: ['ec2.amazonaws.com']},
-                                Action: ['sts:AssumeRole']
-                              }
-                            ]
-                          },
-                          Policies: [
-                            {
-                              PolicyName: 'DescribeTags',
-                              PolicyDocument: {
-                                Version: '2012-10-17',
-                                Statement: [
-                                  {
-                                    Effect: 'Allow',
-                                    Action: "ec2:DescribeTags",
-                                    Resource: "*"
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              PolicyName: 'DescribeInstances',
-                              PolicyDocument: {
-                                Version: '2012-10-17',
-                                Statement: [
-                                  {
-                                    Effect: 'Allow',
-                                    Action: 'ec2:DescribeInstances',
-                                    Resource: '*'
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              PolicyName: 'KinesisApplication',
-                              PolicyDocument: {
-                                Version: '2012-10-17',
-                                Statement: [
-                                  {
-                                    Action: [
-                                      'kinesis:DescribeStream',
-                                      'kinesis:ListStreams',
-                                      'kinesis:PutRecord',
-                                      'kinesis:PutRecords',
-                                      'kinesis:GetShardIterator',
-                                      'kinesis:GetRecords'
-                                    ],
-                                    Effect: 'Allow',
-                                    Resource: '*'
-                                  }
-                                ]
-                              }
-                            }
-
-                          ]
-                        }
-
-      template.resource "IAMInstanceProfile",
-                        Type: 'AWS::IAM::InstanceProfile',
-                        Properties: {
-                          Path: '/',
-                          Roles: [template.ref('IAMRole')]
-                        }
+      global_iam_role = CloudFormation::IAMRole.new('', {'describe_tags' => {
+                                         'action' => 'ec2:DescribeTags'
+                                       },
+                                       'describe_instances' => {
+                                         'action' => 'ec2:DescribeInstances'
+                                       }
+                                      }).apply(template)
 
       applications = Baustelle::Config.applications(config).map do |app_name|
         app = CloudFormation::Application.new(name, app_name)
@@ -139,15 +75,16 @@ module Baustelle
 
           unless app_config.disabled?
             resource_name = CloudFormation::EBEnvironment.apply(template,
-                                                stack_name: name,
-                                                env_name: env_name,
-                                                app_ref: app.ref(template),
-                                                app_name: app.name,
-                                                vpc: vpc,
-                                                app_config: app_config,
-                                                env_config: env_config,
-                                                stack_configurations: env_config.fetch('stacks'),
-                                                backends: environment_backends)
+                                                                stack_name: name,
+                                                                env_name: env_name,
+                                                                app_ref: app.ref(template),
+                                                                app_name: app.name,
+                                                                vpc: vpc,
+                                                                app_config: app_config,
+                                                                env_config: env_config,
+                                                                stack_configurations: env_config.fetch('stacks'),
+                                                                backends: environment_backends,
+                                                                base_iam_role: global_iam_role)
 
             if app_config.dns_name
               CloudFormation::Route53.apply(template,

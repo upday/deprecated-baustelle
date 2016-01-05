@@ -10,7 +10,7 @@ module Baustelle
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
-                stack_configurations:, backends:, env_config:)
+                stack_configurations:, backends:, env_config:, base_iam_role:)
         env_hash = eb_env_name(stack_name, app_name, env_name)
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
@@ -25,6 +25,10 @@ module Baustelle
                                                       template)
 
         resource_name = "#{app_name}_env_#{env_name}".camelize
+
+        iam_role = base_iam_role.inherit("#{app_name}_#{env_name}", {}).
+          apply(template)
+
         template.resource resource_name,
                           Type: "AWS::ElasticBeanstalk::Environment",
                           Properties: {
@@ -41,7 +45,7 @@ module Baustelle
                             OptionSettings: {
                               'aws:autoscaling:launchconfiguration' => {
                                 'EC2KeyName' => 'kitchen',
-                                'IamInstanceProfile' => template.ref('IAMInstanceProfile'),
+                                'IamInstanceProfile' => template.ref(iam_role.instance_profile_name),
                                 'InstanceType' => app_config.raw.fetch('instance_type')
                               },
                               'aws:autoscaling:updatepolicy:rollingupdate' => {

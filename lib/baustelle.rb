@@ -15,6 +15,7 @@ module Baustelle
   require 'baustelle/cloud_formation/application'
   require 'baustelle/cloud_formation/ebenvironment'
   require 'baustelle/cloud_formation/template'
+  require 'baustelle/cloud_formation/iam_role'
   require 'baustelle/commands/create'
   require 'baustelle/commands/update'
   require 'baustelle/commands/delete'
