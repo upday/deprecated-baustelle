@@ -39,7 +39,7 @@ module Baustelle
                             },
                             Policies: @statements.map { |name, options|
                               {
-                                PolicyName: name.to_s.camelize,
+                                PolicyName: role_name + name.to_s.camelize,
                                 PolicyDocument: {
                                   Version: "2012-10-17",
                                   Statement: [
@@ -66,16 +66,3 @@ module Baustelle
     end
   end
 end
-
-#
-#  Action: [
-#    'kinesis:DescribeStream',
-#    'kinesis:ListStreams',
-#    'kinesis:PutRecord',
-#    'kinesis:PutRecords',
-#    'kinesis:GetShardIterator',
-#    'kinesis:GetRecords'
-#  ],
-#  Effect: 'Allow',
-#  Resource: '*'
-#
