@@ -40,7 +40,16 @@ applications:
       maven:
         goals_options: clean verify -Psystem-tests
       config_from_application_whitelist:
-        - MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION
+      - MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION
+    iam_instance_profile:
+      kinesis:
+        action:
+          - kinesis:DescribeStream
+          - kinesis:ListStreams
+          - kinesis:GetShardIterator
+          - kinesis:GetRecords
+        resource: backend(Kinesis:user_events:arn)
+
 
   another_application:
     git:
@@ -143,3 +152,28 @@ With this option, you can define which of those environment variables should als
 Additionally to that list, APPLICATION_URL and HOST (deprecated) are also added to the systemtest process. The value
 of those 2 variables is the base URL to the application (e.g. HOST=http://baustelle-eu-west-1-staging-my-app.elasticbeanstalk.com)
 * optional. Default is an empty list
+
+### `applications.<app_name>.iam_instance_profile`
+Defines a list of policy statements which should be applied on the custom IAM Role assigned
+to the application. These statements will be appended to the default set defined by baustelle.
+
+### `applications.<app_name>.iam_instance_profile.<statement_name>`
+A label of a given custom statement. `iam_instance_profile` key defines a dictionary
+(not a list) just in order to make overriding configurations per-environment possible.
+
+### `applications.<app_name>.iam_instance_profile.<statement_name>.action`
+Name (or list of names) of AWS API action, which an application instance will be allowed
+to perform
+* required
+
+### `applications.<app_name>.iam_instance_profile.<statement_name>.effect`
+"Allow" or "Deny". "Allow" by default
+
+### `applications.<app_name>.iam_instance_profile.<statement_name>.resource`
+ARN, ARN pattern or a list of ARNs or patterns. Resources concerned by given policy
+statement. "*" by default.
+It is possible to reference a backend's ARN from here (look at the example on top).
+In this case baustelle will take care of replacing the reference with an ARN
+for every environment.
+Note that if the specific ARN is given here, it is possible to override it on
+per-environment basis.
