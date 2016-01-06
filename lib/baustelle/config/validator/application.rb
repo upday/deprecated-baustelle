@@ -72,7 +72,7 @@ module Baustelle
             optional('iam_instance_profile') => hash_of(
               String => {
                 optional('effect') => enum(%w(Allow Deny)),
-                optional('resource') => String,
+                optional('resource') => either(String, [String]),
                 'action' => either(String, [String])
               }
             )
