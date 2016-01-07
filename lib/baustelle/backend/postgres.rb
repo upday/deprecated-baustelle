@@ -25,7 +25,7 @@ module Baustelle
                             Engine: 'postgres',
                             DBInstanceClass: @options.fetch('instance_type'),
                             DBName: db_name,
-                            DBSubnetGroupName: sg,
+                            DBSubnetGroupName: template.ref(sg),
                             MasterUsername: @options.fetch('username'),
                             MasterUserPassword: @options.fetch('password'),
                             MultiAZ: @options.fetch('multi_az', true),
