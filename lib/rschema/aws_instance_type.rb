@@ -16,8 +16,13 @@ cache.m1.medium
 cache.t2.micro cache.t2.small cache.t2.medium
 cache.m3.medium cache.m3.large cache.m3.xlarge cache.m3.2xlarge
 cache.r3.large cache.r3.xlarge cache.r3.2xlarge cache.r3.4xlarge cache.r3.8xlarge
+),
+      rds: %w(
+db.m4.large db.m4.xlarge db.m4.2xlarge db.m4.4xlarge db.m4.10xlarge
+db.m3.medium db.m3.large db.m3.xlarge db.m3.2xlarge
+db.r3.large db.r3.xlarge db.r3.2xlarge db.r3.4xlarge db.r3.8xlarge
+db.t2.micro db.t2.small db.t2.medium db.t2.large
 )
-
     }
   end
 

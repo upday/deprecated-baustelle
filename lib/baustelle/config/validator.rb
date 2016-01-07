@@ -112,6 +112,15 @@ module Baustelle
                   'shard_count' => Fixnum
                 }
               ),
+              optional('Postgres') => hash_of(
+                String => {
+                  'storage' => Fixnum,
+                  'instance_type' => instance_type(:rds),
+                  'username' => String,
+                  'password' => String,
+                  optional('multi_az') => boolean
+                }
+              ),
               optional('External') => hash_of(String => Hash)
             },
             'applications' => hash_of(
