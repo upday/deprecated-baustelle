@@ -35,8 +35,8 @@ module Baustelle
       end
 
       def output(template)
-         host = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'PrimaryEndpoint.Address']}
-         port = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'PrimaryEndpoint.Port']}
+         host = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'Endpoint.Address']}
+         port = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'Endpoint.Port']}
 
         {
           'url' => {'Fn::Join' => ['', ['postgres://', @options.fetch('username'),
