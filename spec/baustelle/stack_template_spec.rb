@@ -3,6 +3,7 @@ require_relative 'stack_template/vpc'
 require_relative 'stack_template/application'
 require_relative 'stack_template/backend/rabbitmq'
 require_relative 'stack_template/backend/redis'
+require_relative 'stack_template/backend/postgres'
 require_relative 'stack_template/backend/kinesis'
 require_relative 'stack_template/peer_vpc'
 
@@ -49,6 +50,12 @@ backends:
   Kinesis:
     main:
       shard_count: 2
+  Postgres:
+    unimportant_data:
+      instance_type: db.m4.large
+      storage: 10
+      username: foo
+      password: qwerty
   External:
     postgres:
       url: postgres://production
@@ -254,6 +261,22 @@ environments:
                        availability_zones: %w(a b),
                        instance_type: 'cache.m1.medium',
                        cluster_size: 1
+
+      include_examples "Backend Postgres in environment",
+                       stack_name: 'foo',
+                       environment: 'staging',
+                       name: "unimportant_data",
+                       availability_zones: %w(a b),
+                       instance_type: 'db.m4.large',
+                       storage: 10
+
+      include_examples "Backend Postgres in environment",
+                       stack_name: 'foo',
+                       environment: 'staging',
+                       name: "unimportant_data",
+                       availability_zones: %w(a b),
+                       instance_type: 'db.m4.large',
+                       storage: 10
 
       include_examples "Backend Kinesis in environment",
                        stack_name: 'foo',

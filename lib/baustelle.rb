@@ -28,4 +28,5 @@ module Baustelle
   require 'baustelle/backend/external'
   require 'baustelle/backend/redis'
   require 'baustelle/backend/kinesis'
+  require 'baustelle/backend/postgres'
 end
