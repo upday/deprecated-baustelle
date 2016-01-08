@@ -92,7 +92,12 @@ module Baustelle
                 }
               )
             },
-            'stacks' => Hash,
+            'stacks' => hash_of(
+              String => {
+                'solution' => String,
+                optional('ami') => in_each_region { |region| existing_ami(region) }
+              }
+            ),
             'backends' => {
               optional('RabbitMQ') => hash_of(
                 String => {
