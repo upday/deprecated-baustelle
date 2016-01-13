@@ -79,6 +79,11 @@ module Baustelle
         end
 
         # Create applications
+
+        # It is used to chain updates. There is high iikehood we hit AWS API rate limit
+        # if we create/update all environments at once
+        previous_eb_env = nil
+
         applications.each do |app|
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
@@ -93,7 +98,8 @@ module Baustelle
                                                                 env_config: env_config,
                                                                 stack_configurations: env_config.fetch('stacks'),
                                                                 backends: environment_backends,
-                                                                base_iam_role: global_iam_role)
+                                                                base_iam_role: global_iam_role,
+                                                                chain_after: previous_eb_env)
 
             if app_config.dns_name
               CloudFormation::Route53.apply(template,
@@ -102,6 +108,8 @@ module Baustelle
                                             dns_name: app_config.dns_name,
                                             ttl: app_config.raw['dns'].fetch('ttl', 60))
             end
+
+            previous_eb_env = resource_name
           end
         end
       end
