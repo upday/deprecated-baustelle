@@ -50,6 +50,7 @@ module Baustelle
                                         backends: backends)
             ),
             optional('disabled') => boolean,
+            optional('pre_deploy_unit_test_command') => String,
             optional('systemtests') => either(enum(applications),
                                               {
                                                 'git' => git,
