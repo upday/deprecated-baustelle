@@ -52,6 +52,7 @@ module Baustelle
             optional('disabled') => boolean,
             optional('pre_deploy_test_command') => String,
             optional('systemtests') => either(enum(applications),
+                                              false, nil,
                                               {
                                                 'git' => git,
                                                 optional('command') => String,
