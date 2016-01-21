@@ -343,15 +343,8 @@ environments:
         end
       end
 
-      it 'creates a dns resource for an application that is configured so' do
-        expect_resource template, "ApplicationWithDnsInProductionEnvProductionDnsRecord",
-                        of_type: 'AWS::Route53::RecordSet' do |properties|
-          expect(properties[:HostedZoneName]).to eq('baustelle.org')
-          expect(properties[:Name]).to eq('myapp.baustelle.org')
-          expect(properties[:Type]).to eq('CNAME')
-          expect(properties[:ResourceRecords]).to eq([{ 'Fn::GetAtt' => [ 'ApplicationWithDnsInProductionEnvProduction', 'EndpointURL' ] }])
-          expect(properties[:TTL]).to eq(60)
-        end
+      it 'creates no dns resource for an application that is configured with custom dns name (we assign CNAMEs manually)' do
+        expect(template[:Resources]['ApplicationWithDnsInProductionEnvStagingDnsRecord']).to be_nil
       end
 
       it 'creates no dns resource for an application where no dns property is configured' do
