@@ -193,10 +193,13 @@ module Baustelle
                                                               application[:name]),
                                      'elasticbeanstalk.com')
 
+            port = app_config.https? ? 443 : 80
+
             acc[key] = {
               'host' => hostname,
               'url' => template.join('', app_config.https? ? "https://" : "http://", hostname),
-              'port' => app_config.https? ? 443 : 80
+              'port' => port,
+              'url_with_port' => template.join('', app_config.https? ? "https://" : "http://", hostname, ':', port),
             }.fetch(application[:property])
           else
             acc[key] = value
