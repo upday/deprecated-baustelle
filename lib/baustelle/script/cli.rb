@@ -41,10 +41,11 @@ module Baustelle
         env_config = eb.configuration(app_name, env_name, stack_name)
         env = env_config.env_vars
 
-        config_from_app = app_config.raw.fetch('systemtests', {}).fetch('config_from_application_whitelist', [])
+        config_from_app = ["APPLICATION_URL"] + app_config.raw.fetch('systemtests', {}).fetch('config_from_application_whitelist', [])
         env.delete_if { |k,v| !config_from_app.include?(k) }
 
-        env['APPLICATION_URL'] = url(eb, app_config, app_name, env_name)
+        env['APPLICATION_URL'] ||= url(eb, app_config, app_name, env_name)
+
         # for backwards compatibility, deprecated
         env['HOST'] = env['APPLICATION_URL']
 
@@ -75,7 +76,7 @@ module Baustelle
       def region
         parent_options.fetch('region')
       end
-      
+
     end
   end
 end
