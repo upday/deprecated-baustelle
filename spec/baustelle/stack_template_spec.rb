@@ -312,7 +312,14 @@ environments:
           option_settings = group_option_settings(properties[:OptionSettings])
 
           elb_listeners = option_settings.select { |key,_| key.start_with?('aws:elb:listener:') }
-          expect(elb_listeners).to be_empty
+          expect(elb_listeners).
+            to eq('aws:elb:listener:80' => {
+                    'ListenerEnabled' => 'true'
+                  },
+                  'aws:elb:listener:443' => {
+                    'ListenerEnabled' => 'false'
+                  }
+                 )
 
           expect(option_settings['aws:elb:policies:SSL']).to be_nil
         end
@@ -330,6 +337,7 @@ environments:
                                                              })
 
           expect(elb_listeners['aws:elb:listener:443']).to eq({
+                                                                'ListenerEnabled' => 'true',
                                                                 'ListenerProtocol' => 'HTTPS',
                                                                 'InstanceProtocol' => 'HTTP',
                                                                 'InstancePort' => '80',
