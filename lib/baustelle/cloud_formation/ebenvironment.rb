@@ -196,6 +196,7 @@ module Baustelle
             acc[key] = {
               'host' => hostname,
               'url' => template.join('', app_config.https? ? "https://" : "http://", hostname),
+              'port' => app_config.https? ? 443 : 80
             }.fetch(application[:property])
           else
             acc[key] = value
