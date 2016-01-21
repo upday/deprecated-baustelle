@@ -16,6 +16,10 @@ module Baustelle
         @raw.fetch('elb', {}).fetch('https', false)
       end
 
+      def force_keep_http?
+        @raw.fetch('elb', {}).fetch('keep_http_listener', false)
+      end
+
       def dns_name
         @raw.fetch('dns', {})['name']
       end

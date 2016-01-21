@@ -64,7 +64,8 @@ module Baustelle
               optional('https') => boolean,
               optional('ssl_certificate') => predicate("is a ARN resource of a server certificate") { |value| value =~ /^arn:aws:iam::\d+:server-certificate\/.*/ },
               optional('ssl_reference_policy') => String,
-              optional('visibility') => enum(%w(internal external))
+              optional('visibility') => enum(%w(internal external)),
+              optional('keep_http_listener') => boolean
             },
             optional('dns') =>{
               'hosted_zone' => String,
