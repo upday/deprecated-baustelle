@@ -100,15 +100,6 @@ module Baustelle
                                                                 backends: environment_backends,
                                                                 base_iam_role: global_iam_role,
                                                                 chain_after: previous_eb_env)
-
-            if app_config.dns_name
-              CloudFormation::Route53.apply(template,
-                                            app_resource_name: resource_name,
-                                            hosted_zone_name: app_config.raw['dns'].fetch('hosted_zone'),
-                                            dns_name: app_config.dns_name,
-                                            ttl: app_config.raw['dns'].fetch('ttl', 60))
-            end
-
             previous_eb_env = resource_name
           end
         end
