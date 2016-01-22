@@ -53,6 +53,16 @@ module Baustelle
       end
 
 
+      desc "infrastructure_graph", "Prints JSON-Graph of the described infrastructure"
+      option "specification", desc: 'path to the specification file', default: 'baustelle.yml'
+      def infrastructure_graph
+        config = Baustelle::Config.read(options[:specification])
+
+        puts JSON.pretty_generate(Baustelle::StackTemplate::Graph.call(config,
+                                                                       region: region,
+                                                                       stack_name: stack_name))
+      end
+
       private
 
       def url(eb, app_config, app_name, env_name)
