@@ -7,6 +7,7 @@ module Baustelle
   require 'baustelle/config/validator'
   require 'baustelle/ami'
   require 'baustelle/stack_template'
+  require 'baustelle/stack_template/graph'
   require 'baustelle/cloud_formation'
   require 'baustelle/cloud_formation/remote_template'
   require 'baustelle/cloud_formation/vpc'

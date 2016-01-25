@@ -25,9 +25,9 @@ module Baustelle
     end
 
     def for_every_environment(config)
-      environments(config).each do |environment|
+      environments(config).inject({}) do |acc, environment|
         env_config = for_environment(config, environment)
-        yield environment, for_environment(env_config, environment)
+        acc.merge(environment => yield(environment, for_environment(env_config, environment)))
       end
     end
 

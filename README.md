@@ -22,7 +22,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Generate the infrastructure graph
+
+``` shell
+baustelle script infrastructure_graph --region=eu-west-1 --name=yana 1>graph.json && cat graph.json | jq "{graph: .graphs[1]}" | jgfdot > graph.dot && dot -Tpng graph.dot -o graph.png -Gmodel=subset && open graph.png
+```
 
 ## Development
 
