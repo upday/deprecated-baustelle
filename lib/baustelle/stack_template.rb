@@ -52,6 +52,10 @@ module Baustelle
                                                          }
                                                         }).apply(template)
 
+      if bastion_config = config['bastion']
+        Baustelle::CloudFormation::BastionHost.apply(template, bastion_config, vpc: vpc, stack_name: name, parent_iam_role: global_iam_role)
+      end
+
       applications = Baustelle::Config.applications(config).map do |app_name|
         app = CloudFormation::Application.new(name, app_name)
         app.apply(template)

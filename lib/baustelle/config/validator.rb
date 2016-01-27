@@ -98,6 +98,11 @@ module Baustelle
                 optional('ami') => in_each_region { |region| existing_ami(region) }
               }
             ),
+            optional('bastion') => {
+              'instance_type' => instance_type,
+              'ami' => in_each_region { |region| existing_ami(region) },
+              'github_ssh_keys' => [String]
+            },
             'backends' => {
               optional('RabbitMQ') => hash_of(
                 String => {

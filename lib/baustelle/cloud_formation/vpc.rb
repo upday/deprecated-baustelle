@@ -105,6 +105,7 @@ module Baustelle
 
         OpenStruct.new(id: template.ref(vpc_name),
                        name: vpc_name,
+                       cidr: cidr_block,
                        subnets: subs = subnets.keys.map { |az|
                          OpenStruct.new(id: template.ref("#{vpc_name}Subnet#{az.upcase}"),
                                         az: az)
