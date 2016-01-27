@@ -53,7 +53,12 @@ module Baustelle
                             MinSize: 1,
                             MaxSize: 1,
                             DesiredCapacity: 1,
-                            LaunchConfigurationName: template.ref('BastionLaunchConfiguration')
+                            LaunchConfigurationName: template.ref('BastionLaunchConfiguration'),
+                            VPCZoneIdentifier: vpc.zone_identifier,
+                            Tags: [
+                              {PropagateAtLaunch: true, Key: 'Name', Value: "BaustelleBastion#{stack_name.camelize}"},
+                            ]
+
                           },
                           UpdatePolicy: {
                             AutoScalingRollingUpdate: {
