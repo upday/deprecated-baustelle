@@ -61,7 +61,7 @@ module Baustelle
           case value
           when Baustelle::CloudFormation::EBEnvironment::BACKEND_REGEX
             {
-              "relation": "edge relationship",
+              relation: "edge relationship",
               source: "application:#{app_name}",
               target: "backend:#{$~[:type]}:#{$~[:name]}",
               directed: false,
@@ -69,7 +69,7 @@ module Baustelle
             }
           when Baustelle::CloudFormation::EBEnvironment::APPLICATION_REF_REGEX
             {
-              "relation": "edge relationship",
+              relation: "edge relationship",
               source: "application:#{app_name}",
               target: "application:#{$~[:name]}",
               directed: true,
