@@ -20,6 +20,9 @@ module Baustelle
                                              'zone_update' => {
                                                'resource' => "arn:aws:route53:::hostedzone/#{get_zone_id(zone_name)}",
                                                'action' => 'route53:ChangeResourceRecordSets'
+                                             },
+                                             'zones_list' => {
+                                               'action' => 'route53:ListHostedZones'
                                              }
                                            }).
                    apply(template)
