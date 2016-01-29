@@ -37,7 +37,14 @@ module Baustelle
                             Tags: [
                               {Key: 'BaustelleBackend', Value: 'RabbitMQ'},
                               {Key: 'BaustelleName', Value: name}
-                            ]
+                            ],
+                            HealthCheck: {
+                              Target: "HTTP:15672/",
+                              HealthyThreshold: "3",
+                              UnhealthyThreshold: "3",
+                              Interval: "10",
+                              Timeout: "5"
+                            },
                           }
 
         template.resource "#{prefix}ASG",
@@ -59,7 +66,8 @@ module Baustelle
                           UpdatePolicy: {
                             AutoScalingRollingUpdate: {
                               MaxBatchSize: 1,
-                              MinInstancesInService: 1
+                              MinInstancesInService: 1,
+                              PauseTime: 'PT3M'
                             }
                           }
       end
