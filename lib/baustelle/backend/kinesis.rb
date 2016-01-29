@@ -1,12 +1,6 @@
 module Baustelle
   module Backend
-    class Kinesis
-      def initialize(name, options, vpc:)
-        @name = name
-        @options = options
-        @vpc = vpc
-      end
-
+    class Kinesis < Base
       def build(template)
         template.resource "#{prefix}Stream",
                           Type: 'AWS::Kinesis::Stream',

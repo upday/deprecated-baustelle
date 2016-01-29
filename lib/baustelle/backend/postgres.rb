@@ -1,12 +1,6 @@
 module Baustelle
   module Backend
-    class Postgres
-      def initialize(name, options, vpc:)
-        @name = name
-        @options = options
-        @vpc = vpc
-      end
-
+    class Postgres < Base
       def build(template)
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::RDS::DBSubnetGroup',

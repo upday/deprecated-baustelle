@@ -1,13 +1,6 @@
 module Baustelle
   module Backend
-    class RabbitMQ
-      def initialize(name, options, vpc:)
-        @name = name
-        @options = options
-        @vpc = vpc
-        @region = region
-      end
-
+    class RabbitMQ < Base
       def build(template)
 
         options.fetch('ami').each do |region, ami|
@@ -25,7 +18,7 @@ module Baustelle
                             InstanceType: options.fetch('instance_type',
                                                         default_instance_type),
                             SecurityGroups: [template.ref("GlobalSecurityGroup")],
-                            IamInstanceProfile: template.ref('IAMInstanceProfile')
+                            IamInstanceProfile: template.ref(@parent_iam_role.instance_profile_name)
                           }
 
         template.resource elb = "#{prefix}ELB",
@@ -65,7 +58,8 @@ module Baustelle
                           },
                           UpdatePolicy: {
                             AutoScalingRollingUpdate: {
-                              MaxBatchSize: 1
+                              MaxBatchSize: 1,
+                              MinInstancesInService: 1
                             }
                           }
       end
@@ -84,7 +78,7 @@ module Baustelle
 
       private
 
-      attr_reader :name, :options, :region, :vpc
+      attr_reader :name, :options, :vpc
 
       def ami_name
         "rabbit_mq_#{name}"

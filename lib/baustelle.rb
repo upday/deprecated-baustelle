@@ -26,6 +26,7 @@ module Baustelle
   require 'baustelle/commands/jenkins/delete'
   require 'baustelle/commands/read_config'
   require 'baustelle/commands/validate_config'
+  require 'baustelle/backend/base'
   require 'baustelle/backend/rabbitmq'
   require 'baustelle/backend/external'
   require 'baustelle/backend/redis'

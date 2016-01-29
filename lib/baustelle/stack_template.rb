@@ -75,7 +75,8 @@ module Baustelle
 
           backends.each do |backend_name, options|
             backend_full_name = [env_name, backend_name].join('_')
-            acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc)
+            acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
+                                                                  parent_iam_role: global_iam_role)
             backend.build(template)
           end
 

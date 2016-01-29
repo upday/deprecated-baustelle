@@ -1,12 +1,6 @@
 module Baustelle
   module Backend
-    class External
-      def initialize(name, options, vpc:)
-        @name = name
-        @options = options
-        @vpc = vpc
-      end
-
+    class External < Base
       def build(template)
       end
 
