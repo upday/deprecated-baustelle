@@ -108,7 +108,8 @@ module Baustelle
               optional('RabbitMQ') => hash_of(
                 String => {
                   'ami' => in_each_region { |region| existing_ami(region) },
-                  'cluster_size' => Fixnum
+                  'cluster_size' => Fixnum,
+                  'instance_type' => instance_type
                 }
               ),
               optional('Redis') => hash_of(
