@@ -1,14 +1,6 @@
 module Baustelle
   module Backend
-    class RabbitMQ
-      def initialize(name, options, vpc:, parent_iam_role:)
-        @name = name
-        @options = options
-        @vpc = vpc
-        @parent_iam_role = parent_iam_role
-        @region = region
-      end
-
+    class RabbitMQ < Base
       def build(template)
 
         options.fetch('ami').each do |region, ami|
@@ -85,7 +77,7 @@ module Baustelle
 
       private
 
-      attr_reader :name, :options, :region, :vpc
+      attr_reader :name, :options, :vpc
 
       def ami_name
         "rabbit_mq_#{name}"

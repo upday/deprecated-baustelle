@@ -1,13 +1,6 @@
 module Baustelle
   module Backend
-    class Redis
-      def initialize(name, options, vpc:, parent_iam_role:)
-        @name = name
-        @options = options
-        @vpc = vpc
-        @parent_iam_role = parent_iam_role
-      end
-
+    class Redis < Base
       def build(template)
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::ElastiCache::SubnetGroup',
