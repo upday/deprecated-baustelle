@@ -58,7 +58,8 @@ module Baustelle
                           },
                           UpdatePolicy: {
                             AutoScalingRollingUpdate: {
-                              MaxBatchSize: 1
+                              MaxBatchSize: 1,
+                              MinInstancesInService: 1
                             }
                           }
       end
