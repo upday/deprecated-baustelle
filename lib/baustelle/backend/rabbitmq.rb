@@ -18,7 +18,7 @@ module Baustelle
                             InstanceType: options.fetch('instance_type',
                                                         default_instance_type),
                             SecurityGroups: [template.ref("GlobalSecurityGroup")],
-                            IamInstanceProfile: template.ref('IAMInstanceProfile')
+                            IamInstanceProfile: template.ref(@parent_iam_role.instance_profile_name)
                           }
 
         template.resource elb = "#{prefix}ELB",
