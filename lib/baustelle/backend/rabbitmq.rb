@@ -1,10 +1,11 @@
 module Baustelle
   module Backend
     class RabbitMQ
-      def initialize(name, options, vpc:)
+      def initialize(name, options, vpc:, parent_iam_role:)
         @name = name
         @options = options
         @vpc = vpc
+        @parent_iam_role = parent_iam_role
         @region = region
       end
 
