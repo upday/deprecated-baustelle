@@ -1,5 +1,8 @@
 require "baustelle/version"
 
+# Flush output ASAP
+$stdout.sync = true
+
 module Baustelle
   # Your code goes here...
   require 'active_support/core_ext/string'
