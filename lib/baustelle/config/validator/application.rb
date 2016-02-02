@@ -57,7 +57,7 @@ module Baustelle
                                                 'git' => git,
                                                 optional('command') => String,
                                                 optional('cron') => String,
-                                                'config_from_application_whitelist' => [String],
+                                                optional('config_from_application_whitelist') => [String],
                                                 optional('maven') => hash_of(String => String)
                                               }),
             optional('elb') => {
