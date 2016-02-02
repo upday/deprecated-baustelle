@@ -467,7 +467,8 @@ environments:
             expect(properties[:ImageId]).
               to eq({'Fn::FindInMap' => ["BastionAMIs", ref('AWS::Region'),
                                          "Global"]})
-            expect(properties[:SecurityGroups]).to eq([ref('BastionSecurityGroup')])
+            expect(properties[:SecurityGroups]).to eq([ref('GlobalSecurityGroup'),
+                                                       ref('BastionSecurityGroup')])
             user_data = {
               'ssh_acl_github' => ['github_user'],
               'dns' => {
