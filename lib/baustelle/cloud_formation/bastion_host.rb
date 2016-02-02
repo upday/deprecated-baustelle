@@ -46,7 +46,8 @@ module Baustelle
                             IamInstanceProfile: template.ref(iam_role.instance_profile_name),
                             ImageId: template.find_in_regional_mapping('BastionAMIs', 'global'),
                             UserData: Base64.encode64(user_data),
-                            SecurityGroups: [template.ref('BastionSecurityGroup')]
+                            SecurityGroups: [template.ref('GlobalSecurityGroup'),
+                                             template.ref('BastionSecurityGroup')]
                           }
 
         template.resource "BastionASG",

@@ -21,8 +21,9 @@ module Baustelle
                           VpcId: vpc.id,
                           GroupDescription: "#{name} baustelle stack global Security Group",
                           SecurityGroupIngress: [
-                            {IpProtocol: 'tcp', FromPort: 0, ToPort: 65535, CidrIp: '0.0.0.0/0'}
-                          ]
+                            {IpProtocol: 'tcp', FromPort: 80, ToPort: 80, SourceSecurityGroupId: template.ref('ELBSecurityGroup')},
+                          ] + ([vpc] + peer_vpcs).map { |vpc|
+                            {IpProtocol: 'tcp', FromPort: 0, ToPort: 65535, CidrIp: vpc.cidr} }
                         }
 
       template.resource "ELBSecurityGroup",

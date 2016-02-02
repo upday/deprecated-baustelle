@@ -29,6 +29,10 @@ module Baustelle
         template.output "PeeringConnectionVPC#{peer_name.camelize}",
                         template.ref(peering_connection_id),
                         description: "Peering connection ID for #{peer_name} VPC"
+
+        OpenStruct.new(name: peer_name,
+                       cidr: peer_config.fetch('cidr'),
+                       peering_connection_id: template.ref(peering_connection_id))
       end
 
       def list(stack_name, outputs: Aws::CloudFormation::Stack.new(stack_name).outputs)
