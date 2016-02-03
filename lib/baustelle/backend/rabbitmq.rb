@@ -9,6 +9,8 @@ module Baustelle
 
         prefix = "RabbitMQ#{name.camelize}"
 
+        cname(template, [name, 'rabbitmq', 'backend'], host)
+
         template.resource lc = "#{prefix}LaunchConfiguration",
                           Type: 'AWS::AutoScaling::LaunchConfiguration',
                           Properties: {
@@ -73,8 +75,6 @@ module Baustelle
       end
 
       def output(template)
-        host = {'Fn::GetAtt' => ["RabbitMQ#{name.camelize}ELB", 'DNSName']}
-
         {
           'url' => {'Fn::Join' => ['', ['amqp://yana:_yana101_@', host, ':5672']] },
           'host' => host,
@@ -87,6 +87,10 @@ module Baustelle
       private
 
       attr_reader :name, :options, :vpc
+
+      def host
+        {'Fn::GetAtt' => ["RabbitMQ#{name.camelize}ELB", 'DNSName']}
+      end
 
       def ami_name
         "rabbit_mq_#{name}"
