@@ -15,6 +15,10 @@ module Baustelle
                                       peer_config)
       end
 
+      internal_dns_zone = CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                           vpc: vpc,
+                                                           peer_vpcs: peer_vpcs)
+
       template.resource "GlobalSecurityGroup",
                         Type: "AWS::EC2::SecurityGroup",
                         Properties: {

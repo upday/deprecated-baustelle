@@ -359,12 +359,20 @@ environments:
         end
       end
 
-      it 'creates no dns resource for an application that is configured with custom dns name (we assign CNAMEs manually)' do
-        expect(template[:Resources]['ApplicationWithDnsInProductionEnvStagingDnsRecord']).to be_nil
-      end
+      context "internal DNS" do
+        it 'creates internal DNS Zone' do
+          expect_resource template,"InternalDNSZone",
+                          of_type: "AWS::Route53::HostedZone" do |properties|
+            expect(properties[:Name]).to eq({'Fn::Join' => ['.', ['foo',
+                                                                  {'Ref' => 'AWS::Region'},
+                                                                  'baustelle']]})
+            expect(properties[:VPCs]).to include({VPCId: {'Ref' => 'foo'},
+                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
+            expect(properties[:VPCs]).to include({VPCId: 'vpc-123456',
+                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
 
-      it 'creates no dns resource for an application where no dns property is configured' do
-        expect(template[:Resources]['ApplicationWithDnsInProductionEnvStagingDnsRecord']).to be_nil
+          end
+        end
       end
 
       it 'links RabbitMQ server to the app' do

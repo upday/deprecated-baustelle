@@ -30,7 +30,8 @@ module Baustelle
                         template.ref(peering_connection_id),
                         description: "Peering connection ID for #{peer_name} VPC"
 
-        OpenStruct.new(name: peer_name,
+        OpenStruct.new(id: peer_config.fetch('vpc_id'),
+                       name: peer_name,
                        cidr: peer_config.fetch('cidr'),
                        peering_connection_id: template.ref(peering_connection_id))
       end
