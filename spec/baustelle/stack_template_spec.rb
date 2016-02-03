@@ -363,12 +363,8 @@ environments:
         it 'creates internal DNS Zone' do
           expect_resource template,"InternalDNSZone",
                           of_type: "AWS::Route53::HostedZone" do |properties|
-            expect(properties[:Name]).to eq({'Fn::Join' => ['.', ['foo',
-                                                                  {'Ref' => 'AWS::Region'},
-                                                                  'baustelle']]})
+            expect(properties[:Name]).to eq('baustelle')
             expect(properties[:VPCs]).to include({VPCId: {'Ref' => 'foo'},
-                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
-            expect(properties[:VPCs]).to include({VPCId: 'vpc-123456',
                                                   VPCRegion: {'Ref' => 'AWS::Region'}})
 
           end
