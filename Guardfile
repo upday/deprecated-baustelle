@@ -25,7 +25,7 @@
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: "bundle exec rspec --format=progress" do
+guard :rspec, cmd: "bundle exec rspec --format=progress --tag '~slow'" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
 
