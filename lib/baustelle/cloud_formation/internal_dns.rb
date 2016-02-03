@@ -22,8 +22,6 @@ module Baustelle
 
         OpenStruct.new(id: 'InternalDNSZone', domain: domain)
       end
-    end
-
 
       def cname(template, zone, name:, target:, ttl: 60)
         name = Array(name).map(&:underscore).
@@ -43,5 +41,6 @@ module Baustelle
         domain
       end
 
+    end
   end
 end
