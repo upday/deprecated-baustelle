@@ -11,7 +11,7 @@ module Baustelle
 
       def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
-                chain_after: nil)
+                internal_dns:, chain_after: nil)
         env_hash = eb_env_name(stack_name, app_name, env_name)
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
@@ -110,7 +110,10 @@ module Baustelle
                               end.flatten
                             }
                           }.tap { |res| res[:DependsOn] = chain_after if chain_after }
-        template.ref(resource_name)
+
+        InternalDNS.cname(template, internal_dns, name: "#{app_name}.#{env_name}.app",
+                          target: {'Fn:GetAtt' => [resource_name, 'EndpointURL']})
+
         resource_name
       end
 

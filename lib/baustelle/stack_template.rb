@@ -110,6 +110,7 @@ module Baustelle
                                                                 stack_configurations: env_config.fetch('stacks'),
                                                                 backends: environment_backends,
                                                                 base_iam_role: global_iam_role,
+                                                                internal_dns: internal_dns_zone,
                                                                 chain_after: previous_eb_env)
             previous_eb_env = resource_name
           end
