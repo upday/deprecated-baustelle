@@ -15,7 +15,7 @@ module Baustelle
                                                ]]
                               }
                             },
-                            Name: domain = 'baustelle',
+                            Name: domain = 'baustelle.internal',
                             VPCs:{VPCId: vpc.id,
                                   VPCRegion: template.ref('AWS::Region') }
                           }
