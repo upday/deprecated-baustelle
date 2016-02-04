@@ -37,6 +37,10 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
                               'app.baustelle.internal'].join('.'),
                    {'Fn:GetAtt' => [camelized_app_name + "Env" + camelized_environment,
                                     'EndpointURL']}
+
+      expect_cname template, /^#{app_name.gsub('_', '-')}.#{environment.gsub('_', '-')}.app.foo.[\w-]+.baustelle.internal$/,
+                   {'Fn:GetAtt' => [camelized_app_name + "Env" + camelized_environment,
+                                    'EndpointURL']}
     end
 
     it "ElasticBeanstalk Environment" do

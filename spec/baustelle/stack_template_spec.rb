@@ -167,8 +167,13 @@ environments:
   end
 
   def expect_cname(template, cname, target)
-    declared_cnames = template[:Resources].select { |key,_| key =~ /^InternalDNSZoneEntry/ }
-    _, declared_cname = declared_cnames.find { |_, entry| entry[:Properties][:Name] == cname }
+    declared_cnames = template[:Resources].select { |key,_| key =~ /^Entry.*DNSZone/ }
+    _, declared_cname = declared_cnames.find { |_, entry|
+      case cname
+      when Regexp then entry[:Properties][:Name] =~ cname
+      else entry[:Properties][:Name] == cname
+      end
+    }
     expect(declared_cname).not_to be_nil, "CNAME #{cname} is not declared. declared CNAMES are: \n\t#{declared_cnames.map { |_, e| e[:Properties][:Name] }.join("\n\t")}"
     expect(declared_cname[:Properties][:ResourceNameRecords]).
       to eq([target])
@@ -188,7 +193,8 @@ environments:
   end
 
   describe '#build' do
-    subject { stack_template.build("foo") }
+    let(:region) { 'us-east-1' }
+    subject { stack_template.build("foo", region) }
 
     context "returns template" do
       let(:template) { (subject.as_json) }
@@ -375,6 +381,17 @@ environments:
             expect(properties[:VPCs]).to include({VPCId: {'Ref' => 'foo'},
                                                   VPCRegion: {'Ref' => 'AWS::Region'}})
 
+          end
+        end
+
+        it 'creates peering DNS Zone' do
+          expect_resource template,"PeeringDNSZone",
+                          of_type: "AWS::Route53::HostedZone" do |properties|
+            expect(properties[:Name]).to eq("foo.#{region}.baustelle.internal")
+            expect(properties[:VPCs]).not_to include({VPCId: {'Ref' => 'foo'},
+                                                      VPCRegion: {'Ref' => 'AWS::Region'}})
+            expect(properties[:VPCs]).to include({VPCId: 'vpc-123456',
+                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
           end
         end
       end

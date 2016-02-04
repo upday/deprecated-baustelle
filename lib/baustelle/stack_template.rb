@@ -4,7 +4,7 @@ module Baustelle
       @config = config
     end
 
-    def build(name, template: CloudFormation::Template.new)
+    def build(name, region, template: CloudFormation::Template.new)
       # Prepare VPC
       vpc = CloudFormation::VPC.apply(template, vpc_name: name,
                                       cidr_block: config.fetch('vpc').fetch('cidr'),
@@ -15,8 +15,13 @@ module Baustelle
                                       peer_config)
       end
 
-      internal_dns_zone = CloudFormation::InternalDNS.zone(template, stack_name: name,
-                                                           vpc: vpc)
+      internal_dns_zone = [CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                            vpcs: [vpc],
+                                                            root_domain: "baustelle.internal"),
+                           CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                            vpcs: peer_vpcs,
+                                                            root_domain: "#{name}.#{region}.baustelle.internal",
+                                                            type: 'Peering')]
 
 
       template.resource "GlobalSecurityGroup",

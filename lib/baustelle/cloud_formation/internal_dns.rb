@@ -3,45 +3,49 @@ module Baustelle
     module InternalDNS
       extend self
 
-      def zone(template, stack_name:, vpc:)
-        template.resource "InternalDNSZone",
+      def zone(template, stack_name:, vpcs:,
+               root_domain:, type: 'Internal')
+
+        template.resource resource_name = "#{type}DNSZone",
                           Type: "AWS::Route53::HostedZone",
                           Properties: {
                             HostedZoneConfig: {
                               Comment: {
                                 'Fn::Join' => ['',[
+                                                 type, ' zone for ',
                                                  stack_name, ' in ',
                                                  {Ref: 'AWS::Region'}
                                                ]]
                               }
                             },
-                            Name: domain = 'baustelle.internal',
-                            VPCs:{VPCId: vpc.id,
-                                  VPCRegion: template.ref('AWS::Region') }
+                            Name: root_domain,
+                            VPCs: vpcs.map { |vpc|
+                              { VPCId: vpc.id,
+                                VPCRegion: template.ref('AWS::Region') }
+                            }
                           }
 
-        OpenStruct.new(id: 'InternalDNSZone', domain: domain)
+        OpenStruct.new(id: resource_name, domain: root_domain)
       end
 
-      def cname(template, zone, name:, target:, ttl: 60)
+      def cname(template, zones, name:, target:, ttl: 60)
         name = Array(name).map(&:underscore).
                map { |s| s.gsub('_', '-') }.
                join('.')
-        resource_name = ['InternalDNSZoneEntry', name].flatten.
-                        map(&:camelize).join
-        template.resource resource_name,
-                          Type: 'AWS::Route53::RecordSet',
-                          Properties: {
-                            HostedZoneId: zone.id,
-                            Type: 'CNAME',
-                            TTL: ttl,
-                            ResourceNameRecords: [target],
-                            Name: domain = "#{name}.#{zone.domain}"
-                          }
-        domain
+        Array(zones).each do |zone|
+          resource_name = ["Entry#{zone.id}", name].flatten.
+                          map(&:camelize).join
+          template.resource resource_name,
+                            Type: 'AWS::Route53::RecordSet',
+                            Properties: {
+                              HostedZoneId: zone.id,
+                              Type: 'CNAME',
+                              TTL: ttl,
+                              ResourceNameRecords: [target],
+                              Name: "#{name}.#{zone.domain}"
+                            }
+        end
       end
-
-
     end
   end
 end
