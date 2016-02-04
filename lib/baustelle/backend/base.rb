@@ -12,6 +12,8 @@ module Baustelle
 
       private
 
+      attr_reader :name, :options, :vpc, :parent_iam_role, :internal_dns
+
       def cname(template, name, target, **kwargs)
         Baustelle::CloudFormation::InternalDNS.cname(template, @internal_dns,
                                                      name: name, target: target,

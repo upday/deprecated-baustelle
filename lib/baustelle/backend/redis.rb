@@ -8,20 +8,20 @@ module Baustelle
                           Type: 'AWS::ElastiCache::SubnetGroup',
                           Properties: {
                             Description: 'SubnetGroup',
-                            SubnetIds: @vpc.subnets.map(&:id)
+                            SubnetIds: vpc.subnets.map(&:id)
                           }
 
         template.resource "#{prefix}ReplicationGroup",
                           Type: 'AWS::ElastiCache::ReplicationGroup',
                           Properties: {
-                            ReplicationGroupDescription: @name,
-                            AutomaticFailoverEnabled: @options.fetch('cluster_size') > 1,
+                            ReplicationGroupDescription: name,
+                            AutomaticFailoverEnabled: options.fetch('cluster_size') > 1,
                             AutoMinorVersionUpgrade: true,
                             CacheNodeType: 'cache.m1.medium',
                             CacheSubnetGroupName: template.ref(sg),
                             Engine: 'redis',
                             EngineVersion: '2.8.19',
-                            NumCacheClusters: @options.fetch('cluster_size'),
+                            NumCacheClusters: options.fetch('cluster_size'),
                             SecurityGroupIds: [template.ref('GlobalSecurityGroup')]
                           }
 
@@ -44,7 +44,7 @@ module Baustelle
       end
 
       def prefix
-        "Redis#{@name.camelize}"
+        "Redis#{name.camelize}"
       end
     end
   end

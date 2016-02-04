@@ -20,7 +20,7 @@ module Baustelle
                             InstanceType: options.fetch('instance_type',
                                                         default_instance_type),
                             SecurityGroups: [template.ref("GlobalSecurityGroup")],
-                            IamInstanceProfile: template.ref(@parent_iam_role.instance_profile_name)
+                            IamInstanceProfile: template.ref(parent_iam_role.instance_profile_name)
                           }
 
         template.resource elb = "#{prefix}ELB",
@@ -85,8 +85,6 @@ module Baustelle
       end
 
       private
-
-      attr_reader :name, :options, :vpc
 
       def host
         {'Fn::GetAtt' => ["RabbitMQ#{name.camelize}ELB", 'DNSName']}
