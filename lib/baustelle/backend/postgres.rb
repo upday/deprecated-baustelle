@@ -2,6 +2,8 @@ module Baustelle
   module Backend
     class Postgres < Base
       def build(template)
+        cname(template, [name, 'postgres', 'backend'], host)
+
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::RDS::DBSubnetGroup',
                           Properties: {
@@ -29,7 +31,6 @@ module Baustelle
       end
 
       def output(template)
-         host = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'Endpoint.Address']}
          port = {'Fn::GetAtt' => ["#{prefix}DBInstance", 'Endpoint.Port']}
 
         {
@@ -45,6 +46,10 @@ module Baustelle
       end
 
       private
+
+      def host
+        {'Fn::GetAtt' => ["#{prefix}DBInstance", 'Endpoint.Address']}
+      end
 
       def db_name
         @name.underscore
