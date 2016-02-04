@@ -2,6 +2,8 @@ module Baustelle
   module Backend
     class Redis < Base
       def build(template)
+        cname(template, [name, 'redis', 'backend'], host)
+
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::ElastiCache::SubnetGroup',
                           Properties: {
@@ -26,7 +28,6 @@ module Baustelle
       end
 
       def output(template)
-         host = {'Fn::GetAtt' => ["#{prefix}ReplicationGroup", 'PrimaryEndPoint.Address']}
          port = {'Fn::GetAtt' => ["#{prefix}ReplicationGroup", 'PrimaryEndPoint.Port']}
 
         {
@@ -37,6 +38,10 @@ module Baustelle
       end
 
       private
+
+      def host
+        {'Fn::GetAtt' => ["#{prefix}ReplicationGroup", 'PrimaryEndPoint.Address']}
+      end
 
       def prefix
         "Redis#{@name.camelize}"
