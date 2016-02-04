@@ -27,7 +27,7 @@ module Baustelle
         name = Array(name).map(&:underscore).
                map { |s| s.gsub('_', '-') }.
                join('.')
-        resource_name = ['InternalDNSZone', name].flatten.
+        resource_name = ['InternalDNSZoneEntry', name].flatten.
                         map(&:camelize).join
         template.resource resource_name,
                           Type: 'AWS::Route53::RecordSet',
