@@ -38,7 +38,7 @@ module Baustelle
           template.resource resource_name,
                             Type: 'AWS::Route53::RecordSet',
                             Properties: {
-                              HostedZoneId: zone.id,
+                              HostedZoneId: template.ref(zone.id),
                               Type: 'CNAME',
                               TTL: ttl,
                               ResourceRecords: [target],
