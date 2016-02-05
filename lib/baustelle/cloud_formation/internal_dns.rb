@@ -29,12 +29,12 @@ module Baustelle
       end
 
       def cname(template, zones, name:, target:, ttl: 60)
-        name = Array(name).map(&:underscore).
+        cname = Array(name).map(&:underscore).
                map { |s| s.gsub('_', '-') }.
                join('.')
         Array(zones).each do |zone|
-          resource_name = ["Entry#{zone.id}", name].flatten.
-                          map(&:camelize).join
+          resource_name = ["Entry#{zone.id}", cname_to_resource_name(cname)].
+                          flatten.map(&:camelize).join
           template.resource resource_name,
                             Type: 'AWS::Route53::RecordSet',
                             Properties: {
@@ -42,9 +42,15 @@ module Baustelle
                               Type: 'CNAME',
                               TTL: ttl,
                               ResourceNameRecords: [target],
-                              Name: "#{name}.#{zone.domain}"
+                              Name: "#{cname}.#{zone.domain}"
                             }
         end
+      end
+
+      private
+
+      def cname_to_resource_name(cname)
+        cname.gsub(/[^A-z0-9]/, '_')
       end
     end
   end
