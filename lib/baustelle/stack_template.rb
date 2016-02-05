@@ -4,7 +4,7 @@ module Baustelle
       @config = config
     end
 
-    def build(name, template: CloudFormation::Template.new)
+    def build(name, region, template: CloudFormation::Template.new)
       # Prepare VPC
       vpc = CloudFormation::VPC.apply(template, vpc_name: name,
                                       cidr_block: config.fetch('vpc').fetch('cidr'),
@@ -14,6 +14,15 @@ module Baustelle
         CloudFormation::PeerVPC.apply(template, vpc, name,
                                       peer_config)
       end
+
+      internal_dns_zones = [CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                            vpcs: [vpc],
+                                                            root_domain: "baustelle.internal"),
+                           CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                            vpcs: peer_vpcs,
+                                                            root_domain: "#{name}.#{region}.baustelle.internal",
+                                                            type: 'Peering')]
+
 
       template.resource "GlobalSecurityGroup",
                         Type: "AWS::EC2::SecurityGroup",
@@ -77,7 +86,8 @@ module Baustelle
           backends.each do |backend_name, options|
             backend_full_name = [env_name, backend_name].join('_')
             acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
-                                                                  parent_iam_role: global_iam_role)
+                                                                  parent_iam_role: global_iam_role,
+                                                                  internal_dns: internal_dns_zones)
             backend.build(template)
           end
 
@@ -105,6 +115,7 @@ module Baustelle
                                                                 stack_configurations: env_config.fetch('stacks'),
                                                                 backends: environment_backends,
                                                                 base_iam_role: global_iam_role,
+                                                                internal_dns: internal_dns_zones,
                                                                 chain_after: previous_eb_env)
             previous_eb_env = resource_name
           end

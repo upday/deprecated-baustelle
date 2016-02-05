@@ -7,7 +7,7 @@ module Baustelle
 
       def call(specification_file, region:, name:)
         config = Baustelle::Config.read(specification_file)
-        template = Baustelle::StackTemplate.new(config).build(name)
+        template = Baustelle::StackTemplate.new(config).build(name, region)
 
         Aws.config[:region] = region
         Baustelle::CloudFormation::RemoteTemplate.new(region: region).
