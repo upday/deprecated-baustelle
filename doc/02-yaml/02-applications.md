@@ -12,7 +12,7 @@ Example:
 applications:
   user_profile_service:
     git:
-      repo: git@github.com:as-ideas/user-profile-svc.git
+      repo: git@github.com:upday/user-profile-svc.git
       branch: master
     stack: java-8
     maven:
@@ -35,7 +35,7 @@ applications:
       MY_CUSTOM_ENV_VAR_PASSED_TO_APPLICATION: foo
     systemtests:
       git:
-        repo: git@github.com:as-ideas/yana-contentmachine-systemtests.git
+        repo: git@github.com:upday/contentmachine-systemtests.git
         branch: **/DO-127
       maven:
         goals_options: clean verify -Psystem-tests
