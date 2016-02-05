@@ -35,11 +35,11 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
       expect_cname template, [app_name.gsub('_', '-'),
                               environment.gsub('_', '-'),
                               'app.baustelle.internal'].join('.'),
-                   {'Fn:GetAtt' => [camelized_app_name + "Env" + camelized_environment,
+                   {'Fn::GetAtt' => [camelized_app_name + "Env" + camelized_environment,
                                     'EndpointURL']}
 
       expect_cname template, /^#{app_name.gsub('_', '-')}.#{environment.gsub('_', '-')}.app.foo.[\w-]+.baustelle.internal$/,
-                   {'Fn:GetAtt' => [camelized_app_name + "Env" + camelized_environment,
+                   {'Fn::GetAtt' => [camelized_app_name + "Env" + camelized_environment,
                                     'EndpointURL']}
     end
 

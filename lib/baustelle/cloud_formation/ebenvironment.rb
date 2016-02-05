@@ -112,7 +112,7 @@ module Baustelle
                           }.tap { |res| res[:DependsOn] = chain_after if chain_after }
 
         InternalDNS.cname(template, internal_dns, name: "#{app_name}.#{env_name}.app",
-                          target: {'Fn:GetAtt' => [resource_name, 'EndpointURL']})
+                          target: {'Fn::GetAtt' => [resource_name, 'EndpointURL']})
 
         resource_name
       end
