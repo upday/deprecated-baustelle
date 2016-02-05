@@ -199,6 +199,11 @@ environments:
     context "returns template" do
       let(:template) { (subject.as_json) }
 
+      specify "all resource names are alphanumeric" do
+        expect(template[:Resources].keys).
+          to all(match(/^[A-z0-9]+$/))
+      end
+
       include_examples "VPC resource declaration"
 
       include_examples "Peer VPC", name: 'staging',
