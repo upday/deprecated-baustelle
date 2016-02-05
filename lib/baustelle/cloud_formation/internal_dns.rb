@@ -41,7 +41,7 @@ module Baustelle
                               HostedZoneId: zone.id,
                               Type: 'CNAME',
                               TTL: ttl,
-                              ResourceNameRecords: [target],
+                              ResourceRecords: [target],
                               Name: "#{cname}.#{zone.domain}"
                             }
         end

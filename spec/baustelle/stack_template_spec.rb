@@ -175,7 +175,7 @@ environments:
       end
     }
     expect(declared_cname).not_to be_nil, "CNAME #{cname} is not declared. declared CNAMES are: \n\t#{declared_cnames.map { |_, e| e[:Properties][:Name] }.join("\n\t")}"
-    expect(declared_cname[:Properties][:ResourceNameRecords]).
+    expect(declared_cname[:Properties][:ResourceRecords]).
       to eq([target])
   end
 
