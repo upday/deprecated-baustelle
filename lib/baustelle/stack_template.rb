@@ -15,7 +15,7 @@ module Baustelle
                                       peer_config)
       end
 
-      internal_dns_zone = [CloudFormation::InternalDNS.zone(template, stack_name: name,
+      internal_dns_zones = [CloudFormation::InternalDNS.zone(template, stack_name: name,
                                                             vpcs: [vpc],
                                                             root_domain: "baustelle.internal"),
                            CloudFormation::InternalDNS.zone(template, stack_name: name,
@@ -87,7 +87,7 @@ module Baustelle
             backend_full_name = [env_name, backend_name].join('_')
             acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
                                                                   parent_iam_role: global_iam_role,
-                                                                  internal_dns: internal_dns_zone)
+                                                                  internal_dns: internal_dns_zones)
             backend.build(template)
           end
 
@@ -115,7 +115,7 @@ module Baustelle
                                                                 stack_configurations: env_config.fetch('stacks'),
                                                                 backends: environment_backends,
                                                                 base_iam_role: global_iam_role,
-                                                                internal_dns: internal_dns_zone,
+                                                                internal_dns: internal_dns_zones,
                                                                 chain_after: previous_eb_env)
             previous_eb_env = resource_name
           end
