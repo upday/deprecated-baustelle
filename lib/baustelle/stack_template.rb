@@ -1,5 +1,7 @@
 module Baustelle
   class StackTemplate
+    PARALLEL_EB_UPDATES = 4
+
     def initialize(config)
       @config = config
     end
@@ -72,6 +74,10 @@ module Baustelle
         app
       end
 
+      # It is used to chain updates. There is high iikehood we hit AWS API rate limit
+      # if we create/update all environments at once
+      previous_eb_env = Array.new(PARALLEL_EB_UPDATES) { nil }
+
       # For every environemnt
       Baustelle::Config.environments(config).each do |env_name|
         env_config = Baustelle::Config.for_environment(config, env_name)
@@ -96,11 +102,7 @@ module Baustelle
 
         # Create applications
 
-        # It is used to chain updates. There is high iikehood we hit AWS API rate limit
-        # if we create/update all environments at once
-        previous_eb_env = nil
-
-        applications.each do |app|
+        applications.each.with_index do |app, index|
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
           unless app_config.disabled?
@@ -116,8 +118,8 @@ module Baustelle
                                                                 backends: environment_backends,
                                                                 base_iam_role: global_iam_role,
                                                                 internal_dns: internal_dns_zones,
-                                                                chain_after: previous_eb_env)
-            previous_eb_env = resource_name
+                                                                chain_after: previous_eb_env[index % previous_eb_env.size])
+            previous_eb_env[index % previous_eb_env.size] = resource_name
           end
         end
       end
