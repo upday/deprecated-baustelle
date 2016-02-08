@@ -191,7 +191,7 @@ module Baustelle
             app_config = Baustelle::Config.app_config(env_config, application[:name])
             hostname = app_config.dns_name ||
                        [application[:name].gsub('_', '-'),
-                        env_name, 'baustelle', 'internal'].join('.')
+                        env_name, 'app', 'baustelle', 'internal'].join('.')
             port = app_config.https? ? 443 : 80
 
             acc[key] = {
