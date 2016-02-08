@@ -437,7 +437,7 @@ environments:
           app_env = option_settings["aws:elasticbeanstalk:application:environment"]
           expect(app_env["CUSTOM_HELLO_URL"]).
             to eq({'Fn::Join' =>
-                   ['', ['http://', 'custom-hello-world.production.baustelle.internal']]
+                   ['', ['http://', 'custom-hello-world.production.app.baustelle.internal']]
                   })
         end
       end
