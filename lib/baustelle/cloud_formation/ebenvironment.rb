@@ -190,12 +190,8 @@ module Baustelle
           if application = value.to_s.match(APPLICATION_REF_REGEX)
             app_config = Baustelle::Config.app_config(env_config, application[:name])
             hostname = app_config.dns_name ||
-                       template.join('.',
-                                     application_dns_endpoint(template, stack_name,
-                                                              env_name,
-                                                              application[:name]),
-                                     'elasticbeanstalk.com')
-
+                       [application[:name].gsub('_', '-'),
+                        env_name, 'baustelle', 'internal'].join('.')
             port = app_config.https? ? 443 : 80
 
             acc[key] = {
