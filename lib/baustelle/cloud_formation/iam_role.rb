@@ -19,7 +19,11 @@ module Baustelle
       end
 
       def inherit(name, statements)
-        self.class.new(name, @statements.deep_merge(statements))
+        if statements.empty?
+          self
+        else
+          self.class.new(name, @statements.deep_merge(statements))
+        end
       end
 
       def apply(template)
