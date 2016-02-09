@@ -11,16 +11,15 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
 
   context "Application #{app_name} in #{environment} environment" do
     it 'IAM Role' do
-      expect_resource template, "IAMRole" + camelized_app_name + camelized_environment,
+      expect_resource template, "IAMRole",
                                of_type: 'AWS::IAM::Role'
     end
 
     it 'Instance profile' do
-      expect_resource template, "IAMInstanceProfile" + camelized_app_name + camelized_environment,
+      expect_resource template, "IAMInstanceProfile",
                                of_type: 'AWS::IAM::InstanceProfile' do |properties|
 
-        expect(properties[:Roles]).to eq([ref("IAMRole" + camelized_app_name +
-                                              camelized_environment)])
+        expect(properties[:Roles]).to eq([ref("IAMRole")])
       end
     end
 
@@ -57,7 +56,7 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
         expect(option_settings["aws:autoscaling:launchconfiguration"]["InstanceType"]).
           to eq(instance_type)
         expect(option_settings["aws:autoscaling:launchconfiguration"]["IamInstanceProfile"]).
-          to eq(ref('IAMInstanceProfile' + camelized_app_name + camelized_environment))
+          to eq(ref('IAMInstanceProfile'))
         expect(option_settings["aws:autoscaling:asg"]["MinSize"].to_i).
           to eq(min_size)
         expect(option_settings["aws:autoscaling:asg"]["MaxSize"].to_i).

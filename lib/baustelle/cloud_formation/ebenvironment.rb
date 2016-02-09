@@ -29,8 +29,10 @@ module Baustelle
 
         iam_role = base_iam_role.inherit("#{app_name}_#{env_name}",
                                          extrapolate_backends(app_config.raw.fetch('iam_instance_profile', {}),
-                                                              backends, template)).
-                   apply(template)
+                                                              backends, template))
+
+
+        iam_role = iam_role.apply(template) if iam_role != base_iam_role
 
         template.resource resource_name, {
                             Type: "AWS::ElasticBeanstalk::Environment",
