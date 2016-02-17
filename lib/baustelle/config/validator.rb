@@ -12,8 +12,8 @@ module Baustelle
       extend self
 
       def call(config_hash)
-        RSchema.validation_error(schema(config_hash), config_hash)
-        validate_app_overrides(config_hash)
+        RSchema.validation_error(schema(config_hash), config_hash) or
+          validate_app_overrides(config_hash)
       end
 
       private
@@ -150,9 +150,11 @@ module Baustelle
         config_hash.fetch('environments', {}).each do |env, env_config|
           undefined_apps = (env_config.fetch('applications', {}).keys - allowed_apps)
           unless undefined_apps.empty?
-            raise "Environment #{env} tries to override not existing apps #{undefined_apps.inspect}"
+            return "Environment #{env} tries to override not existing apps #{undefined_apps.inspect}"
           end
         end
+
+        nil
       end
     end
   end
