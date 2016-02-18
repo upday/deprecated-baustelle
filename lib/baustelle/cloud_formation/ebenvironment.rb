@@ -51,7 +51,8 @@ module Baustelle
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
                                   'IamInstanceProfile' => template.ref(iam_role.instance_profile_name),
-                                  'InstanceType' => app_config.raw.fetch('instance_type')
+                                  'InstanceType' => app_config.raw.fetch('instance_type'),
+                                  'SSHSourceRestriction' => "tcp, 22, 22, #{vpc.cidr_block}"
                                 },
                                 'aws:autoscaling:updatepolicy:rollingupdate' => {
                                   'RollingUpdateEnabled' => 'true',
