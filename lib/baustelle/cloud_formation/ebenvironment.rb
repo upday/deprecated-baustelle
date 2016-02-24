@@ -6,6 +6,8 @@ module Baustelle
     module EBEnvironment
       extend self
 
+      UPDATE_FACTOR = 0.5
+
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
@@ -56,7 +58,16 @@ module Baustelle
                                 },
                                 'aws:autoscaling:updatepolicy:rollingupdate' => {
                                   'RollingUpdateEnabled' => 'true',
-                                  'RollingUpdateType' => 'Health'
+                                  'RollingUpdateType' => 'Health',
+                                  # we ensure we keep at least 50% of minimum capacity during update
+                                  'MinInstancesInService' => (app_config.raw.fetch('scale').fetch('min') *  UPDATE_FACTOR).ceil.to_i,
+                                  # the batch size is upto 50% of max capacity, see example below
+                                  'MaxBatchSize' => (app_config.raw.fetch('scale').fetch('max') *  UPDATE_FACTOR).floor.to_i,
+                                  # Scenario:
+                                  # min: 4, max: 8
+                                  # when currently @4 instances: update will be performed in two batches of 2 instances
+                                  # because MinInstancesInService kicks in
+                                  # when currently @8 instacnes: update will be performed in two batches of 4
                                 },
                                 'aws:autoscaling:asg' => {
                                   'MinSize' => app_config.raw.fetch('scale').fetch('min'),
@@ -76,7 +87,7 @@ module Baustelle
                                   'Application Healthcheck URL' => '/health'
                                 },
                                 'aws:elasticbeanstalk:command' => {
-                                  'BatchSize' => 50,
+                                  'BatchSize' => (100 * UPDATE_FACTOR).to_i,
                                   'BatchSizeType' => 'Percentage'
                                 },
                                 'aws:elb:loadbalancer' => {
