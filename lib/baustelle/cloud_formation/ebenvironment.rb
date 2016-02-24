@@ -62,7 +62,7 @@ module Baustelle
                                   # we ensure we keep at least 50% of minimum capacity during update
                                   'MinInstancesInService' => (app_config.raw.fetch('scale').fetch('min') *  UPDATE_FACTOR).ceil.to_i,
                                   # the batch size is upto 50% of max capacity, see example below
-                                  'MaxBatchSize' => (app_config.raw.fetch('scale').fetch('max') *  UPDATE_FACTOR).floor.to_i,
+                                  'MaxBatchSize' => (app_config.raw.fetch('scale').fetch('max') *  UPDATE_FACTOR).ceil.to_i,
                                   # Scenario:
                                   # min: 4, max: 8
                                   # when currently @4 instances: update will be performed in two batches of 2 instances
