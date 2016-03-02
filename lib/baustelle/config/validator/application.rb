@@ -50,6 +50,7 @@ module Baustelle
                                         backends: backends)
             ),
             optional('disabled') => boolean,
+            optional('gzip') => boolean,
             optional('pre_deploy_test_command') => String,
             optional('systemtests') => either(enum(applications),
                                               FalseClass, NilClass,
