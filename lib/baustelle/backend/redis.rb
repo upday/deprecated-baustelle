@@ -17,7 +17,7 @@ module Baustelle
                             ReplicationGroupDescription: name,
                             AutomaticFailoverEnabled: options.fetch('cluster_size') > 1,
                             AutoMinorVersionUpgrade: true,
-                            CacheNodeType: 'cache.m1.medium',
+                            CacheNodeType: options.fetch('cache_node_type','cache.m1.medium'),
                             CacheSubnetGroupName: template.ref(sg),
                             Engine: 'redis',
                             EngineVersion: '2.8.19',

@@ -53,7 +53,7 @@ backends:
       cluster_size: 4
   Redis:
     main:
-      cache_node_type: cache.m1.medium
+      cache_node_type: cache.r3.large
       cluster_size: 2
   Kinesis:
     main:
@@ -275,7 +275,7 @@ environments:
                        name: "main",
                        camelized_name: "Main",
                        availability_zones: %w(a b),
-                       instance_type: 'cache.m1.medium',
+                       instance_type: 'cache.r3.large',
                        cluster_size: 2
 
       include_examples "Backend Redis in environment",
@@ -286,7 +286,7 @@ environments:
                        name: "main",
                        camelized_name: "Main",
                        availability_zones: %w(a b),
-                       instance_type: 'cache.m1.medium',
+                       instance_type: 'cache.r3.large',
                        cluster_size: 1
 
       include_examples "Backend Postgres in environment",
