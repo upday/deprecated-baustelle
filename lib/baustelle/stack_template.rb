@@ -1,6 +1,6 @@
 module Baustelle
   class StackTemplate
-    PARALLEL_EB_UPDATES = 4
+    PARALLEL_EB_UPDATES = ENV.fetch('PARALLEL_EB_UPDATES', 4)
 
     def initialize(config)
       @config = config
