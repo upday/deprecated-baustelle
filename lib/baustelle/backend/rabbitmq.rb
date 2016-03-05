@@ -68,6 +68,7 @@ module Baustelle
                           UpdatePolicy: {
                             AutoScalingRollingUpdate: {
                               MaxBatchSize: 1,
+                              MinInstancesInService: options.fetch('cluster_size') > 1 ? 1 : 0,
                               PauseTime: 'PT3M'
                             }
                           }
