@@ -72,7 +72,7 @@ module Baustelle
               'name' => String
             },
             optional('maven') => Hash,
-            optional('run') => {
+            optional('procfile') => {
               optional('command_line_params') => String
             },
             optional('iam_instance_profile') => hash_of(
