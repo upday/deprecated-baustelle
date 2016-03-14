@@ -32,6 +32,10 @@ module Baustelle
         @raw.fetch('elb', {})
       end
 
+      def new_hostname_scheme?
+        @raw.fetch('hostname_scheme', 'new') == 'new'
+      end
+
       def elb_visibility
         elb.fetch('visibility', 'external')
       end

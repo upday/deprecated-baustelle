@@ -89,6 +89,7 @@ applications:
       DATABASE_URL: backend(External:postgres:url)
       CUSTOM_HELLO_URL: application(custom_hello_world:url)
       HTTPS_APP_URL: application(https_hello_world:url)
+      OLD_HOSTNAME_SCHEME_APP: application(hello_world_old_hostname_scheme:url)
   https_hello_world:
     stack: ruby2.2-with-datadog
     instance_type: t2.small
@@ -100,6 +101,13 @@ applications:
     dns:
       hosted_zone: example.com
       name: app.example.com
+  hello_world_old_hostname_scheme:
+    stack: ruby2.2-with-datadog
+    instance_type: t2.small
+    hostname_scheme: old
+    scale:
+      min: 1
+      max: 1
   application_not_in_loadtest:
     stack: ruby
     instance_type: t2.small
@@ -437,7 +445,18 @@ environments:
           app_env = option_settings["aws:elasticbeanstalk:application:environment"]
           expect(app_env["CUSTOM_HELLO_URL"]).
             to eq({'Fn::Join' =>
-                   ['', ['http://', 'custom-hello-world.production.app.baustelle.internal']]
+                   ['', ['http://', 'foo-us-east-1-production-custom-hello-world.us-east-1.elasticbeanstalk.com']]
+                  })
+        end
+      end
+
+      it 'links application using the old elasticbeanstalk url scheme' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["OLD_HOSTNAME_SCHEME_APP"]).
+            to eq({'Fn::Join' =>
+                   ['', ['http://', 'foo-us-east-1-production-hello-world-old-hostname-scheme.elasticbeanstalk.com']]
                   })
         end
       end

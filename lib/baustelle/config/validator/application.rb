@@ -49,6 +49,7 @@ module Baustelle
               String => ConfigEntry.new(applications: applications,
                                         backends: backends)
             ),
+            optional('hostname_scheme') => enum(%w(old new)),
             optional('disabled') => boolean,
             optional('pre_deploy_test_command') => String,
             optional('systemtests') => either(enum(applications),
