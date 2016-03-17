@@ -27,6 +27,7 @@ applications:
       https: true
       ssl_certificate: arn:aws:iam::123456789012:server-certificate/baustelle_com
       ssl_reference_policy: ELBSecurityPolicy-2015-05
+    hostname_scheme: old
     dns:
       name: user-profile-service.baustelle.org
       hosted_zone: baustelle.org.
@@ -109,6 +110,13 @@ The AWS ARN of the ssl certificate to use for HTTPS.
 The AWS SSL reference policy to use. This only configures the SSL ciphers in the loadbalancer that are safe to use.
 AWS creates new updated policies regularily, so always try to keep this value to the most recent policy available.
 * required when `applications.<app_name>.elb.https=true`
+
+#### `applications.<app_name>.hostname_scheme`
+AWS changed the hostname scheme of elasticbeanstalk applications. Old applications that were created before a certain date have the scheme
+`<cname>.elasticbeanstalk.com` and new applications have the scheme `<cname>.<region>.elasticbeanstalk.com`. In order to inject the right
+application URL when using application references, we must tell baustelle which hostname scheme the application uses. For new applications
+you do not need to worry and skip this option. For applications that still use the old scheme, set this to `old`.
+* optional, possible values: (`old`, `new`), defaults to `new`
 
 #### `applications.<app_name>.dns.name`
 An optional dns name that will point to the loadbalancer of the application. If not given, the application can still be reached

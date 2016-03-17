@@ -11,7 +11,7 @@ module Baustelle
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
-      def apply(template, stack_name:, env_name:, app_ref:, app_name:, vpc:, app_config:,
+      def apply(template, stack_name:, region:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
                 internal_dns:, chain_after: nil)
         env_hash = eb_env_name(stack_name, app_name, env_name)
@@ -23,6 +23,7 @@ module Baustelle
         application_config = extrapolate_applications(extrapolate_backends(app_config.config,
                                                                            backends, template),
                                                       stack_name,
+                                                      region,
                                                       env_name,
                                                       env_config,
                                                       template)
@@ -199,13 +200,12 @@ module Baustelle
         end
       end
 
-      def extrapolate_applications(config, stack_name, env_name, env_config, template)
+      def extrapolate_applications(config, stack_name, region, env_name, env_config, template)
         config.inject({}) do |acc, (key, value)|
           if application = value.to_s.match(APPLICATION_REF_REGEX)
             app_config = Baustelle::Config.app_config(env_config, application[:name])
-            hostname = app_config.dns_name ||
-                       [application[:name].gsub('_', '-'),
-                        env_name, 'app', 'baustelle', 'internal'].join('.')
+            
+            hostname = build_hostname(app_config, stack_name, region, env_name, application[:name])
             port = app_config.https? ? 443 : 80
 
             acc[key] = {
@@ -225,6 +225,16 @@ module Baustelle
         template.join('-', stack_name,
                       template.ref('AWS::Region'),
                       "#{env_name}-#{app_name}".gsub('_', '-'))
+      end
+
+      def build_hostname(app_config, stack_name, region, env_name, app_name)
+        return app_config.dns_name if app_config.dns_name
+
+        hostname = "#{stack_name}-#{region}-#{env_name}-#{app_name.gsub('_', '-')}"
+        if app_config.new_hostname_scheme?
+          hostname += ".#{region}"
+        end
+        hostname += ".elasticbeanstalk.com"
       end
     end
   end

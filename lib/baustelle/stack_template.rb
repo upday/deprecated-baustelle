@@ -108,6 +108,7 @@ module Baustelle
           unless app_config.disabled?
             resource_name = CloudFormation::EBEnvironment.apply(template,
                                                                 stack_name: name,
+                                                                region: region,
                                                                 env_name: env_name,
                                                                 app_ref: app.ref(template),
                                                                 app_name: app.name,
