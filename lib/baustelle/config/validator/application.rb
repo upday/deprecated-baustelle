@@ -45,9 +45,9 @@ module Baustelle
               'max' => Fixnum
             },
             optional('trigger') => {
-              optional('MeasureName') => String,
-              optional('LowerThreshold') => Fixnum,
-              optional('UpperThreshold') => Fixnum
+              'MeasureName' => String,
+              'LowerThreshold' => Fixnum,
+              'UpperThreshold' => Fixnum
             },
             'instance_type' => instance_type,
             'config' => hash_of(
