@@ -74,7 +74,7 @@ module Baustelle
                                   'MinSize' => app_config.raw.fetch('scale').fetch('min'),
                                   'MaxSize' => app_config.raw.fetch('scale').fetch('max')
                                 },
-                                'aws:autoscaling:trigger' => { 
+                                'aws:autoscaling:trigger' => {
                                   app_config.raw.fetch('trigger', {})
                                 },
                                 'aws:ec2:vpc' => {
