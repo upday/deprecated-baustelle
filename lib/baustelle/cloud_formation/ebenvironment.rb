@@ -74,6 +74,8 @@ module Baustelle
                                   'MinSize' => app_config.raw.fetch('scale').fetch('min'),
                                   'MaxSize' => app_config.raw.fetch('scale').fetch('max')
                                 },
+                                'aws:autoscaling:trigger' => app_config.raw.fetch('trigger', {})
+                                },
                                 'aws:ec2:vpc' => {
                                   'VPCId' => vpc.id,
                                   'Subnets' => template.join(',', *vpc.zone_identifier),
