@@ -48,8 +48,8 @@ module Baustelle
             # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingtrigger
             optional('trigger') => {
               'MeasureName' => enum(measure_name), # CPUUtilization, NetworkIn, NetworkOut, DiskWriteOps, DiskReadBytes, DiskReadOps, DiskWriteBytes, Latency, RequestCount, HealthyHostCount, UnhealthyHostCount
-              'LowerThreshold' => Fixnum, # 0 to 20000000
-              'UpperThreshold' => Fixnum # 0 to 20000000
+              'LowerThreshold' => Fixnum.between?(0, 20000000), # 0 to 20000000
+              'UpperThreshold' => Fixnum.between?(0, 20000000) # 0 to 20000000
             },
             'instance_type' => instance_type,
             'config' => hash_of(
