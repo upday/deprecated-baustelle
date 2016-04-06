@@ -1,4 +1,5 @@
 require 'rschema/aws_instance_type'
+require 'rschema/aws_autoscaling_trigger'
 
 module Baustelle
   module Config
@@ -46,9 +47,9 @@ module Baustelle
             },
             # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingtrigger
             optional('trigger') => {
-              'MeasureName' => String,
-              'LowerThreshold' => Fixnum,
-              'UpperThreshold' => Fixnum
+              'MeasureName' => enum(measure_name), # CPUUtilization, NetworkIn, NetworkOut, DiskWriteOps, DiskReadBytes, DiskReadOps, DiskWriteBytes, Latency, RequestCount, HealthyHostCount, UnhealthyHostCount
+              'LowerThreshold' => Fixnum, # 0 to 20000000
+              'UpperThreshold' => Fixnum # 0 to 20000000
             },
             'instance_type' => instance_type,
             'config' => hash_of(
