@@ -556,10 +556,14 @@ environments:
         end
 
         it 'Updates the trigger for AutoScaling the environment' do
-          expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvLoadtest" do |properties|
-            expect(properties[:MeasureName]).to eq('CPUUtilization')
-            expect(properties[:LowerThreshold]).to eq(2000000)
-            expect(properties[:UpperThreshold]).to eq(6000000)
+          expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvStaging" do |properties|
+            trigger_options = properties[:OptionSettings].select { |hash| hash[:Namespace] == 'aws:autoscaling:trigger' }
+            measure_name = (trigger_options.select{|hash| hash[:OptionName] == 'MeasureName'})
+            expect(measure_name.length).to eq(1)
+            expect(measure_name[0][:Value]).to eq('CPUUtilization')
+            lower_threshold = (trigger_options.select{|hash| hash[:OptionName] == 'LowerThreshold'})
+            expect(lower_threshold.length).to eq(1)
+
           end
         end
 
