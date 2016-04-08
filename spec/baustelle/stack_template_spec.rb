@@ -127,6 +127,16 @@ applications:
     scale:
       min: 1
       max: 1
+  application_with_specific_autoscaling_rules:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    trigger:
+      measure_name: CPUUtilization
+      lower_threshold: 2000000
+      upper_threshold: 6000000
 
 environments:
   production:
@@ -542,6 +552,14 @@ environments:
             expect(properties[:DesiredCapacity]).to eq(1)
             expect(properties[:LaunchConfigurationName]).to eq(ref('BastionLaunchConfiguration'))
             expect(res[:UpdatePolicy]).to eq({AutoScalingRollingUpdate: {MaxBatchSize: 1}})
+          end
+        end
+
+        it 'Updates the trigger for AutoScaling the environment' do
+          expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvLoadtest" do |properties|
+            expect(properties[:MeasureName]).to eq('CPUUtilization')
+            expect(properties[:LowerThreshold]).to eq(2000000)
+            expect(properties[:UpperThreshold]).to eq(6000000)
           end
         end
 
