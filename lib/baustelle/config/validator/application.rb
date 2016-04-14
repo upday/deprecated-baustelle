@@ -1,4 +1,5 @@
 require 'rschema/aws_instance_type'
+require 'rschema/aws_autoscaling_trigger'
 
 module Baustelle
   module Config
@@ -28,7 +29,7 @@ module Baustelle
         end
 
         include RSchema::DSL::Base
-
+        
         def initialize(full_config)
           @full_config = full_config
         end
@@ -43,6 +44,12 @@ module Baustelle
             'scale' => {
               'min' => Fixnum,
               'max' => Fixnum
+            },
+            # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingtrigger
+            optional('trigger') => {
+              'measure_name' => enum(RSchema::AWSAutoscalingTriggers::MEASURES),
+              'lower_threshold' => Fixnum,
+              'upper_threshold' => Fixnum
             },
             'instance_type' => instance_type,
             'config' => hash_of(
