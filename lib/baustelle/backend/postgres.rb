@@ -2,8 +2,6 @@ module Baustelle
   module Backend
     class Postgres < Base
       def build(template)
-        cname(template, [name, 'postgres', 'backend'], host)
-
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::RDS::DBSubnetGroup',
                           Properties: {

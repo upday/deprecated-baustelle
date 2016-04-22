@@ -190,19 +190,6 @@ environments:
     yield resource[:Properties], resource if block_given?
   end
 
-  def expect_cname(template, cname, target)
-    declared_cnames = template[:Resources].select { |key,_| key =~ /^Entry.*DNSZone/ }
-    _, declared_cname = declared_cnames.find { |_, entry|
-      case cname
-      when Regexp then entry[:Properties][:Name] =~ cname
-      else entry[:Properties][:Name] == cname
-      end
-    }
-    expect(declared_cname).not_to be_nil, "CNAME #{cname} is not declared. declared CNAMES are: \n\t#{declared_cnames.map { |_, e| e[:Properties][:Name] }.join("\n\t")}"
-    expect(declared_cname[:Properties][:ResourceRecords]).
-      to eq([target])
-  end
-
   def ref(name)
     {'Ref' => name}
   end

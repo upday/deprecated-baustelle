@@ -28,25 +28,6 @@ module Baustelle
         OpenStruct.new(id: resource_name, domain: root_domain)
       end
 
-      def cname(template, zones, name:, target:, ttl: 60)
-        cname = Array(name).map(&:underscore).
-               map { |s| s.gsub('_', '-') }.
-               join('.')
-        Array(zones).each do |zone|
-          resource_name = ["Entry#{zone.id}", cname_to_resource_name(cname)].
-                          flatten.map(&:camelize).join
-          template.resource resource_name,
-                            Type: 'AWS::Route53::RecordSet',
-                            Properties: {
-                              HostedZoneId: template.ref(zone.id),
-                              Type: 'CNAME',
-                              TTL: ttl,
-                              ResourceRecords: [target],
-                              Name: "#{cname}.#{zone.domain}"
-                            }
-        end
-      end
-
       private
 
       def cname_to_resource_name(cname)

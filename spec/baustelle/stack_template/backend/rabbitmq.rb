@@ -41,14 +41,5 @@ shared_examples "Backend RabbitMQ in environment" do  |stack_name:, environment:
       end
     end
 
-    it 'internal DNS' do
-      expect_cname template, "#{environment}-#{name}.rabbitmq.backend.baustelle.internal",
-                   {'Fn::GetAtt' => ["RabbitMQ#{camelized_environment}#{camelized_name}ELB",
-                                     'DNSName']}
-
-      expect_cname template, /^#{environment}-#{name}.rabbitmq.backend.foo.[\w-]+.baustelle.internal$/,
-                   {'Fn::GetAtt' => ["RabbitMQ#{camelized_environment}#{camelized_name}ELB",
-                                     'DNSName']}
-    end
   end
 end
