@@ -35,6 +35,7 @@ module Baustelle
           'url' => {'Fn::Join' => ['', ['postgres://', @options.fetch('username'),
                                         ':', @options.fetch('password'), '@',
                                         host, ':', port, '/', db_name ]] },
+          'jdbc_url' => {'Fn::Join' => ['', ['jdbc:postgres://', host, ':', port, '/', db_name ]] },
           'username' => @options.fetch('username'),
           'password' => @options.fetch('password'),
           'db_name' => db_name,
