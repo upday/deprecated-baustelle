@@ -29,6 +29,7 @@ module Baustelle
   require 'baustelle/commands/jenkins/seed'
   require 'baustelle/commands/jenkins/delete'
   require 'baustelle/commands/read_config'
+  require 'baustelle/commands/print_cloudformation_template'
   require 'baustelle/commands/validate_config'
   require 'baustelle/backend/base'
   require 'baustelle/backend/rabbitmq'

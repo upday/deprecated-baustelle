@@ -54,6 +54,13 @@ module Baustelle
       Baustelle::Commands::ReadConfig.call(specification_file)
     end
 
+    desc "print_cloudformation_template", "Prints the resulting cloudformation template that would be applied when executing baustelle create/update"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
+    def print_cloudformation_template
+      Baustelle::Commands::PrintCloudformationTemplate.call(specification_file, region: region, name: name)
+    end
+
     desc "validate", "Validates the configuration"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
