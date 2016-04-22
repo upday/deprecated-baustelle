@@ -2,8 +2,6 @@ module Baustelle
   module Backend
     class Redis < Base
       def build(template)
-        cname(template, [name, 'redis', 'backend'], host)
-
         template.resource sg = "#{prefix}SubnetGroup",
                           Type: 'AWS::ElastiCache::SubnetGroup',
                           Properties: {

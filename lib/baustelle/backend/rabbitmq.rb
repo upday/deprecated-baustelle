@@ -2,14 +2,11 @@ module Baustelle
   module Backend
     class RabbitMQ < Base
       def build(template)
-
         options.fetch('ami').each do |region, ami|
           template.add_to_region_mapping "BackendAMIs", region, ami_name, ami
         end
 
         prefix = "RabbitMQ#{name.camelize}"
-
-        cname(template, [name, 'rabbitmq', 'backend'], host)
 
         template.resource lc = "#{prefix}LaunchConfiguration",
                           Type: 'AWS::AutoScaling::LaunchConfiguration',
