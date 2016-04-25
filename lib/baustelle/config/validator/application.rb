@@ -89,7 +89,8 @@ module Baustelle
                 optional('resource') => either(String, [String]),
                 'action' => either(String, [String])
               }
-            )
+            ),
+            optional('new_environment_naming') => boolean
           }
         end
 
@@ -97,9 +98,9 @@ module Baustelle
 
         def applications
           @full_config.fetch('environments', {}).
-            inject(@full_config.fetch('applications', {}).keys) do |applications, (_, environemnt)|
+            inject(@full_config.fetch('applications', {}).keys) do |applications, (_, environment)|
 
-            applications + environemnt.fetch('applications', {}).keys
+            applications + environment.fetch('applications', {}).keys
           end.uniq
         end
 
