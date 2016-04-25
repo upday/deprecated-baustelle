@@ -18,7 +18,7 @@ module Baustelle
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        stack.kind_of? String || raise('stack must be as string')#
+        stack.kind_of? String || raise('stack must be as string')
         if app_config.raw.fetch('new_environment_naming',false)
           env_hash = eb_env_name(stack_name, app_name, env_name, stack)
         else
