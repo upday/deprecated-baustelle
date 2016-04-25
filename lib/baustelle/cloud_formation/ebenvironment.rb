@@ -14,9 +14,17 @@ module Baustelle
       def apply(template, stack_name:, region:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
                 internal_dns:, chain_after: nil)
-        env_hash = eb_env_name(stack_name, app_name, env_name)
+
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
+
+        stack.kind_of? String || raise('stack must be as string')#
+        if app_config.raw.fetch('new_environment_naming',false)
+          env_hash = eb_env_name(stack_name, app_name, env_name, stack)
+        else
+          env_hash = eb_env_name(stack_name, app_name, env_name)
+        end
+
 
         eb_dns = application_dns_endpoint(template, stack_name, env_name, app_name)
 
@@ -130,8 +138,8 @@ module Baustelle
         resource_name
       end
 
-      def eb_env_name(stack_name, app_name, env_name)
-        "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
+      def eb_env_name(stack_name, app_name, env_name, solution_stack="")
+        "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name, solution_stack].join)[0,10]}"
       end
 
       def solution_stack(template, stack_name, stack_configurations:)
