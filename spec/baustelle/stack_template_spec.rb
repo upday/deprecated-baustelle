@@ -167,13 +167,6 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
-  application_compat_environment_naming:
-    stack: ruby
-    instance_type: t1.small
-    scale:
-      min: 1
-      max: 2
-    new_environment_naming: test
 
 
 environments:
