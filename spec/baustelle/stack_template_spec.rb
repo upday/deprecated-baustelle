@@ -616,21 +616,21 @@ environments:
             expect_resource template, "ApplicationDefaultEnvironmentNamingEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/staging-[0-9a-f]{10}/)
-              expect(env_name).to match(/staging-b27bc0622a/)
+              expect(env_name).to eq('staging-b27bc0622a')
             end
           end
           it 'creates the production environment' do
             expect_resource template, "ApplicationDefaultEnvironmentNamingEnvProduction" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/production-[0-9a-f]{10}/)
-              expect(env_name).to match(/production-b27bc0622a/)
+              expect(env_name).to eq('production-b27bc0622a')
             end
           end
           it 'does not change environment name because of stack change' do
             expect_resource template, "ApplicationDefaultEnvironmentNamingEnvNaming" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/naming-[0-9a-f]{10}/)
-              expect(env_name).to match(/naming-b27bc0622a/)
+              expect(env_name).to eq('naming-b27bc0622a')
             end
           end
         end
@@ -640,21 +640,21 @@ environments:
             expect_resource template, "ApplicationNewEnvironmentNamingEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/staging-[0-9a-f]{10}/)
-              expect(env_name).to match(/staging-df07849d82/)
+              expect(env_name).to eq('staging-df07849d82')
             end
           end
           it 'creates the staging environment' do
             expect_resource template, "ApplicationNewEnvironmentNamingEnvProduction" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/production-[0-9a-f]{10}/)
-              expect(env_name).to match(/production-df07849d82/)
+              expect(env_name).to eq('production-df07849d82')
             end
           end
           it 'changes environment name because of stack change' do
             expect_resource template, "ApplicationNewEnvironmentNamingEnvNaming" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/naming-[0-9a-f]{10}/)
-              expect(env_name).to match(/naming-0dc7fe324c/)
+              expect(env_name).to eq('naming-0dc7fe324c')
             end
           end
         end
@@ -664,29 +664,29 @@ environments:
             expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/staging-[0-9a-f]{10}/)
-              expect(env_name).to match(/staging-07573f5c59/)
+              expect(env_name).to eq('staging-07573f5c59')
             end
             expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvProduction" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/production-[0-9a-f]{10}/)
-              expect(env_name).to match(/production-07573f5c59/)
+              expect(env_name).to eq('production-07573f5c59')
             end
             expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvNaming" do |properties|
               env_name = properties.fetch(:EnvironmentName)
               expect(env_name).to match(/naming-[0-9a-f]{10}/)
-              expect(env_name).to match(/naming-3216164a1a/)
+              expect(env_name).to eq('naming-3216164a1a')
             end
           end
         end
 
         context 'backwards compatibility' do
           it 'does not change old names' do
-            def eb_env_name_backwards_compatibility(stack_name, app_name, env_name)
+            eb_env_name_backwards_compatibility = lambda do |stack_name, app_name, env_name|
               "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
             end
             env_hash = Baustelle::CloudFormation::EBEnvironment.eb_env_name('stack','app','env')
 
-            expect(env_hash).to eq(eb_env_name_backwards_compatibility('stack','app','env'))
+            expect(env_hash).to eq(eb_env_name_backwards_compatibility.call('stack','app','env'))
           end
         end
 
