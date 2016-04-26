@@ -1,6 +1,6 @@
 shared_examples "Application in environment" do |stack_name:, environment:, app_name:,
                                                  instance_type:, min_size:, max_size:,
-                                                 solution_stack_name: '',
+                                                 solution_stack_name: nil,
                                                  availability_zones:,
                                                  config: {},
                                                  elb_public: true|
