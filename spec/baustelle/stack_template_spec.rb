@@ -25,6 +25,10 @@ stacks:
     solution: Ruby AWS EB Solution
     ami:
       us-east-1: ami-123456
+  ruby2.2-new-name:
+    solution: Ruby AWS EB Solution V2.0
+    ami:
+      us-east-1: ami-654321
 
 bastion:
   instance_type: t2.micro
@@ -144,6 +148,27 @@ applications:
       min: 1
       max: 2
 
+  application_default_environment_naming:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+  application_default_environment_naming_override:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+  application_new_environment_naming:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    new_environment_naming: true
+
+
 environments:
   production:
     applications:
@@ -151,6 +176,8 @@ environments:
         dns:
           hosted_zone: baustelle.org
           name: myapp.baustelle.org
+      application_compat_environment_naming:
+        new_environment_naming: false
   staging:
     backends:
       RabbitMQ:
@@ -179,6 +206,16 @@ environments:
     applications:
       application_not_in_loadtest:
         disabled: yes
+  naming:
+    applications:
+      application_default_environment_naming_override:
+        new_environment_naming: true
+      application_compat_environment_naming:
+        new_environment_naming: true
+      application_default_environment_naming:
+        stack: ruby2.2-new-name
+      application_new_environment_naming:
+        stack: ruby2.2-new-name
     YAML
   }
 
@@ -547,8 +584,10 @@ environments:
             expect(res[:UpdatePolicy]).to eq({AutoScalingRollingUpdate: {MaxBatchSize: 1}})
           end
         end
+      end
 
-        it 'Updates the trigger for AutoScaling the environment' do
+      context 'Autoscaling trigger' do
+        it 'updates the trigger for AutoScaling the environment' do
           expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvStaging" do |properties|
             trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
             measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
@@ -563,14 +602,97 @@ environments:
           end
         end
 
-        it 'Does not set Trigger' do
+        it 'does not set Trigger' do
           expect_resource template, "ApplicationWithoutSpecificAutoscalingRulesEnvStaging" do |properties|
             trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
             expect(trigger_options.length).to eq(0)
           end
         end
+      end
+
+      context 'Environment Naming' do
+        context 'default naming' do
+          it 'creates the staging environment' do
+            expect_resource template, "ApplicationDefaultEnvironmentNamingEnvStaging" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/staging-[0-9a-f]{10}/)
+              expect(env_name).to eq('staging-b27bc0622a')
+            end
+          end
+          it 'creates the production environment' do
+            expect_resource template, "ApplicationDefaultEnvironmentNamingEnvProduction" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/production-[0-9a-f]{10}/)
+              expect(env_name).to eq('production-b27bc0622a')
+            end
+          end
+          it 'does not change environment name because of stack change' do
+            expect_resource template, "ApplicationDefaultEnvironmentNamingEnvNaming" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/naming-[0-9a-f]{10}/)
+              expect(env_name).to eq('naming-b27bc0622a')
+            end
+          end
+        end
+
+        context 'new naming' do
+          it 'creates the staging environment' do
+            expect_resource template, "ApplicationNewEnvironmentNamingEnvStaging" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/staging-[0-9a-f]{10}/)
+              expect(env_name).to eq('staging-df07849d82')
+            end
+          end
+          it 'creates the staging environment' do
+            expect_resource template, "ApplicationNewEnvironmentNamingEnvProduction" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/production-[0-9a-f]{10}/)
+              expect(env_name).to eq('production-df07849d82')
+            end
+          end
+          it 'changes environment name because of stack change' do
+            expect_resource template, "ApplicationNewEnvironmentNamingEnvNaming" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/naming-[0-9a-f]{10}/)
+              expect(env_name).to eq('naming-0dc7fe324c')
+            end
+          end
+        end
+
+        context 'override' do
+          it 'respects environment defaults' do
+            expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvStaging" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/staging-[0-9a-f]{10}/)
+              expect(env_name).to eq('staging-07573f5c59')
+            end
+            expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvProduction" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/production-[0-9a-f]{10}/)
+              expect(env_name).to eq('production-07573f5c59')
+            end
+            expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvNaming" do |properties|
+              env_name = properties.fetch(:EnvironmentName)
+              expect(env_name).to match(/naming-[0-9a-f]{10}/)
+              expect(env_name).to eq('naming-3216164a1a')
+            end
+          end
+        end
+
+        context 'backwards compatibility' do
+          it 'does not change old names' do
+            eb_env_name_backwards_compatibility = lambda do |stack_name, app_name, env_name|
+              "#{env_name}-#{Digest::SHA1.hexdigest([stack_name, app_name].join)[0,10]}"
+            end
+            env_hash = Baustelle::CloudFormation::EBEnvironment.eb_env_name('stack','app','env')
+
+            expect(env_hash).to eq(eb_env_name_backwards_compatibility.call('stack','app','env'))
+          end
+        end
+
 
       end
+
     end
   end
 end
