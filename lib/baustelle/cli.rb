@@ -14,22 +14,30 @@ module Baustelle
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
     def create
-      Baustelle::Commands::Create.call(specification_file, region: region,
+      begin
+        Baustelle::Commands::Create.call(specification_file, region: region,
                                        name: name)
-      Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
+        Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
                                               name: name)
-      Baustelle::Commands::Wait.call(name: name, region: region)
+      ensure
+        Baustelle::Commands::Wait.call(name: name, region: region)
+      end
+
     end
 
     desc "update", "Update the baustelle according to specification in the yml file"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
     def update
-      Baustelle::Commands::Update.call(specification_file, region: region,
+      begin
+        Baustelle::Commands::Update.call(specification_file, region: region,
                                        name: name)
-      Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
+        Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
                                               name: name)
-      Baustelle::Commands::Wait.call(name: name, region: region)
+      ensure
+        Baustelle::Commands::Wait.call(name: name, region: region)
+      end
+
     end
 
     desc "delete", "Deletes the baustelle"

@@ -58,6 +58,17 @@ job('<%= eb_application_name %>-<%= system_test_job_name %>') {
 TEMPLATE
   }
 
+  let(:template_with_syntax_errors) {
+    <<-TEMPLATE
+job('<%= eb_application_name %>-<%= system_test_job_name %>') {
+  steps {
+    shell('echo 1')
+  }
+  }
+}
+TEMPLATE
+  }
+
   def generate_tests_object(systemtests_config={})
     Baustelle::Jenkins::ApplicationJobs.new(
       'TestStack',
