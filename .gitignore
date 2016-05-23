@@ -9,3 +9,4 @@
 /ext/*/.gradle
 docks-compiled
 /ext/jenkins_dsl/jobs/
+.idea/

@@ -24,7 +24,8 @@ module Baustelle
                             MasterUserPassword: @options.fetch('password'),
                             MultiAZ: @options.fetch('multi_az', true),
                             PubliclyAccessible: false,
-                            VPCSecurityGroups: [template.ref('GlobalSecurityGroup')]
+                            VPCSecurityGroups: [template.ref('GlobalSecurityGroup')],
+                            StorageType: 'gp2'
                           }
       end
 
