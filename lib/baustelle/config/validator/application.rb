@@ -90,7 +90,8 @@ module Baustelle
                 'action' => either(String, [String])
               }
             ),
-            optional('new_environment_naming') => boolean
+            optional('new_environment_naming') => boolean,
+            optional('miscellaneous') => Hash,
           }
         end
 
