@@ -50,6 +50,8 @@ applications:
           - kinesis:GetShardIterator
           - kinesis:GetRecords
         resource: backend(Kinesis:user_events:arn)
+    miscellaneous:
+      foo: bar
 
 
   another_application:
@@ -185,3 +187,7 @@ In this case baustelle will take care of replacing the reference with an ARN
 for every environment.
 Note that if the specific ARN is given here, it is possible to override it on
 per-environment basis.
+
+### `applications.<app_name>.miscellaneous`
+A hash with any key value pairs that are ignored by baustelle but accessible in jenkins jobs
+via `app_config.miscellaneous.<key>`.
