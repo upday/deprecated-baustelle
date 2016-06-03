@@ -64,8 +64,8 @@ module Baustelle
         views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
         views.each { |view| jenkins.view.delete(view) }
         Baustelle::Config.for_every_application(config) do |application, _|
-          views = jenkins.view.list("Baustelle .* #{capitalize_app_name(application)}")
-          jenkins.view.delete(views)
+          views = jenkins.view.list("Baustelle #{capitalize_app_name(application)}")
+          views.each { |view| jenkins.view.delete(view) }
         end
       end
 
