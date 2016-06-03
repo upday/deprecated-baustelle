@@ -55,7 +55,7 @@ module Baustelle
         end
         Baustelle::Config.for_every_application(config) do |application, _|
           jenkins.view.create_list_view(name: "Baustelle #{capitalize_app_name(application)}",
-                                        regex: "Baustelle .* #{application} .*")
+                                        regex: "baustelle .* #{application} .*")
         end
       end
 
