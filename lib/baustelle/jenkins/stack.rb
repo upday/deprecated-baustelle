@@ -62,10 +62,12 @@ module Baustelle
       private
       def delete_views
         views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
-        Baustelle::Config.for_every_application(config) do |application, _|
-          views =+ jenkins.view.list("Baustelle .* #{capitalize_app_name(application)}")
-        end
         views.each { |view| jenkins.view.delete(view) }
+        Baustelle::Config.for_every_application(config) do |application, _|
+          views = jenkins.view.list("Baustelle .* #{capitalize_app_name(application)}")
+          views.each { |view| jenkins.view.delete(view) }
+        end
+        
 
       end
 
