@@ -52,8 +52,6 @@ module Baustelle
           jenkins.view.create_list_view(name: "#{application}",
                                         regex: "baustelle-#{@name}-#{@region}-.*-#{application}-.*")
         end
-
-
       end
 
       def delete_views
