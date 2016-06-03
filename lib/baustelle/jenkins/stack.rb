@@ -25,6 +25,9 @@ module Baustelle
       end
 
       private
+      def capitalize_app_name(application_name)
+        application_name.gsub(/_/, ' ').split.map(&:capitalize).join(' ')
+      end
 
       attr_reader :jenkins, :name, :config, :region
 
@@ -42,6 +45,7 @@ module Baustelle
           inject({}) { |acc, (k,v)| acc[k.to_s] = v; acc }
       end
 
+      public
       def create_views
         jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region})",
                                       regex: "baustelle-#{@name}-#{@region}-.*")
@@ -50,15 +54,19 @@ module Baustelle
                                         regex: "baustelle-#{@name}-#{@region}-#{environment}-.*-00-deploy")
         end
         Baustelle::Config.for_every_application(config) do |application, _|
-          app_rename = application.gsub(/_/, ' ')
-          jenkins.view.create_list_view(name: "Baustelle #{app_rename.split.map(&:capitalize).join(' ')}",
-                                        regex: "baustelle-#{@name}-#{@region}-.*-#{application}-.*")
+          jenkins.view.create_list_view(name: "Baustelle #{capitalize_app_name(application)}",
+                                        regex: "Baustelle .* #{application} .*")
         end
       end
 
+      private
       def delete_views
         views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
+        Baustelle::Config.for_every_application(config) do |application, _|
+          views =+ jenkins.view.list("Baustelle .* #{capitalize_app_name(application)}")
+        end
         views.each { |view| jenkins.view.delete(view) }
+
       end
 
 

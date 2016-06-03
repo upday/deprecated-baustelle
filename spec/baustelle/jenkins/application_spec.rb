@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe Baustelle::Jenkins::ApplicationJobs do
   let(:jenkins_options) {
     {
@@ -89,6 +88,7 @@ TEMPLATE
       expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
       expect(generate_tests_object.generate_jobs.keys.length).to eq(1)
     end
+
   end
 
 end
