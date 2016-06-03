@@ -48,7 +48,12 @@ module Baustelle
         Baustelle::Config.for_every_environment(config) do |environment, _|
           jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region}) #{environment} DEPLOY",
                                         regex: "baustelle-#{@name}-#{@region}-#{environment}-.*-00-deploy")
+        Baustelle::Config.for_every_application(config) do |application, _|
+          jenkins.view.create_list_view(name: "#{application}",
+                                        regex: "baustelle-#{@name}-#{@region}-.*-#{application}-.*")
         end
+
+
       end
 
       def delete_views
