@@ -217,18 +217,24 @@ environments:
   }
 
   def generate_test_object(obj)
-    Baustelle::Jenkins::Stack.new(
-      name,
-      config,
-      region
-      ).stub_chain(:jenkins,:view).and_return(obj)
+    test_obj = Baustelle::Jenkins::Stack.new(
+      stack_name,
+      config: config,
+      region: region
+      )
+    allow(test_obj).to receive_message_chain(:jenkins,:view){obj}
+    test_obj
   end
 
   describe '#create_views' do
-    obj = double()
-    test_object = generate_test_object(obj)
-    expect(obj).to receive(:message).with("Baustelle #{@name} (#{@region})","baustelle-#{@name}-#{@region}-.*")
-    test_object.create_views
+
+    it 'create the correct views' do
+      obj = double()
+      test_object = generate_test_object(obj)
+      expect(obj).to receive(:create_list_view).with({:name=>"Baustelle test-stackname (eu-west-1)",:regex=>"baustelle-test-stackname-eu-west-1-.*"}).at_least(:once)
+      expect(obj).to receive(:create_list_view).at_least(:once)
+      test_object.create_views
+    end
 
   end
 

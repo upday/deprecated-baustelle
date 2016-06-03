@@ -42,6 +42,7 @@ module Baustelle
           inject({}) { |acc, (k,v)| acc[k.to_s] = v; acc }
       end
 
+      public
       def create_views
         jenkins.view.create_list_view(name: "Baustelle #{@name} (#{@region})",
                                       regex: "baustelle-#{@name}-#{@region}-.*")
@@ -56,6 +57,7 @@ module Baustelle
         end
       end
 
+      private
       def delete_views
         views = jenkins.view.list("Baustelle #{@name}.*#{@region}.*")
         views.each { |view| jenkins.view.delete(view) }
