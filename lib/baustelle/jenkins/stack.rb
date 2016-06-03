@@ -50,8 +50,8 @@ module Baustelle
                                         regex: "baustelle-#{@name}-#{@region}-#{environment}-.*-00-deploy")
         end
         Baustelle::Config.for_every_application(config) do |application, _|
-          normalize_app = application.gsub!(/_/, ' ')
-          jenkins.view.create_list_view(name: "Baustelle #{normalize_app.capitalize}",
+          application = application.gsub!(/_/, ' ')
+          jenkins.view.create_list_view(name: "Baustelle #{application.capitalize}",
                                         regex: "baustelle-#{@name}-#{@region}-.*-#{application}-.*")
         end
       end
