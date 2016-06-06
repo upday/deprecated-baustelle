@@ -58,7 +58,7 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
           to eq('/health')
 
         expect(option_settings['aws:ec2:vpc']['ELBScheme']).
-          to eq(elb_public ? 'external' : 'internal')
+          to eq(elb_public ? 'public' : 'internal')
 
         config.each do |key, value|
           expect(option_settings['aws:elasticbeanstalk:application:environment'][key]).

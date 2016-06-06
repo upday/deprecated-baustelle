@@ -37,7 +37,7 @@ module Baustelle
       end
 
       def elb_visibility
-        elb.fetch('visibility', 'external')
+        elb.fetch('visibility', 'public')
       end
 
     end
