@@ -48,8 +48,8 @@ module Baustelle
             # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingtrigger
             optional('trigger') => {
               'measure_name' => enum(RSchema::AWSAutoscalingTriggers::MEASURES),
-              'lower_threshold' => Fixnum,
-              'upper_threshold' => Fixnum
+              'lower_threshold' => Float,
+              'upper_threshold' => Float
             },
             'instance_type' => instance_type,
             'config' => hash_of(
