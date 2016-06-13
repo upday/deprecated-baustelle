@@ -160,7 +160,6 @@ applications:
     scale:
       min: 1
       max: 2
-
   application_default_environment_naming:
     stack: ruby
     instance_type: t1.small
@@ -616,13 +615,13 @@ environments:
         end
 
         it 'updates the autoscaling thresholds with very specific rules' do
-          expect_resource template "application_with_even_more_specific_autoscaling_rules" do |properties|
+          expect_resource template, "ApplicationWithEvenMoreSpecificAutoscalingRulesEnvStaging" do |properties|
             trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
             measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
             expect(measure_name.length).to eq(1)
             expect(measure_name[0][:Value]).to eq('Latency')
             breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
-            expect(breach_duration.length).to eq(1)
+            expect(breach_duration.length).to eq (1)
             expect(breach_duration[0][:Value]).to eq("2")
             lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
             expect(lower_threshold.length).to eq(1)
