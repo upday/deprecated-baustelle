@@ -141,13 +141,25 @@ applications:
       measure_name: CPUUtilization
       lower_threshold: 2000000
       upper_threshold: 6000000
+  application_with_even_more_specific_autoscaling_rules:
+    stack: ruby
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 3
+    trigger:
+      measure_name: Latency
+      breach_duration: 2
+      lower_threshold: 1
+      upper_threshold: 2
+      unit: Seconds
+      upper_breach_scale_increment: 2
   application_without_specific_autoscaling_rules:
     stack: ruby
     instance_type: t1.small
     scale:
       min: 1
       max: 2
-
   application_default_environment_naming:
     stack: ruby
     instance_type: t1.small
@@ -599,6 +611,30 @@ environments:
             upper_threshold = (trigger_options.select{|options| options[:OptionName] == 'UpperThreshold'})
             expect(upper_threshold.length).to eq(1)
             expect(upper_threshold[0][:Value]).to eq("6000000")
+          end
+        end
+
+        it 'updates the autoscaling thresholds with very specific rules' do
+          expect_resource template, "ApplicationWithEvenMoreSpecificAutoscalingRulesEnvStaging" do |properties|
+            trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
+            measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
+            expect(measure_name.length).to eq(1)
+            expect(measure_name[0][:Value]).to eq('Latency')
+            breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
+            expect(breach_duration.length).to eq (1)
+            expect(breach_duration[0][:Value]).to eq("2")
+            lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
+            expect(lower_threshold.length).to eq(1)
+            expect(lower_threshold[0][:Value]).to eq("1")
+            upper_threshold = (trigger_options.select{|options| options[:OptionName] == 'UpperThreshold'})
+            expect(upper_threshold.length).to eq(1)
+            expect(upper_threshold[0][:Value]).to eq("2")
+            unit = (trigger_options.select{|options| options[:OptionName] == 'Unit'})
+            expect(unit.length).to eq(1)
+            expect(unit[0][:Value]).to eq('Seconds')
+            upper_breach_scale_increment = (trigger_options.select{|options| options[:OptionName] == 'UpperBreachScaleIncrement'})
+            expect(upper_breach_scale_increment.length).to eq(1)
+            expect(upper_threshold[0][:Value]).to eq("2")
           end
         end
 
