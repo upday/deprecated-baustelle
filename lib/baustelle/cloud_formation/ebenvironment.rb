@@ -18,7 +18,7 @@ module Baustelle
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        
+
         if app_config.raw.fetch('new_environment_naming',false)
           env_hash = eb_env_name(stack_name, app_name, env_name, stack)
         else
@@ -54,9 +54,9 @@ module Baustelle
                               SolutionStackName: stack.fetch(:name),
                               Tags: [
                                 { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-                                { 'Key' => 'Application', 'Value' => app_name },
-                                { 'Key' => 'Stack',       'Value' => stack_name },
-                                { 'Key' => 'Environment', 'Value' => env_name },
+                                { 'Key' => 'application', 'Value' => app_name },
+                                { 'Key' => 'stack',       'Value' => stack_name },
+                                { 'Key' => 'environment', 'Value' => env_name },
                               ],
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
@@ -210,7 +210,7 @@ module Baustelle
         config.inject({}) do |acc, (key, value)|
           if application = value.to_s.match(APPLICATION_REF_REGEX)
             app_config = Baustelle::Config.app_config(env_config, application[:name])
-            
+
             hostname = build_hostname(app_config, stack_name, region, env_name, application[:name])
             port = app_config.https? ? 443 : 80
 
