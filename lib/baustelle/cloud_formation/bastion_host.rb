@@ -60,7 +60,6 @@ module Baustelle
                             LaunchConfigurationName: template.ref('BastionLaunchConfiguration'),
                             VPCZoneIdentifier: vpc.zone_identifier,
                             Tags: [
-                              {PropagateAtLaunch: true, Key: 'stack', Value: stack_name},
                               {PropagateAtLaunch: true, Key: 'Name', Value: "BaustelleBastion#{stack_name.camelize}"},
                             ]
 
