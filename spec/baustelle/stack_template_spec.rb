@@ -150,6 +150,7 @@ applications:
     trigger:
       measure_name: Latency
       breach_duration: 2
+      period: 2
       lower_threshold: 1
       upper_threshold: 2
       unit: Seconds
@@ -621,6 +622,9 @@ environments:
             expect(measure_name.length).to eq(1)
             expect(measure_name[0][:Value]).to eq('Latency')
             breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
+            expect(breach_duration.length).to eq (1)
+            expect(breach_duration[0][:Value]).to eq("2")
+            breach_duration = (trigger_options.select{|options| options[:OptionName] == 'Period'})
             expect(breach_duration.length).to eq (1)
             expect(breach_duration[0][:Value]).to eq("2")
             lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
