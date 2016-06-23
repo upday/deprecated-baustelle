@@ -49,6 +49,7 @@ module Baustelle
             optional('trigger') => {
               'measure_name' => enum(RSchema::AWSAutoscalingTriggers::MEASURES),
               'breach_duration' => Fixnum,
+              'period' => Fixnum,
               'lower_threshold' => Float,
               'upper_threshold' => Float,
               'unit' => enum(RSchema::AWSAutoscalingTriggers::UNITS),
