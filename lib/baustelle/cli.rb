@@ -61,6 +61,13 @@ module Baustelle
       Baustelle::Commands::ValidateConfig.call(specification_file, region)
     end
 
+    desc "verify", "Validates the configuration (alias to validate)"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
+    def verify
+      Baustelle::Commands::ValidateConfig.call(specification_file, region)
+    end
+
     desc 'peer_vpc_config VPC_NAME', "Prints JSON CloudFormation template for peer VPC configuration"
     def peer_vpc_config(vpc_name)
       Aws.config[:region] = region
