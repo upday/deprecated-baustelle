@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'tmpdir'
 
 module Baustelle
   module Jenkins
@@ -10,7 +11,8 @@ module Baustelle
       end
 
       def render(prefix: '')
-        groovy_template = Tempfile.open(['job', '.groovy'], groovy_scripts_dir)
+        groovy_template_path = Dir::Tmpname.make_tmpname(['job', '.groovy'],false).gsub('-','_')
+        groovy_template = File.open(File.join(groovy_scripts_dir, groovy_template_path),'w')
         groovy_template.puts render_groovy
         groovy_template.close
         Dir.mktmpdir do |output_dir|
