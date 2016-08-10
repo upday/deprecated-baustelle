@@ -65,7 +65,9 @@ module Baustelle
           ]
         when 'amazon'
           [
-            "sudo pip install ansible --upgrade",
+            # wasn't able to install the most recent ansible version on amazon linux because of missing dependencies.
+            # quickfix: use old ansible version
+            "sudo pip install 'ansible<2.0.0'",
           ]
         else
           raise "Unsupported base system"
