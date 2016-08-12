@@ -97,7 +97,12 @@ module Baustelle
 
       def upload_jobs(jobs)
         jobs.each do |job_name, xml|
-          jenkins.job.create_or_update(job_name, xml)
+          begin
+            jenkins.job.create_or_update(job_name, xml)
+          rescue JenkinsApi::Exceptions::ApiException => msg
+            puts "Failed to create #{job_name}"
+            puts msg
+          end
         end
       end
 
