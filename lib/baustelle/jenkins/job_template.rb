@@ -18,7 +18,11 @@ module Baustelle
         Dir.mktmpdir do |output_dir|
           Dir.chdir(job_dsl_dir) do
             path = File.join('jobs', File.basename(groovy_template.path))
-            system "./gradlew -q xml -Psource=#{path} -PoutputDir=#{output_dir}"
+            if(system "./gradlew -q xml -Psource=#{path} -PoutputDir=#{output_dir}")
+            else
+              raise Exception.new('Error during job DSL rendering')
+            end
+
           end
 
           Dir[File.join(output_dir, "*.xml")].inject({}) do |result, filename|
