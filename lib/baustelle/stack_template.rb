@@ -17,9 +17,11 @@ module Baustelle
                                       peer_config)
       end
 
-      internal_dns_zones = [CloudFormation::InternalDNS.zone(template, stack_name: name,
-                                                            vpcs: [vpc],
-                                                            root_domain: "baustelle.internal"),
+      private_dns_zone = CloudFormation::InternalDNS.zone(template, stack_name: name,
+                                                          vpcs: [vpc],
+                                                          root_domain: "baustelle.internal")
+
+      internal_dns_zones = [private_dns_zone,
                            CloudFormation::InternalDNS.zone(template, stack_name: name,
                                                             vpcs: peer_vpcs,
                                                             root_domain: "#{name}.#{region}.baustelle.internal",
@@ -65,7 +67,9 @@ module Baustelle
                                                         }).apply(template)
 
       if bastion_config = config['bastion']
-        Baustelle::CloudFormation::BastionHost.apply(template, bastion_config, vpc: vpc, stack_name: name, parent_iam_role: global_iam_role)
+        Baustelle::CloudFormation::BastionHost.apply(template, bastion_config, vpc: vpc,
+                                                     stack_name: name, parent_iam_role: global_iam_role,
+                                                     dns_zone: private_dns_zone)
       end
 
       applications = Baustelle::Config.applications(config).map do |app_name|
