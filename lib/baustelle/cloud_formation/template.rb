@@ -38,6 +38,10 @@ module Baustelle
         { 'Fn::Join' => [separator, elements] }
       end
 
+      def resources
+        @resources
+      end
+
       def as_json
         {
           AWSTemplateFormatVersion: "2010-09-09",
