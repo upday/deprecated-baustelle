@@ -12,6 +12,10 @@ module Baustelle
       bucket_object(find_bucket || create_bucket)
     end
 
+    def empty_bucket
+      bucket_object(find_bucket).clear
+    end
+
     private
 
     def bucket_object(bucket)
@@ -31,5 +35,6 @@ module Baustelle
     def generate_name
       "baustelle-workspace-" + SecureRandom.uuid
     end
+
   end
 end

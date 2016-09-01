@@ -6,6 +6,10 @@ module Baustelle
       @config = config
     end
 
+    def childs
+      []
+    end
+
     def build(name, region, template: CloudFormation::Template.new)
       # Prepare VPC
       vpc = CloudFormation::VPC.apply(template, vpc_name: name,

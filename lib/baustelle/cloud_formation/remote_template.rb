@@ -12,17 +12,21 @@ module Baustelle
         @bucket = bucket
       end
 
-      def call(json)
-        file.put(body: json)
-        yield file.public_url
+      def call(template)
+        file.put(body: template.to_json)
+        main_temlate_url = file.public_url
+        template.childs.each do |child|
+          file(child.name).put(child.to_json)
+        end
+        yield main_temlate_url
       ensure
-        file.delete
+        bucket.empty_bucket
       end
 
       private
 
-      def file
-        @file ||= @bucket.object(SecureRandom.uuid + ".json")
+      def file(name: SecureRandom.uuid)
+        @file ||= @bucket.object(name + ".json")
       end
     end
   end
