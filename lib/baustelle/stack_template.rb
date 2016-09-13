@@ -142,7 +142,8 @@ module Baustelle
                                                                   chain_after: previous_eb_env[index % previous_eb_env.size])
               previous_eb_env[index % previous_eb_env.size] = resource_name
             elsif app_config.template_layout == 'new'
-              raise "template_layout => new is not supported yet"
+              puts "template_layout => new is not supported yet"
+              puts "No action done"
             end
           end
         end
