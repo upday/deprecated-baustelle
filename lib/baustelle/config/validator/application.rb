@@ -96,7 +96,7 @@ module Baustelle
             ),
             optional('new_environment_naming') => boolean,
             optional('miscellaneous') => Hash,
-            optional('template_layout') => enum(%w(old new both))
+            optional('template_layout') => enum(%w(old new))
           }
         end
 

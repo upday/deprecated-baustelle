@@ -73,8 +73,23 @@ module Baustelle
       end
 
       applications = Baustelle::Config.applications(config).map do |app_name|
-        app = CloudFormation::Application.new(name, app_name)
-        app.apply(template)
+        environment_layouts = Baustelle::Config.environments(config).map { |env_name|
+          env_config = Baustelle::Config.for_environment(config, env_name)
+          app_config = Baustelle::Config.app_config(env_config, app_name)
+          app_config.template_layout
+        }.uniq
+        if environment_layouts.length != 1
+          $stderr.puts "The setting template_layout must not be overwritten in any environment"
+          raise "The setting template_layout must not be overwritten in any environment"
+        end
+        environment_layout = environment_layouts[0]
+        case environment_layout
+          when 'old'
+            app = CloudFormation::Application.new(name, app_name)
+            app.apply(template)
+          when 'new'
+            app = CloudFormation::ApplicationStack.new(name, app_name)
+        end
         app
       end
 
@@ -110,21 +125,25 @@ module Baustelle
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
           unless app_config.disabled?
-            resource_name = CloudFormation::EBEnvironment.apply(template,
-                                                                stack_name: name,
-                                                                region: region,
-                                                                env_name: env_name,
-                                                                app_ref: app.ref(template),
-                                                                app_name: app.name,
-                                                                vpc: vpc,
-                                                                app_config: app_config,
-                                                                env_config: env_config,
-                                                                stack_configurations: env_config.fetch('stacks'),
-                                                                backends: environment_backends,
-                                                                base_iam_role: global_iam_role,
-                                                                internal_dns: internal_dns_zones,
-                                                                chain_after: previous_eb_env[index % previous_eb_env.size])
-            previous_eb_env[index % previous_eb_env.size] = resource_name
+            if app_config.template_layout == 'old'
+              resource_name = CloudFormation::EBEnvironment.apply(template,
+                                                                  stack_name: name,
+                                                                  region: region,
+                                                                  env_name: env_name,
+                                                                  app_ref: app.ref(template),
+                                                                  app_name: app.name,
+                                                                  vpc: vpc,
+                                                                  app_config: app_config,
+                                                                  env_config: env_config,
+                                                                  stack_configurations: env_config.fetch('stacks'),
+                                                                  backends: environment_backends,
+                                                                  base_iam_role: global_iam_role,
+                                                                  internal_dns: internal_dns_zones,
+                                                                  chain_after: previous_eb_env[index % previous_eb_env.size])
+              previous_eb_env[index % previous_eb_env.size] = resource_name
+            elsif app_config.template_layout == 'new'
+              raise "template_layout => new is not supported yet"
+            end
           end
         end
       end

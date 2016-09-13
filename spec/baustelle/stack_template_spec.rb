@@ -29,6 +29,10 @@ stacks:
     solution: Ruby AWS EB Solution V2.0
     ami:
       us-east-1: ami-654321
+  java:
+    solution: Java AWS EB Solution
+    ami:
+      us-east-1: ami-424242
 
 bastion:
   instance_type: t2.micro
@@ -180,6 +184,13 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
+  application_new_template_layout:
+    stack: java
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    template_layout: new
 
 
 environments:

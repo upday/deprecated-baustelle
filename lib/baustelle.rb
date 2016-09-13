@@ -18,6 +18,7 @@ module Baustelle
   require 'baustelle/cloud_formation/peer_vpc'
   require 'baustelle/cloud_formation/route53'
   require 'baustelle/cloud_formation/application'
+  require 'baustelle/cloud_formation/application_stack'
   require 'baustelle/cloud_formation/ebenvironment'
   require 'baustelle/cloud_formation/template'
   require 'baustelle/cloud_formation/iam_role'
