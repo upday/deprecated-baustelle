@@ -89,6 +89,7 @@ module Baustelle
             app.apply(template)
           when 'new'
             app = CloudFormation::ApplicationStack.new(name, app_name)
+            raise "new template_layout is not supported yet"
         end
         app
       end
@@ -143,7 +144,7 @@ module Baustelle
               previous_eb_env[index % previous_eb_env.size] = resource_name
             elsif app_config.template_layout == 'new'
               puts "template_layout => new is not supported yet"
-              puts "No action done"
+              raise "new template_layout is not supported yet"
             end
           end
         end

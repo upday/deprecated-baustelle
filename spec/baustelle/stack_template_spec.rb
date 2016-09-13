@@ -184,13 +184,6 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
-  application_new_template_layout:
-    stack: java
-    instance_type: t1.small
-    scale:
-      min: 1
-      max: 2
-    template_layout: new
 
 
 environments:
