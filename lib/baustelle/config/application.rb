@@ -40,6 +40,10 @@ module Baustelle
         elb.fetch('visibility', 'public')
       end
 
+      def template_layout
+        @raw.fetch('template_layout', 'old')
+      end
+
     end
   end
 end

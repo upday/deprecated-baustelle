@@ -29,6 +29,10 @@ stacks:
     solution: Ruby AWS EB Solution V2.0
     ami:
       us-east-1: ami-654321
+  java:
+    solution: Java AWS EB Solution
+    ami:
+      us-east-1: ami-424242
 
 bastion:
   instance_type: t2.micro
