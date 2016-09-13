@@ -20,7 +20,7 @@ module Baustelle
         end
         yield main_temlate_url
       ensure
-        bucket.empty_bucket
+        @bucket.clear
       end
 
       private

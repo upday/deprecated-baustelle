@@ -5,7 +5,7 @@ describe Baustelle::CloudFormation::RemoteTemplate do
     let(:template) { Baustelle::CloudFormation::RemoteTemplate.
                      new(region: 'us-east-1', bucket: bucket) }
 
-    let(:bucket) { double(object: object, empty_bucket: nil) }
+    let(:bucket) { double(object: object, clear: nil) }
     let(:object) { spy(put: nil, public_url: 'url') }
     let(:stack_template) { spy('Baustelle::StackTemplate', childs: [], to_json: '{}') }
 
@@ -22,9 +22,9 @@ describe Baustelle::CloudFormation::RemoteTemplate do
 
     it 'deletes the remote file after the block' do
       template.call(stack_template) do
-        expect(bucket).not_to have_received(:empty_bucket)
+        expect(bucket).not_to have_received(:clear)
       end
-      expect(bucket).to have_received(:empty_bucket)
+      expect(bucket).to have_received(:clear)
     end
   end
 end
