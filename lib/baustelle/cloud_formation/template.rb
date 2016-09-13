@@ -11,6 +11,10 @@ module Baustelle
         @mappings[name] = map
       end
 
+      def childs
+        []
+      end
+
       def add_to_region_mapping(name, region, key, value)
         map = (@mappings[name.camelize] ||= {})
         map[region] ||= {}
