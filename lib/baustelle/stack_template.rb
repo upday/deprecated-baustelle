@@ -6,7 +6,7 @@ module Baustelle
       @config = config
     end
 
-    def build(name, region, template: CloudFormation::Template.new)
+    def build(name, region, bucket_name, template: CloudFormation::Template.new)
       # Prepare VPC
       vpc = CloudFormation::VPC.apply(template, vpc_name: name,
                                       cidr_block: config.fetch('vpc').fetch('cidr'),
@@ -84,7 +84,7 @@ module Baustelle
             app = CloudFormation::Application.new(name, app_name)
             app.apply(template)
           when 'new'
-            app = CloudFormation::ApplicationStack.new(name, app_name)
+            app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name)
             raise "new template_layout is not supported yet"
         end
         app

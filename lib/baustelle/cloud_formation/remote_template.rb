@@ -7,12 +7,16 @@ module Baustelle
     class RemoteTemplate
       attr_reader :bucket
 
-      def initialize(region:,
+      def initialize(stack_name,
+                     region:,
                      bucket: Baustelle::WorkspaceBucket.new(region: region).call)
         @bucket = bucket
+        @region = region
+        @stack_name = stack_name
       end
 
       def call(template)
+        template.build(@stack_name, @region, @bucket.name)
         file.put(body: template.to_json)
         main_temlate_url = file.public_url
         template.childs.each do |child|

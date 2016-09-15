@@ -7,10 +7,10 @@ module Baustelle
 
       def call(specification_file, region:, name:)
         config = Baustelle::Config.read(specification_file)
-        template = Baustelle::StackTemplate.new(config).build(name, region)
+        template = Baustelle::StackTemplate.new(config)
 
         Aws.config[:region] = region
-        Baustelle::CloudFormation::RemoteTemplate.new(region: region).
+        Baustelle::CloudFormation::RemoteTemplate.new(stack_name: name, region: region).
           call(template.to_json) do |template_url|
           Baustelle::CloudFormation.create_stack(name, template_url) or exit(1)
         end
