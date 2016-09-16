@@ -7,7 +7,8 @@ describe Baustelle::CloudFormation::RemoteTemplate do
 
     let(:bucket) { double(object: object, clear!: nil, name: 'bautelle-workspace-bucket') }
     let(:object) { spy(put: nil, public_url: 'url') }
-    let(:stack_template) { spy('Baustelle::StackTemplate', childs: [], to_json: '{}') }
+    let(:cloudformation_template) { spy('CloudFormation::Template', childs: [], to_json: '{}') }
+    let(:stack_template) { spy('Baustelle::StackTemplate', build: cloudformation_template) }
 
 
     it 'yields file url' do
