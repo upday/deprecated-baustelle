@@ -12,10 +12,6 @@ module Baustelle
       bucket_object(find_bucket || create_bucket)
     end
 
-    def empty_bucket
-      bucket_object(find_bucket).clear
-    end
-
     private
 
     def bucket_object(bucket)

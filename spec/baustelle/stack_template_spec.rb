@@ -259,7 +259,7 @@ environments:
 
   describe '#build' do
     let(:region) { 'us-east-1' }
-    subject { stack_template.build("foo", region) }
+    subject { stack_template.build("foo", region, "bucket") }
 
     context "returns template" do
       let(:template) { (subject.as_json) }

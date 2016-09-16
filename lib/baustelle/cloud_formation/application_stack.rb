@@ -5,9 +5,10 @@ module Baustelle
     class ApplicationStack
       attr_reader :canonical_name, :name
 
-      def initialize(stack_name, app_name)
+      def initialize(stack_name, app_name, bucket_name)
         @name = app_name
         @canonical_name = self.class.eb_name(stack_name, app_name)
+        @bucket_name = bucket_name
       end
 
       def apply(template)
@@ -17,7 +18,7 @@ module Baustelle
                   NotificationARNs: [],
                   Parameters: {},
                   Tags: [],
-                  TemplateURL: "https://s3.amazonaws.com/baustelle-bucket/#{@canonical_name}.json",
+                  TemplateURL: "https://s3.amazonaws.com/#{@bucket_name}/#{@canonical_name}.json",
                   TimeoutInMinutes: "String"
                 }
       end

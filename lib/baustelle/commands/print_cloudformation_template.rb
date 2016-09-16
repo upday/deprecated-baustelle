@@ -7,7 +7,7 @@ module Baustelle
 
       def call(specification_file, region:, name:)
         config = Baustelle::Config.read(specification_file)
-        template = Baustelle::StackTemplate.new(config).build(name, region)
+        template = Baustelle::StackTemplate.new(config).build(name, region, "baustelle-workspace-bucket")
 
         puts template.to_json
       end
