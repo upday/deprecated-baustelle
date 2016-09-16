@@ -10,7 +10,7 @@ module Baustelle
         template = Baustelle::StackTemplate.new(config)
 
         Aws.config[:region] = region
-        Baustelle::CloudFormation::RemoteTemplate.new(stack_name: name, region: region).
+        Baustelle::CloudFormation::RemoteTemplate.new(name, region: region).
           call(template) do |template_url|
           Baustelle::CloudFormation.update_stack(name, template_url) or exit(1)
         end
