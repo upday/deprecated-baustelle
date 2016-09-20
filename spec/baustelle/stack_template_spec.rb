@@ -184,6 +184,13 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
+  new_layout:
+    stack: java
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    template_layout: new
 
 
 environments:
@@ -195,6 +202,7 @@ environments:
           name: myapp.baustelle.org
       application_compat_environment_naming:
         new_environment_naming: false
+      new_layout: {}
   staging:
     backends:
       RabbitMQ:
@@ -733,8 +741,26 @@ environments:
             expect(env_hash).to eq(eb_env_name_backwards_compatibility.call('stack','app','env'))
           end
         end
+      end
 
+      context 'New template layout' do
+        it 'Creates a stack resource' do
+          expect_resource template, "FooNewLayoutStack",
+                          of_type: 'AWS::CloudFormation::Stack' do |properties, resource|
+            expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutStack.json')
+          end
+        end
+        it 'Raise error if the setting is overwritten in an environment' do
+          error_config = Marshal.load(Marshal.dump(config))
+          error_config.
+            fetch('environments', nil).
+            fetch('production', nil).
+            fetch('applications', {}).
+            fetch('new_layout', {})['template_layout'] = 'old'
 
+          expect {Baustelle::StackTemplate.new(error_config).build("foo", region, "bucket")}.to raise_error(RuntimeError)
+
+        end
       end
 
     end

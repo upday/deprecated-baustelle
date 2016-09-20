@@ -11,12 +11,15 @@ module Baustelle
         @bucket_name = bucket_name
       end
 
-      def apply(template)
+      def apply(template, vpc)
         template.resource @canonical_name,
                 Type: "AWS::CloudFormation::Stack",
                 Properties: {
                   NotificationARNs: [],
-                  Parameters: {},
+                  Parameters: {
+                    VPC: vpc.id,
+                    Subnets: template.join(',', *vpc.zone_identifier),
+                  },
                   Tags: [],
                   TemplateURL: "https://s3.amazonaws.com/#{@bucket_name}/#{@canonical_name}.json",
                   TimeoutInMinutes: "String"

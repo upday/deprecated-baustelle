@@ -5,6 +5,7 @@ module Baustelle
         @resources = {}
         @mappings = {}
         @outputs = {}
+        @childs = {}
       end
 
       def mapping(name, map)
@@ -12,7 +13,7 @@ module Baustelle
       end
 
       def childs
-        []
+        @childs
       end
 
       def add_to_region_mapping(name, region, key, value)

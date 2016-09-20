@@ -85,7 +85,8 @@ module Baustelle
             app.apply(template)
           when 'new'
             app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name)
-            raise "new template_layout is not supported yet"
+            app.apply(template, vpc)
+            #raise "new template_layout is not supported yet"
         end
         app
       end
@@ -139,8 +140,12 @@ module Baustelle
                                                                   chain_after: previous_eb_env[index % previous_eb_env.size])
               previous_eb_env[index % previous_eb_env.size] = resource_name
             elsif app_config.template_layout == 'new'
-              puts "template_layout => new is not supported yet"
-              raise "new template_layout is not supported yet"
+              if not template.childs[app.name]
+                template.childs[app.name] = CloudFormation::Template.new
+                CloudFormation::Application.new(name, app.name).apply(template.childs[app.name])
+              end
+              child_template = template.childs[app.name]
+              template.childs[app.name] = child_template
             end
           end
         end
