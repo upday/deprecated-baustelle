@@ -9,6 +9,7 @@ module Baustelle
         @name = app_name
         @canonical_name = self.class.eb_name(stack_name, app_name)
         @bucket_name = bucket_name
+        @stack_name = stack_name
       end
 
       def apply(template, vpc)
@@ -20,9 +21,12 @@ module Baustelle
                     VPC: vpc.id,
                     Subnets: template.join(',', *vpc.zone_identifier),
                   },
-                  Tags: [],
+                  Tags: [
+                    {Key: 'application', Value: "#{@name}"},
+                    {Key: 'stack', Value: "#{@stack_name}"},
+                    {Key: 'canonical-name', Value: "#{@canonical_name}"}
+                  ],
                   TemplateURL: "https://s3.amazonaws.com/#{@bucket_name}/#{@canonical_name}.json",
-                  TimeoutInMinutes: "String"
                 }
       end
 

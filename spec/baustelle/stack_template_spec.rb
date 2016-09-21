@@ -6,6 +6,7 @@ require_relative 'stack_template/backend/redis'
 require_relative 'stack_template/backend/postgres'
 require_relative 'stack_template/backend/kinesis'
 require_relative 'stack_template/peer_vpc'
+require_relative 'stack_template/new_layout'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
@@ -390,6 +391,8 @@ environments:
                        name: "main",
                        shard_count: 1
 
+      include_examples "New template layout"
+
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",
                         of_type: 'AWS::EC2::SecurityGroup'
@@ -742,27 +745,6 @@ environments:
           end
         end
       end
-
-      context 'New template layout' do
-        it 'Creates a stack resource' do
-          expect_resource template, "FooNewLayoutStack",
-                          of_type: 'AWS::CloudFormation::Stack' do |properties, resource|
-            expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutStack.json')
-          end
-        end
-        it 'Raise error if the setting is overwritten in an environment' do
-          error_config = Marshal.load(Marshal.dump(config))
-          error_config.
-            fetch('environments', nil).
-            fetch('production', nil).
-            fetch('applications', {}).
-            fetch('new_layout', {})['template_layout'] = 'old'
-
-          expect {Baustelle::StackTemplate.new(error_config).build("foo", region, "bucket")}.to raise_error(RuntimeError)
-
-        end
-      end
-
     end
   end
 end
