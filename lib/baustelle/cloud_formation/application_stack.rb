@@ -16,7 +16,6 @@ module Baustelle
         template.resource @canonical_name,
                 Type: "AWS::CloudFormation::Stack",
                 Properties: {
-                  NotificationARNs: [],
                   Parameters: {
                     VPC: vpc.id,
                     Subnets: template.join(',', *vpc.zone_identifier),
