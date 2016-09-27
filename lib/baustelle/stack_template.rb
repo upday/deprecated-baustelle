@@ -140,12 +140,7 @@ module Baustelle
                                                                   chain_after: previous_eb_env[index % previous_eb_env.size])
               previous_eb_env[index % previous_eb_env.size] = resource_name
             elsif app_config.template_layout == 'new'
-              if not template.childs[app.name]
-                template.childs[app.name] = CloudFormation::Template.new
-                CloudFormation::Application.new(name, app.name).apply(template.childs[app.name])
-              end
-              child_template = template.childs[app.name]
-              template.childs[app.name] = child_template
+              app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
             end
           end
         end
