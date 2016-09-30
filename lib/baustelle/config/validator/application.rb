@@ -62,6 +62,7 @@ module Baustelle
             ),
             optional('hostname_scheme') => enum(%w(old new)),
             optional('disabled') => boolean,
+            optional('gzip') => boolean,
             optional('pre_deploy_test_command') => String,
             optional('systemtests') => either(enum(applications),
                                               FalseClass, NilClass,
