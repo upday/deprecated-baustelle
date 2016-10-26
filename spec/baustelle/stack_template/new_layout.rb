@@ -1,9 +1,9 @@
 shared_examples "New template layout" do
   context 'New template layout' do
     it 'Creates a stack resource' do
-      expect_resource template, "FooNewLayoutStack",
+      expect_resource template, "FooNewLayout",
                       of_type: 'AWS::CloudFormation::Stack' do |properties, resource|
-        expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutStack.json')
+        expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayout.json')
         parameters = properties[:Parameters]
         tags = properties[:Tags]
         expect(parameters[:VPC]).to eq(ref('foo'))
@@ -11,7 +11,7 @@ shared_examples "New template layout" do
         expect(tags).to contain_exactly(
                           {Key: 'application', Value: 'new_layout'},
                           {Key: 'stack', Value: 'foo'},
-                          {Key: 'canonical-name', Value: 'FooNewLayoutStack'}
+                          {Key: 'canonical-name', Value: 'FooNewLayout'}
                         )
       end
     end
