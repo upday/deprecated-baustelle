@@ -58,7 +58,7 @@ module Baustelle
       end
 
       def self.eb_name(stack_name, app_name)
-        "#{stack_name}_#{app_name}_stack".camelize
+        "#{stack_name}_#{app_name}".camelize
       end
 
       def ref(template)
