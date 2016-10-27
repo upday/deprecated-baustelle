@@ -6,6 +6,7 @@ require_relative 'stack_template/backend/redis'
 require_relative 'stack_template/backend/postgres'
 require_relative 'stack_template/backend/kinesis'
 require_relative 'stack_template/peer_vpc'
+require_relative 'stack_template/new_layout'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
@@ -184,6 +185,13 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
+  new_layout:
+    stack: java
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    template_layout: new
 
 
 environments:
@@ -195,6 +203,7 @@ environments:
           name: myapp.baustelle.org
       application_compat_environment_naming:
         new_environment_naming: false
+      new_layout: {}
   staging:
     backends:
       RabbitMQ:
@@ -381,6 +390,8 @@ environments:
                        environment: 'staging',
                        name: "main",
                        shard_count: 1
+
+      include_examples "New template layout"
 
       it 'creates security group for the platform' do
         expect_resource template, "GlobalSecurityGroup",
@@ -733,10 +744,7 @@ environments:
             expect(env_hash).to eq(eb_env_name_backwards_compatibility.call('stack','app','env'))
           end
         end
-
-
       end
-
     end
   end
 end

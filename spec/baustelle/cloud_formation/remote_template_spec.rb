@@ -7,13 +7,19 @@ describe Baustelle::CloudFormation::RemoteTemplate do
 
     let(:bucket) { double(object: object, clear!: nil, name: 'bautelle-workspace-bucket') }
     let(:object) { spy(put: nil, public_url: 'url') }
-    let(:cloudformation_template) { spy('CloudFormation::Template', childs: [], to_json: '{}') }
+    let(:cloudformation_template) { spy('CloudFormation::Template', childs: {}, to_json: '{}') }
     let(:stack_template) { spy('Baustelle::StackTemplate', build: cloudformation_template) }
 
 
     it 'yields file url' do
-      expect { |block| template.call(stack_template, &block) }.
-        to yield_with_args("url")
+      expect { |block|
+        template.call(stack_template, &block)
+      }.to yield_with_args("url")
+    end
+
+    it 'builds the template' do
+      template.call(stack_template) {}
+      expect(stack_template).to have_received(:build)
     end
 
     it 'puts the content in the remote file' do

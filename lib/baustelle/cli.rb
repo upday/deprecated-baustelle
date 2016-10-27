@@ -65,8 +65,10 @@ module Baustelle
     desc "print_cloudformation_template", "Prints the resulting cloudformation template that would be applied when executing baustelle create/update"
     option "specification", desc: 'path to the specification file',
            default: 'baustelle.yml'
+    option :application, desc: 'name of the application stack',
+           default: nil
     def print_cloudformation_template
-      Baustelle::Commands::PrintCloudformationTemplate.call(specification_file, region: region, name: name)
+      Baustelle::Commands::PrintCloudformationTemplate.call(specification_file, region: region, name: name, application_stack_name: application)
     end
 
     desc "validate", "Validates the configuration"
@@ -125,6 +127,9 @@ module Baustelle
 
     def name
       options.fetch('name', 'baustelle')
+    end
+    def application
+      options.fetch('application', nil)
     end
   end
 end

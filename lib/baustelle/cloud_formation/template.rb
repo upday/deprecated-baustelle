@@ -5,14 +5,20 @@ module Baustelle
         @resources = {}
         @mappings = {}
         @outputs = {}
+        @childs = {}
+        @parameters = {}
       end
 
       def mapping(name, map)
         @mappings[name] = map
       end
 
+      def parameter(name, type='String')
+        @parameters.merge!({name => {Type: type}})
+      end
+
       def childs
-        []
+        @childs
       end
 
       def add_to_region_mapping(name, region, key, value)
@@ -50,7 +56,7 @@ module Baustelle
         {
           AWSTemplateFormatVersion: "2010-09-09",
           Description: "",
-          Parameters: {},
+          Parameters: @parameters,
           Mappings: @mappings,
           Resources: @resources,
           Outputs: @outputs
