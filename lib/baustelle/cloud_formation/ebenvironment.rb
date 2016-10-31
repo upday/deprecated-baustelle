@@ -57,7 +57,12 @@ module Baustelle
                                 { 'Key' => 'Application', 'Value' => app_name },
                                 { 'Key' => 'Stack',       'Value' => stack_name },
                                 { 'Key' => 'Environment', 'Value' => env_name },
-                              ],
+                              ].to_a.tap { |tags|
+                                if app_config.template_layout == 'new'
+                                  tags.push({ 'Key' => 'application', 'Value' => app_name })
+                                  tags.push({ 'Key' => 'product', 'Value' => 'upday' })
+                                end
+                              },
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',

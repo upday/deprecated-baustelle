@@ -86,7 +86,6 @@ module Baustelle
           when 'new'
             app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name)
             app.apply(template, vpc)
-            #raise "new template_layout is not supported yet"
         end
         app
       end
