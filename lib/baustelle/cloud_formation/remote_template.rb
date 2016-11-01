@@ -16,7 +16,7 @@ module Baustelle
       end
 
       def call(template)
-        stack_template = template.build(@stack_name, @region, @bucket.name)
+        stack_template = template.build(@stack_name, @region, @bucket.url)
         main_template_s3object = file
         main_template_s3object.put(body: stack_template.to_json)
         main_temlate_url = main_template_s3object.public_url
