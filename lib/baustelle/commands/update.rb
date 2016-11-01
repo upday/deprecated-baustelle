@@ -15,8 +15,6 @@ module Baustelle
           Baustelle::CloudFormation.update_stack(name, template_url) or exit(1)
         end
         puts "Updated stack #{name} in #{region}"
-      ensure
-        remote_template.clear_bucket
       end
     end
   end

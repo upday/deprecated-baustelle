@@ -16,8 +16,6 @@ module Baustelle
         end
 
         puts "Created stack #{name} in #{region}"
-      ensure
-        remote_template.clear_bucket
       end
     end
   end
