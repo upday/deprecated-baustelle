@@ -20,7 +20,7 @@ module Baustelle
         file.put(body: stack_template.to_json)
         main_temlate_url = file.public_url
         stack_template.childs.each do |child_name, child_template|
-          file(child_name).put(child_template.build(@stack_name, @region, @bucket.name).to_json)
+          file("#{child_name}.json").put(child_template.to_json)
         end
         yield main_temlate_url
       ensure
