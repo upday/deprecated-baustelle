@@ -47,12 +47,9 @@ shared_examples "New template layout" do
         expect_resource template, 'NewLayoutNewlayoutEnvStaging', of_type: 'AWS::ElasticBeanstalk::Environment' do |properties, resource|
           expect(properties[:Tags]).to contain_exactly(
             {'Key'=>'FQN', 'Value'=>'new_layout_NewLayout.staging.foo'},
-            {'Key'=>'Application', 'Value'=>'new_layout'},
-            {'Key'=>'Stack', 'Value'=>'foo'},
-            {'Key'=>'Environment', 'Value'=>'staging'},
-            {'Key'=>'application', 'Value'=>'new_layout_NewLayout'},
-            {'Key'=>'service', 'Value'=>'new_layout'},
-            {'Key'=>'product', 'Value'=>'upday'}
+            {'Key'=>'application', 'Value'=>'new_layout'},
+            {'Key'=>'stack', 'Value'=>'foo'},
+            {'Key'=>'environment', 'Value'=>'staging'},
           )
         end
       end

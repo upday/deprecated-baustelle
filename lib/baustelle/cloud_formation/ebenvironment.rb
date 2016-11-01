@@ -54,16 +54,7 @@ module Baustelle
                               CNAMEPrefix: eb_dns,
                               EnvironmentName: env_hash,
                               SolutionStackName: stack.fetch(:name),
-                              Tags: [
-                                { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-                                { 'Key' => 'Application', 'Value' => remove_suffix(app_name, app_config) },
-                                { 'Key' => 'Stack',       'Value' => stack_name },
-                                { 'Key' => 'Environment', 'Value' => env_name },
-                              ].to_a.tap { |tags|
-                                if app_config.template_layout == 'new'
-                                  tags.push({ 'Key' => 'service', 'Value' => remove_suffix(app_name, app_config) })
-                                end
-                              },
+                              Tags: generate_tags(app_name, env_name, stack_name, app_config),
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
@@ -245,6 +236,25 @@ module Baustelle
         else
           app_name
         end
+      end
+
+      def generate_tags(app_name, env_name, stack_name, app_config)
+        if app_config.template_layout == 'old'
+          [
+            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
+            { 'Key' => 'Application', 'Value' => app_name },
+            { 'Key' => 'Stack',       'Value' => stack_name },
+            { 'Key' => 'Environment', 'Value' => env_name },
+          ]
+        elsif app_config.template_layout == 'new'
+          [
+            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
+            { 'Key' => 'application', 'Value' => remove_suffix(app_name, app_config) },
+            { 'Key' => 'stack',       'Value' => stack_name },
+            { 'Key' => 'environment', 'Value' => env_name },
+          ]
+        end
+
       end
 
       def build_hostname(app_config, stack_name, region, env_name, app_name)
