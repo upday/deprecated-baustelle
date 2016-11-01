@@ -17,10 +17,12 @@ module Baustelle
 
       def call(template)
         stack_template = template.build(@stack_name, @region, @bucket.name)
-        file.put(body: stack_template.to_json)
-        main_temlate_url = file.public_url
+        main_template_s3object = file
+        main_template_s3object.put(body: stack_template.to_json)
+        main_temlate_url = main_template_s3object.public_url
         stack_template.childs.each do |child_name, child_template|
-          file(child_name).put(body: child_template.to_json)
+          child_template_s3object = file(child_name)
+          child_template_s3object.put(body: child_template.to_json)
         end
         yield main_temlate_url
       ensure
