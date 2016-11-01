@@ -25,7 +25,9 @@ module Baustelle
           child_template_s3object.put(body: child_template.to_json)
         end
         yield main_temlate_url
-      ensure
+      end
+
+      def clear_bucket
         @bucket.clear!
       end
 

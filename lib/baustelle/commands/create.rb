@@ -10,12 +10,14 @@ module Baustelle
         template = Baustelle::StackTemplate.new(config)
 
         Aws.config[:region] = region
-        Baustelle::CloudFormation::RemoteTemplate.new(name, region: region).
+        remote_template = Baustelle::CloudFormation::RemoteTemplate.new(name, region: region).
           call(template) do |template_url|
           Baustelle::CloudFormation.create_stack(name, template_url) or exit(1)
         end
 
         puts "Created stack #{name} in #{region}"
+      ensure
+        remote_template.clear_bucket
       end
     end
   end
