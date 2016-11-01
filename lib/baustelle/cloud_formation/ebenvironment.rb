@@ -61,9 +61,7 @@ module Baustelle
                                 { 'Key' => 'Environment', 'Value' => env_name },
                               ].to_a.tap { |tags|
                                 if app_config.template_layout == 'new'
-                                  tags.push({ 'Key' => 'application', 'Value' => app_name })
                                   tags.push({ 'Key' => 'service', 'Value' => remove_suffix(app_name, app_config) })
-                                  tags.push({ 'Key' => 'product', 'Value' => 'upday' })
                                 end
                               },
                               OptionSettings: {
