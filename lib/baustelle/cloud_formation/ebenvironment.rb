@@ -11,6 +11,8 @@ module Baustelle
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
+      NEW_TEMPLATE_SUFFIX = '_NewLayout'
+
       def apply(template, stack_name:, region:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
                 internal_dns:, chain_after: nil)
@@ -54,10 +56,16 @@ module Baustelle
                               SolutionStackName: stack.fetch(:name),
                               Tags: [
                                 { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-                                { 'Key' => 'Application', 'Value' => app_name },
+                                { 'Key' => 'Application', 'Value' => remove_suffix(app_name, app_config) },
                                 { 'Key' => 'Stack',       'Value' => stack_name },
                                 { 'Key' => 'Environment', 'Value' => env_name },
-                              ],
+                              ].to_a.tap { |tags|
+                                if app_config.template_layout == 'new'
+                                  tags.push({ 'Key' => 'application', 'Value' => app_name })
+                                  tags.push({ 'Key' => 'service', 'Value' => remove_suffix(app_name, app_config) })
+                                  tags.push({ 'Key' => 'product', 'Value' => 'upday' })
+                                end
+                              },
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
@@ -231,6 +239,14 @@ module Baustelle
         template.join('-', stack_name,
                       template.ref('AWS::Region'),
                       "#{env_name}-#{app_name}".gsub('_', '-'))
+      end
+
+      def remove_suffix(app_name,app_config)
+        if app_config.template_layout == 'new'
+          app_name.gsub(NEW_TEMPLATE_SUFFIX,'')
+        else
+          app_name
+        end
       end
 
       def build_hostname(app_config, stack_name, region, env_name, app_name)
