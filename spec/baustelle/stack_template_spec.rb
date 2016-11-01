@@ -185,7 +185,7 @@ applications:
       min: 1
       max: 2
     new_environment_naming: true
-  new_layout:
+  new_layout_NewLayout:
     stack: java
     instance_type: t1.small
     scale:
@@ -203,7 +203,7 @@ environments:
           name: myapp.baustelle.org
       application_compat_environment_naming:
         new_environment_naming: false
-      new_layout: {}
+      new_layout_NewLayout: {}
   staging:
     backends:
       RabbitMQ:
