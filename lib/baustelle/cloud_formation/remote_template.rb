@@ -29,7 +29,7 @@ module Baustelle
 
       private
 
-      def file(name: SecureRandom.uuid)
+      def file(name = SecureRandom.uuid)
         @file ||= @bucket.object(name + ".json")
       end
     end
