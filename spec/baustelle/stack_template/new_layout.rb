@@ -28,13 +28,13 @@ shared_examples "New template layout" do
     it 'Creates child template' do
       expect(subject.childs).to_not be_nil
       expect(subject.childs.length).to eq(1)
-      expect(subject.childs['new_layout_NewLayout']).to_not be_nil
+      expect(subject.childs['FooNewLayoutNewlayout']).to_not be_nil
     end
 
     context 'child template' do
       let(:region) { 'us-east-1' }
       let(:parent_template) { stack_template.build("foo", region, "bucket") }
-      subject { parent_template.childs['new_layout_NewLayout'] }
+      subject { parent_template.childs['FooNewLayoutNewlayout'] }
       let(:template) { (subject.as_json) }
 
       it 'has Application' do

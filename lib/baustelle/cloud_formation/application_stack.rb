@@ -85,10 +85,10 @@ module Baustelle
       private
 
       def application_template(template)
-        if not template.childs[@name]
-          template.childs[@name] = CloudFormation::Template.new
+        if not template.childs[@canonical_name]
+          template.childs[@canonical_name] = CloudFormation::Template.new
         else
-          template.childs[@name]
+          template.childs[@canonical_name]
         end
       end
 
