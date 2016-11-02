@@ -21,6 +21,7 @@ module Baustelle
                                               name: name)
       ensure
         Baustelle::Commands::Wait.call(name: name, region: region)
+        Baustelle::Commands::ClearBucket.call(region: region, name: name)
       end
 
     end
@@ -36,6 +37,7 @@ module Baustelle
                                               name: name)
       ensure
         Baustelle::Commands::Wait.call(name: name, region: region)
+        Baustelle::Commands::ClearBucket.call(region: region, name: name)
       end
 
     end
