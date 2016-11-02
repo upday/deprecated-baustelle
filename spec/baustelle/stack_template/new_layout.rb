@@ -3,7 +3,7 @@ shared_examples "New template layout" do
     it 'Creates a stack resource' do
       expect_resource template, "FooNewLayoutNewlayout",
                       of_type: 'AWS::CloudFormation::Stack' do |properties, resource|
-        expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutNewlayout.json')
+        expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutNewlayout-UUID.json')
         parameters = properties[:Parameters]
         tags = properties[:Tags]
         expect(parameters[:VPC]).to eq(ref('foo'))
@@ -22,7 +22,7 @@ shared_examples "New template layout" do
         fetch('production', nil).
         fetch('applications', {}).
         fetch('new_layout_NewLayout', {})['template_layout'] = 'old'
-      expect {Baustelle::StackTemplate.new(error_config).build("foo", region, "bucket")}.to raise_error(RuntimeError)
+      expect {Baustelle::StackTemplate.new(error_config).build("foo", region, "bucket", 'UUID')}.to raise_error(RuntimeError)
     end
 
     it 'Creates child template' do
@@ -33,7 +33,7 @@ shared_examples "New template layout" do
 
     context 'child template' do
       let(:region) { 'us-east-1' }
-      let(:parent_template) { stack_template.build("foo", region, "bucket") }
+      let(:parent_template) { stack_template.build("foo", region, "bucket", 'UUID') }
       subject { parent_template.childs['FooNewLayoutNewlayout'] }
       let(:template) { (subject.as_json) }
 

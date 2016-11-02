@@ -268,7 +268,7 @@ environments:
 
   describe '#build' do
     let(:region) { 'us-east-1' }
-    subject { stack_template.build("foo", region, "https://s3.amazonaws.com/bucket") }
+    subject { stack_template.build("foo", region, "https://s3.amazonaws.com/bucket", 'UUID') }
 
     context "returns template" do
       let(:template) { (subject.as_json) }

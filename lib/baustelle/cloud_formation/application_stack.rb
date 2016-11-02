@@ -5,12 +5,13 @@ module Baustelle
     class ApplicationStack
       attr_reader :canonical_name, :name
 
-      def initialize(stack_name, app_name, bucket_url)
+      def initialize(stack_name, app_name, bucket_url, main_template_uuid)
         @name = app_name
         @canonical_name = self.class.eb_name(stack_name, app_name)
         @bucket_url = bucket_url
         @stack_name = stack_name
         @application_template_iam_role = nil
+        @main_template_uuid = main_template_uuid
       end
 
       def apply(template, vpc)
@@ -27,7 +28,7 @@ module Baustelle
                     {Key: 'stack', Value: "#{@stack_name}"},
                     {Key: 'canonical-name', Value: "#{@canonical_name}"}
                   ],
-                  TemplateURL: "#{@bucket_url}/#{@canonical_name}.json",
+                  TemplateURL: "#{@bucket_url}/#{@canonical_name}-#{@main_template_uuid}.json",
                 }
         parameters.keys.each { |name|
           if [:Subnets].include?(name)
