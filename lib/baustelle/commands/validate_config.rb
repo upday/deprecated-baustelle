@@ -5,7 +5,7 @@ module Baustelle
 
       def call(specification_file, region)
         config = Baustelle::Config.read(specification_file)
-        template = Baustelle::StackTemplate.new(config).build('ValidationTemplate', region, "baustelle-workspace-bucket")
+        template = Baustelle::StackTemplate.new(config).build('ValidationTemplate', region, "baustelle-workspace-bucket", 'UUID')
         if template.resources.length > 199
           $stderr.puts "Number of resources exceeds the maximum of 199. Number of reouces in the template: #{template.resources.length}"
           exit 1
