@@ -16,12 +16,13 @@ module Baustelle
       end
 
       def call(template)
-        stack_template = template.build(@stack_name, @region, @bucket.url)
-        main_template_s3object = file
+        main_template_uuid = SecureRandom.uuid
+        stack_template = template.build(@stack_name, @region, @bucket.url, main_template_uuid)
+        main_template_s3object = file(main_template_uuid)
         main_template_s3object.put(body: stack_template.to_json)
         main_temlate_url = main_template_s3object.public_url
         stack_template.childs.each do |child_name, child_template|
-          child_template_s3object = file(child_name)
+          child_template_s3object = file("#{child_name}-#{main_template_uuid}")
           child_template_s3object.put(body: child_template.to_json)
         end
         yield main_temlate_url
@@ -33,7 +34,7 @@ module Baustelle
 
       private
 
-      def file(name = SecureRandom.uuid)
+      def file(name)
         @bucket.object(name + ".json")
       end
     end
