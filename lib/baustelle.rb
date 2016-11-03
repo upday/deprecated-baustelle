@@ -23,6 +23,7 @@ module Baustelle
   require 'baustelle/cloud_formation/template'
   require 'baustelle/cloud_formation/iam_role'
   require 'baustelle/cloud_formation/bastion_host'
+  require 'baustelle/commands/clear_bucket'
   require 'baustelle/commands/create'
   require 'baustelle/commands/update'
   require 'baustelle/commands/delete'
