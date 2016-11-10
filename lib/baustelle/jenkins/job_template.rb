@@ -11,8 +11,10 @@ module Baustelle
       end
 
       def render(prefix: '')
-        groovy_template_path = Dir::mkdir('rendered_jobs', 0755) #Dir::Tmpname.make_tmpname(['job', '.groovy'],false).gsub('-','_')
-        groovy_template = File.open(File.join(groovy_scripts_dir, groovy_template_path),'w')
+        #groovy_template_path = Dir::mkdir('rendered_jobs', 0755) #Dir::Tmpname.make_tmpname(['job', '.groovy'],false).gsub('-','_')
+        environment = @options['eb_environment_name'].split('-')[0]
+        application = @options['name']
+        groovy_template = File.open(File.join(groovy_scripts_dir, "#{application}_#{environment}").gsub('-','_'),'w')
         groovy_template.puts render_groovy
         groovy_template.close
           # Dir.mktmpdir do |output_dir|

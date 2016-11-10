@@ -69,7 +69,7 @@ module Baustelle
         end
       end
 
-
+      public
       def create_jobs
         Baustelle::Config.for_every_environment(@config) do |environment, env_config|
           Baustelle::Config.for_every_application(env_config) do |application, app_config|
@@ -95,6 +95,7 @@ module Baustelle
         end
       end
 
+      private
       def upload_jobs(jobs)
         jobs.each do |job_name, xml|
           begin
