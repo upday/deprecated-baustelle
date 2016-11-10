@@ -17,8 +17,7 @@ module Baustelle
       begin
         Baustelle::Commands::Create.call(specification_file, region: region,
                                        name: name)
-        Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
-                                              name: name)
+        #Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region, name: name)
       ensure
         Baustelle::Commands::Wait.call(name: name, region: region)
         Baustelle::Commands::ClearBucket.call(region: region, name: name)
@@ -33,12 +32,20 @@ module Baustelle
       begin
         Baustelle::Commands::Update.call(specification_file, region: region,
                                        name: name)
-        Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region,
-                                              name: name)
+        #Baustelle::Commands::Jenkins::Seed.call(specification_file, region: region, name: name)
       ensure
         Baustelle::Commands::Wait.call(name: name, region: region)
         Baustelle::Commands::ClearBucket.call(region: region, name: name)
       end
+
+    desc "generate_jobs", "Generate the groovy job-dsl definitions"
+    option "specification", desc: 'path to the specification file',
+           default: 'baustelle.yml'
+    def generate_jobs
+      begin
+        Baustelle::Commands::GenerateJobs.call(specification_file, region: region, name: name)
+      end
+    end
 
     end
 
