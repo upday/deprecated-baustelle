@@ -69,7 +69,7 @@ TEMPLATE
     )
   end
 
-  describe '#generate_jobs', slow: true do
+  describe '#generate_jobs', skip: true, slow: true do
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
     end
