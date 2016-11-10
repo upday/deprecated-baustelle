@@ -15,11 +15,10 @@ module Baustelle
       end
 
       def generate_jobs
-        jobs = {}
         if should_generate_systemtests?
-          jobs.merge!(generate_systemtests)
+          generate_systemtests
         end
-        jobs.merge!(generate_pipeline)
+          generate_pipeline
       end
 
       def identifier
