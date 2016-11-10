@@ -18,7 +18,7 @@ module Baustelle
         if should_generate_systemtests?
           generate_systemtests
         end
-          generate_pipeline
+        generate_pipeline
       end
 
       def identifier
@@ -77,10 +77,19 @@ module Baustelle
               eb_env_name(@name, @application, @environment),
             eb_application_name: "#{@name}-#{@application}".gsub('-', '_').underscore.camelize,
             application_version_source: @application_version_source,
-            system_test_job_name: system_test_job_name
+            system_test_job_name: system_test_job_name,
+            job_type: job_type(template_file)
           }
         )
         template.render(prefix: job_name_prefix)
+      end
+
+      def job_type(file_name)
+        if file_name.end_with?('systemtests.groovy.erb')
+          'systemtests'
+        else
+          'normal'
+        end
       end
 
     end

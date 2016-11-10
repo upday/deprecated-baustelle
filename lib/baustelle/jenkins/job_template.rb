@@ -25,7 +25,8 @@ module Baustelle
 
         environment = @options[:eb_environment_name].split('-')[0]
         application = @options[:eb_application_name]
-        groovy_template = File.open(File.join(groovy_template_path.path, "#{application}_#{environment}#{template_suffix}.groovy").gsub('-','_'),'w')
+        job_type = @options[:job_type]
+        groovy_template = File.open(File.join(groovy_template_path.path, "#{application}_#{environment}-#{job_type}.groovy").gsub('-','_'),'w')
         groovy_template.puts render_groovy
         groovy_template.close
       end
@@ -50,14 +51,6 @@ module Baustelle
 
       def groovy_scripts_dir
         File.join(job_dsl_dir, "jobs")
-      end
-
-      def template_suffix
-        if @template.end_with?('systemtests.groovy.erb')
-          '-systemtests'
-        else
-          ''
-        end
       end
     end
   end
