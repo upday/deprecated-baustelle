@@ -38,10 +38,10 @@ module Baustelle
           #
           # end
           #
-          # Dir[File.join(output_dir, "*.xml")].inject({}) do |result, filename|
-          #     result[prefix + File.basename(filename, '.xml')] = File.read(filename)
-          #     result
-          # end
+            Dir[File.join(groovy_template_path, ".groovy")].inject({}) do |result, filename|
+                result[prefix + File.basename(filename, '.groovy')] = File.read(filename)
+                result
+            end
         # end
       end
 
