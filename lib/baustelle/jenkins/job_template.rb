@@ -16,13 +16,6 @@ module Baustelle
           Dir::mkdir('rendered_jobs', 0755)
         end
         groovy_template_path = Dir::new(dir_name)
-
-
-
-
-         #Dir::Tmpname.make_tmpname(['job', '.groovy'],false).gsub('-','_')
-
-
         environment = @options[:eb_environment_name].split('-')[0]
         application = @options[:eb_application_name]
         job_type = @options[:job_type]
