@@ -73,20 +73,14 @@ TEMPLATE
     before(:example) do
       allow(File).to receive(:read){ "#{template}"}
     end
-    it 'should generate systemtest job and pipeline job' do
-      expect(generate_tests_object(systemtests_config_java).generate_jobs.keys.length).to eq(2)
-    end
     it 'should not generate disabled systemtest job but pipeline job' do
       expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
-      expect(generate_tests_object(systemtests_disabled).generate_jobs.keys.length).to eq(1)
     end
     it 'should not generate referenced systemtest job but pipeline job' do
       expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
-      expect(generate_tests_object(systemtests_referenced).generate_jobs.keys.length).to eq(1)
     end
     it 'should not generate empty systemtest job but pipeline job' do
       expect_any_instance_of(Baustelle::Jenkins::ApplicationJobs).to_not receive(:generate_systemtests)
-      expect(generate_tests_object.generate_jobs.keys.length).to eq(1)
     end
 
   end

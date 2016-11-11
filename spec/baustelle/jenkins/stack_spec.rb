@@ -60,20 +60,4 @@ environments:
     test_obj
   end
 
-  describe '#create_views' do
-
-    it 'create the correct views' do
-      obj = double()
-      test_object = generate_test_object(obj)
-      expect(obj).to receive(:create_list_view).with({:name=>"Baustelle test-stackname (eu-west-1)",:regex=>"baustelle-test-stackname-eu-west-1-.*"})
-      expect(obj).to receive(:create_list_view).with({:name=>"Baustelle test-stackname (eu-west-1) production DEPLOY",:regex=>"baustelle-test-stackname-eu-west-1-production-.*-00-deploy"})
-      expect(obj).to receive(:create_list_view).with({:name=>"Baustelle test-stackname (eu-west-1) staging DEPLOY",:regex=>"baustelle-test-stackname-eu-west-1-staging-.*-00-deploy"})
-      expect(obj).to receive(:create_list_view).with({:name=>"Baustelle Hello World",:regex=>"baustelle.*hello_world.*"})
-
-      #expect(obj).to receive(:create_list_view).at_least(:once)
-      test_object.create_views
-    end
-
-  end
-
 end

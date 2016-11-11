@@ -11,25 +11,17 @@ module Baustelle
       end
 
       def render(prefix: '')
-        groovy_template_path = Dir::Tmpname.make_tmpname(['job', '.groovy'],false).gsub('-','_')
-        groovy_template = File.open(File.join(groovy_scripts_dir, groovy_template_path),'w')
+        dir_name = 'rendered_jobs'
+        if !Dir::exist?(dir_name)
+          Dir::mkdir('rendered_jobs', 0755)
+        end
+        groovy_template_path = Dir::new(dir_name)
+        environment = @options[:eb_environment_name].split('-')[0]
+        application = @options[:eb_application_name]
+        job_type = @options[:job_type]
+        groovy_template = File.open(File.join(groovy_template_path.path, "#{application}_#{environment}-#{job_type}.groovy").gsub('-','_'),'w')
         groovy_template.puts render_groovy
         groovy_template.close
-        Dir.mktmpdir do |output_dir|
-          Dir.chdir(job_dsl_dir) do
-            path = File.join('jobs', File.basename(groovy_template.path))
-            if(system "./gradlew -q xml -Psource=#{path} -PoutputDir=#{output_dir}")
-            else
-              raise Exception.new('Error during job DSL rendering')
-            end
-
-          end
-
-          Dir[File.join(output_dir, "*.xml")].inject({}) do |result, filename|
-            result[prefix + File.basename(filename, '.xml')] = File.read(filename)
-            result
-          end
-        end
       end
 
       def render_groovy
