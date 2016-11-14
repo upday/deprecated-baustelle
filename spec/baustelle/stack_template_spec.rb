@@ -192,6 +192,13 @@ applications:
       min: 1
       max: 2
     template_layout: new
+  new_layout_NewLayout_chained:
+    stack: java
+    instance_type: t1.small
+    scale:
+      min: 1
+      max: 2
+    template_layout: new
 
 
 environments:
