@@ -5,18 +5,19 @@ module Baustelle
     class ApplicationStack
       attr_reader :canonical_name, :name
 
-      def initialize(stack_name, app_name, bucket_url, main_template_uuid)
+      def initialize(stack_name, app_name, bucket_url, main_template_uuid, chain_after=nil)
         @name = app_name
         @canonical_name = self.class.eb_name(stack_name, app_name)
         @bucket_url = bucket_url
         @stack_name = stack_name
         @application_template_iam_role = nil
         @main_template_uuid = main_template_uuid
+        @chain_after = chain_after
       end
 
       def apply(template, vpc)
         template.resource @canonical_name,
-                Type: "AWS::CloudFormation::Stack",
+                {Type: "AWS::CloudFormation::Stack",
                 Properties: {
                   Parameters: parameters = {
                     VPC: vpc.id,
@@ -29,7 +30,7 @@ module Baustelle
                     {Key: 'canonical-name', Value: "#{@canonical_name}"}
                   ],
                   TemplateURL: "#{@bucket_url}/#{@canonical_name}-#{@main_template_uuid}.json",
-                }
+                }}.tap { |res| res[:DependsOn] = @chain_after if @chain_after }
         parameters.keys.each { |name|
           if [:Subnets].include?(name)
             application_template(template).parameter(name,'CommaDelimitedList')

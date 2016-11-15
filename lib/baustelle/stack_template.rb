@@ -1,6 +1,6 @@
 module Baustelle
   class StackTemplate
-    PARALLEL_EB_UPDATES = ENV.fetch('PARALLEL_EB_UPDATES', 4).to_i
+    PARALLEL_EB_UPDATES = ENV.fetch('PARALLEL_EB_UPDATES', 2).to_i
 
     def initialize(config)
       @config = config
@@ -68,7 +68,11 @@ module Baustelle
         Baustelle::CloudFormation::BastionHost.apply(template, bastion_config, vpc: vpc, stack_name: name, parent_iam_role: global_iam_role)
       end
 
-      applications = Baustelle::Config.applications(config).map do |app_name|
+      # It is used to chain updates. There is high iikehood we hit AWS API rate limit
+      # if we create/update all environments at once
+      previous_eb_env =  nil
+
+      applications = Baustelle::Config.applications(config).sort_by { |app_name| app_name}.each.map do |app_name|
         environment_layouts = Baustelle::Config.environments(config).map { |env_name|
           env_config = Baustelle::Config.for_environment(config, env_name)
           app_config = Baustelle::Config.app_config(env_config, app_name)
@@ -84,7 +88,8 @@ module Baustelle
             app = CloudFormation::Application.new(name, app_name)
             app.apply(template)
           when 'new'
-            app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name, main_template_uuid)
+            app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name, main_template_uuid, previous_eb_env)
+            previous_eb_env = app.canonical_name
             app.apply(template, vpc)
         end
         app
@@ -93,6 +98,8 @@ module Baustelle
       # It is used to chain updates. There is high iikehood we hit AWS API rate limit
       # if we create/update all environments at once
       previous_eb_env = Array.new(PARALLEL_EB_UPDATES) { nil }
+      # Ugly index variable
+      index = 0
 
       # For every environemnt
       Baustelle::Config.environments(config).each do |env_name|
@@ -118,7 +125,7 @@ module Baustelle
 
         # Create applications
 
-        applications.each.with_index do |app, index|
+        applications.each do |app|
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
           unless app_config.disabled?
@@ -138,6 +145,8 @@ module Baustelle
                                                                   internal_dns: internal_dns_zones,
                                                                   chain_after: previous_eb_env[index % previous_eb_env.size])
               previous_eb_env[index % previous_eb_env.size] = resource_name
+              # increase index if application does NOT use the new layout
+              index += 1
             elsif app_config.template_layout == 'new'
               app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
             end

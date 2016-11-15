@@ -15,6 +15,24 @@ shared_examples "New template layout" do
                         )
       end
     end
+
+    it 'Creates a chained stack resource' do
+      expect_resource template, "FooNewLayoutNewlayoutChained",
+                      of_type: 'AWS::CloudFormation::Stack' do |properties, resource|
+        expect(properties[:TemplateURL]).to eq('https://s3.amazonaws.com/bucket/FooNewLayoutNewlayoutChained-UUID.json')
+        parameters = properties[:Parameters]
+        tags = properties[:Tags]
+        expect(parameters[:VPC]).to eq(ref('foo'))
+        expect(parameters[:Subnets]).to eq({"Fn::Join"=>[",", [{"Ref"=>"fooSubnetA"}, {"Ref"=>"fooSubnetB"}]]})
+        expect(tags).to contain_exactly(
+                          {Key: 'application', Value: 'new_layout_NewLayout_chained'},
+                          {Key: 'stack', Value: 'foo'},
+                          {Key: 'canonical-name', Value: 'FooNewLayoutNewlayoutChained'}
+                        )
+        expect(resource[:DependsOn]).to eq('FooNewLayoutNewlayout')
+      end
+    end
+
     it 'Raise error if the setting is overwritten in an environment' do
       error_config = Marshal.load(Marshal.dump(config))
       error_config.
@@ -27,7 +45,7 @@ shared_examples "New template layout" do
 
     it 'Creates child template' do
       expect(subject.childs).to_not be_nil
-      expect(subject.childs.length).to eq(1)
+      expect(subject.childs.length).to eq(2)
       expect(subject.childs['FooNewLayoutNewlayout']).to_not be_nil
     end
 
