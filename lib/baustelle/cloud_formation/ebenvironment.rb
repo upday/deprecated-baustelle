@@ -230,12 +230,8 @@ module Baustelle
                       "#{env_name}-#{app_name}".gsub('_', '-'))
       end
 
-      def remove_suffix(app_name,app_config)
-        if app_config.template_layout == 'new'
-          app_name.gsub(IGNORED_SUFFIX, '')
-        else
-          app_name
-        end
+      def remove_suffix(app_name)
+        app_name.gsub(IGNORED_SUFFIX, '')
       end
 
       def generate_tags(app_name, env_name, stack_name, app_config)
@@ -249,7 +245,7 @@ module Baustelle
         elsif app_config.template_layout == 'new'
           [
             { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-            { 'Key' => 'application', 'Value' => remove_suffix(app_name, app_config) },
+            { 'Key' => 'application', 'Value' => remove_suffix(app_name) },
             { 'Key' => 'stack',       'Value' => stack_name },
             { 'Key' => 'environment', 'Value' => env_name },
           ]
