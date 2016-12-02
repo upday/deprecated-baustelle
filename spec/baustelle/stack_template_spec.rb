@@ -447,7 +447,7 @@ environments:
       end
 
       context 'HelloWorld Application' do
-      let(:template) { generate_application_template('HelloWorld') }
+      let(:template) { generate_application_template('hello_world') }
       it 'creates no ssl configuration when https is not enabled' do
         expect_resource template, 'HelloWorldEnvProduction' do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -528,7 +528,7 @@ environments:
     end
 
       context 'HTTPS Hello World' do
-      let(:template) { generate_application_template('HttpsHelloWorld') }
+      let(:template) { generate_application_template('https_hello_world') }
       it 'creates ssl configuration when https is enabled' do
         expect_resource template, 'HttpsHelloWorldEnvProduction' do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -557,7 +557,8 @@ environments:
     end
 
       context 'CustomHelloWorld Applications' do
-      it 'uses custom AMI for customized stack' do
+        let(:template) { generate_application_template('CustomHelloWorldEnvProduction') }
+        it 'uses custom AMI for customized stack' do
         expect_resource template, "CustomHelloWorldEnvProduction" do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
 
