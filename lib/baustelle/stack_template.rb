@@ -68,7 +68,7 @@ module Baustelle
         Baustelle::CloudFormation::BastionHost.apply(template, bastion_config, vpc: vpc, stack_name: name, parent_iam_role: global_iam_role)
       end
 
-      # It is used to chain updates. There is high iikehood we hit AWS API rate limit
+      # It is used to chain updates. There is high likehood we hit AWS API rate limit
       # if we create/update all environments at once
       previous_eb_env =  nil
 
@@ -78,12 +78,6 @@ module Baustelle
         app.apply(template, vpc)
         app
       end
-
-      # It is used to chain updates. There is high iikehood we hit AWS API rate limit
-      # if we create/update all environments at once
-      previous_eb_env = Array.new(PARALLEL_EB_UPDATES) { nil }
-      # Ugly index variable
-      index = 0
 
       # For every environemnt
       Baustelle::Config.environments(config).each do |env_name|
@@ -113,27 +107,7 @@ module Baustelle
           app_config = Baustelle::Config.app_config(env_config, app.name)
 
           unless app_config.disabled?
-            if app_config.template_layout == 'old'
-              resource_name = CloudFormation::EBEnvironment.apply(template,
-                                                                  stack_name: name,
-                                                                  region: region,
-                                                                  env_name: env_name,
-                                                                  app_ref: app.ref(template),
-                                                                  app_name: app.name,
-                                                                  vpc: vpc,
-                                                                  app_config: app_config,
-                                                                  env_config: env_config,
-                                                                  stack_configurations: env_config.fetch('stacks'),
-                                                                  backends: environment_backends,
-                                                                  base_iam_role: global_iam_role,
-                                                                  internal_dns: internal_dns_zones,
-                                                                  chain_after: previous_eb_env[index % previous_eb_env.size])
-              previous_eb_env[index % previous_eb_env.size] = resource_name
-              # increase index if application does NOT use the new layout
-              index += 1
-            elsif app_config.template_layout == 'new'
-              app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
-            end
+            app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
           end
         end
       end
