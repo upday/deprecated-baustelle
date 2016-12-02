@@ -10,6 +10,7 @@ require_relative 'stack_template/new_layout'
 
 describe Baustelle::StackTemplate do
   let(:stack_template) { Baustelle::StackTemplate.new(config) }
+  let(:region) { 'us-east-1' }
 
   let(:config) {
     YAML.load(<<-YAML)
@@ -260,6 +261,10 @@ environments:
     yield resource[:Properties], resource if block_given?
   end
 
+  def generate_application_template(app_name)
+    stack_template.build("foo", region, "bucket", 'UUID').childs["foo_#{app_name}".camelize].as_json
+  end
+
   def ref(name)
     {'Ref' => name}
   end
@@ -400,23 +405,49 @@ environments:
 
       include_examples "New template layout"
 
-      it 'creates security group for the platform' do
-        expect_resource template, "GlobalSecurityGroup",
-                        of_type: 'AWS::EC2::SecurityGroup'
-      end
+      context 'global resources' do
+        it 'creates security group for the platform' do
+          expect_resource template, "GlobalSecurityGroup",
+                          of_type: 'AWS::EC2::SecurityGroup'
+        end
 
-      it 'creates IAM role for the platform instances' do
-        expect_resource template, 'IAMRole',
-                        of_type: 'AWS::IAM::Role'
-      end
+        it 'creates IAM role for the platform instances' do
+          expect_resource template, 'IAMRole',
+                          of_type: 'AWS::IAM::Role'
+        end
 
-      it 'creates instance profile for instances' do
-        expect_resource template, 'IAMInstanceProfile',
-                        of_type: 'AWS::IAM::InstanceProfile' do |properties|
-          expect(properties[:Roles]).to include(ref('IAMRole'))
+        it 'creates instance profile for instances' do
+          expect_resource template, 'IAMInstanceProfile',
+                          of_type: 'AWS::IAM::InstanceProfile' do |properties|
+            expect(properties[:Roles]).to include(ref('IAMRole'))
+          end
+        end
+        context "internal DNS" do
+          it 'creates internal DNS Zone' do
+            expect_resource template,"InternalDNSZone",
+                            of_type: "AWS::Route53::HostedZone" do |properties|
+              expect(properties[:Name]).to eq('baustelle.internal')
+              expect(properties[:VPCs]).to include({VPCId: {'Ref' => 'foo'},
+                                                    VPCRegion: {'Ref' => 'AWS::Region'}})
+
+            end
+          end
+
+          it 'creates peering DNS Zone' do
+            expect_resource template,"PeeringDNSZone",
+                            of_type: "AWS::Route53::HostedZone" do |properties|
+              expect(properties[:Name]).to eq("foo.#{region}.baustelle.internal")
+              expect(properties[:VPCs]).not_to include({VPCId: {'Ref' => 'foo'},
+                                                        VPCRegion: {'Ref' => 'AWS::Region'}})
+              expect(properties[:VPCs]).to include({VPCId: 'vpc-123456',
+                                                    VPCRegion: {'Ref' => 'AWS::Region'}})
+            end
+          end
         end
       end
 
+      context 'HelloWorld Application' do
+      let(:template) { generate_application_template('HelloWorld') }
       it 'creates no ssl configuration when https is not enabled' do
         expect_resource template, 'HelloWorldEnvProduction' do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -434,7 +465,70 @@ environments:
           expect(option_settings['aws:elb:policies:SSL']).to be_nil
         end
       end
+      it 'links RabbitMQ server to the app' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["RABBITMQ_URL"]).
+            to eq({'Fn::Join' =>
+                     ['', [
+                       'amqp://yana:_yana101_@',
+                       {'Fn::GetAtt' => ["RabbitMQProductionMainELB", 'DNSName']},
+                       ':5672'
+                     ]
+                     ]
+                  })
+        end
+      end
 
+      it 'links External backend to the app' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["DATABASE_URL"]).to eq("postgres://production")
+        end
+
+        expect_resource template, "HelloWorldEnvStaging" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["DATABASE_URL"]).to eq("postgres://staging")
+        end
+      end
+
+      it 'links application within the same environment' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["CUSTOM_HELLO_URL"]).
+            to eq({'Fn::Join' =>
+                     ['', ['http://', 'foo-us-east-1-production-custom-hello-world.us-east-1.elasticbeanstalk.com']]
+                  })
+        end
+      end
+
+      it 'links application using the old elasticbeanstalk url scheme' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["OLD_HOSTNAME_SCHEME_APP"]).
+            to eq({'Fn::Join' =>
+                     ['', ['http://', 'foo-us-east-1-production-hello-world-old-hostname-scheme.elasticbeanstalk.com']]
+                  })
+        end
+      end
+
+      it 'links HTTPS application within the same environment' do
+        expect_resource template, "HelloWorldEnvProduction" do |properties|
+          option_settings = group_option_settings(properties[:OptionSettings])
+          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
+          expect(app_env["HTTPS_APP_URL"]).
+            to eq({'Fn::Join' => ['', ['https://', 'app.example.com']]})
+        end
+      end
+    end
+
+      context 'HTTPS Hello World' do
+      let(:template) { generate_application_template('HttpsHelloWorld') }
       it 'creates ssl configuration when https is enabled' do
         expect_resource template, 'HttpsHelloWorldEnvProduction' do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -460,91 +554,9 @@ environments:
                                                                 })
         end
       end
+    end
 
-      context "internal DNS" do
-        it 'creates internal DNS Zone' do
-          expect_resource template,"InternalDNSZone",
-                          of_type: "AWS::Route53::HostedZone" do |properties|
-            expect(properties[:Name]).to eq('baustelle.internal')
-            expect(properties[:VPCs]).to include({VPCId: {'Ref' => 'foo'},
-                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
-
-          end
-        end
-
-        it 'creates peering DNS Zone' do
-          expect_resource template,"PeeringDNSZone",
-                          of_type: "AWS::Route53::HostedZone" do |properties|
-            expect(properties[:Name]).to eq("foo.#{region}.baustelle.internal")
-            expect(properties[:VPCs]).not_to include({VPCId: {'Ref' => 'foo'},
-                                                      VPCRegion: {'Ref' => 'AWS::Region'}})
-            expect(properties[:VPCs]).to include({VPCId: 'vpc-123456',
-                                                  VPCRegion: {'Ref' => 'AWS::Region'}})
-          end
-        end
-      end
-
-      it 'links RabbitMQ server to the app' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["RABBITMQ_URL"]).
-            to eq({'Fn::Join' =>
-                   ['', [
-                      'amqp://yana:_yana101_@',
-                      {'Fn::GetAtt' => ["RabbitMQProductionMainELB", 'DNSName']},
-                      ':5672'
-                    ]
-                   ]
-                  })
-        end
-      end
-
-      it 'links External backend to the app' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["DATABASE_URL"]).to eq("postgres://production")
-        end
-
-        expect_resource template, "HelloWorldEnvStaging" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["DATABASE_URL"]).to eq("postgres://staging")
-        end
-      end
-
-      it 'links application within the same environment' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["CUSTOM_HELLO_URL"]).
-            to eq({'Fn::Join' =>
-                   ['', ['http://', 'foo-us-east-1-production-custom-hello-world.us-east-1.elasticbeanstalk.com']]
-                  })
-        end
-      end
-
-      it 'links application using the old elasticbeanstalk url scheme' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["OLD_HOSTNAME_SCHEME_APP"]).
-            to eq({'Fn::Join' =>
-                   ['', ['http://', 'foo-us-east-1-production-hello-world-old-hostname-scheme.elasticbeanstalk.com']]
-                  })
-        end
-      end
-
-      it 'links HTTPS application within the same environment' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["HTTPS_APP_URL"]).
-            to eq({'Fn::Join' => ['', ['https://', 'app.example.com']]})
-        end
-      end
-
+      context 'CustomHelloWorld Applications' do
       it 'uses custom AMI for customized stack' do
         expect_resource template, "CustomHelloWorldEnvProduction" do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -572,7 +584,7 @@ environments:
         expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
       end
 
-      context 'generates bastion host configuration' do
+        context 'generates bastion host configuration' do
         it 'security group' do
           expect_resource template, "BastionSecurityGroup",
                           of_type: 'AWS::EC2::SecurityGroup'
@@ -621,7 +633,7 @@ environments:
         end
       end
 
-      context 'Autoscaling trigger' do
+        context 'Autoscaling trigger' do
         it 'updates the trigger for AutoScaling the environment' do
           expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvStaging" do |properties|
             trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
@@ -672,7 +684,7 @@ environments:
         end
       end
 
-      context 'Environment Naming' do
+        context 'Environment Naming' do
         context 'default naming' do
           it 'creates the staging environment' do
             expect_resource template, "ApplicationDefaultEnvironmentNamingEnvStaging" do |properties|
@@ -751,6 +763,7 @@ environments:
             expect(env_hash).to eq(eb_env_name_backwards_compatibility.call('stack','app','env'))
           end
         end
+      end
       end
     end
   end

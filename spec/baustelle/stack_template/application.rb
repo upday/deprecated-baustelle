@@ -9,7 +9,9 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
   camelized_environment = environment.camelize
   camelized_app_name = app_name.camelize
 
+
   context "Application #{app_name} in #{environment} environment" do
+    let(:template) {generate_application_template(app_name)}
     it 'IAM Role' do
       expect_resource template, "IAMRole",
                                of_type: 'AWS::IAM::Role'
