@@ -11,7 +11,7 @@ module Baustelle
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
-      NEW_TEMPLATE_SUFFIX = '_NewLayout'
+      IGNORED_SUFFIX = '_NewLayout'
 
       def apply(template, stack_name:, region:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
@@ -232,7 +232,7 @@ module Baustelle
 
       def remove_suffix(app_name,app_config)
         if app_config.template_layout == 'new'
-          app_name.gsub(NEW_TEMPLATE_SUFFIX,'')
+          app_name.gsub(IGNORED_SUFFIX, '')
         else
           app_name
         end
