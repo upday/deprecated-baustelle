@@ -557,7 +557,7 @@ environments:
     end
 
       context 'CustomHelloWorld Applications' do
-        let(:template) { generate_application_template('CustomHelloWorldEnvProduction') }
+        let(:template) { generate_application_template('custom_hello_world') }
         it 'uses custom AMI for customized stack' do
         expect_resource template, "CustomHelloWorldEnvProduction" do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])
@@ -568,52 +568,60 @@ environments:
           expect(template[:Mappings]['StackAMIs']['us-east-1']['Ruby22WithDatadog']).
             to eq('ami-123456')
         end
+        end
       end
 
-      it 'includes non-disabled applications' do
-        expect_resource template, 'ApplicationNotInLoadtestEnvProduction'
-        expect_resource template, 'ApplicationNotInLoadtestEnvStaging'
+      context 'application_not_in_loadtest' do
+        let(:template) { generate_application_template('application_not_in_loadtest') }
+        it 'includes non-disabled applications' do
+          expect_resource template, 'ApplicationNotInLoadtestEnvProduction'
+          expect_resource template, 'ApplicationNotInLoadtestEnvStaging'
+        end
+
+        it 'does not include disabled applications' do
+          expect(template[:Resources]['ApplicationNotInLoadtestEnvLoadtest']).to be_nil
+        end
+
+      context 'ApplicationOnlyStaging' do
+        let(:template) { generate_application_template('application_only_staging') }
+        it 'allows to override disabled flag with false' do
+          expect_resource template, 'ApplicationOnlyStagingEnvStaging'
+          expect(template[:Resources]['ApplicationOnlyStagingEnvProd']).to be_nil
+          expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
+        end
       end
 
-      it 'does not include disabled applications' do
-        expect(template[:Resources]['ApplicationNotInLoadtestEnvLoadtest']).to be_nil
-      end
-
-      it 'allows to override disabled flag with false' do
-        expect_resource template, 'ApplicationOnlyStagingEnvStaging'
-        expect(template[:Resources]['ApplicationOnlyStagingEnvProd']).to be_nil
-        expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
-      end
 
         context 'generates bastion host configuration' do
-        it 'security group' do
-          expect_resource template, "BastionSecurityGroup",
-                          of_type: 'AWS::EC2::SecurityGroup'
-        end
-
-        it 'launch configuration' do
-          expect_resource template, "BastionLaunchConfiguration",
-                          of_type: 'AWS::AutoScaling::LaunchConfiguration' do |properties|
-            expect(properties[:AssociatePublicIpAddress]).to eq(true)
-            expect(properties[:InstanceType]).to eq('t2.micro')
-            expect(properties[:IamInstanceProfile]).to eq(ref('IAMInstanceProfileBastionHost'))
-            expect(properties[:ImageId]).
-              to eq({'Fn::FindInMap' => ["BastionAMIs", ref('AWS::Region'),
-                                         "Global"]})
-            expect(properties[:SecurityGroups]).to eq([ref('GlobalSecurityGroup'),
-                                                       ref('BastionSecurityGroup')])
-            user_data = {
-              'ssh_acl_github' => ['github_user'],
-              'dns' => {
-                'zone' => 'example.com',
-                'hostname' => 'bastion-foo'
-              }
-            }
-
-            expect(properties[:UserData]).
-              to eq(Base64.encode64(user_data.to_yaml))
+          let(:template) { generate_application_template('bastion_security_group') }
+          it 'security group' do
+            expect_resource template, "BastionSecurityGroup",
+                            of_type: 'AWS::EC2::SecurityGroup'
           end
-        end
+
+          it 'launch configuration' do
+            expect_resource template, "BastionLaunchConfiguration",
+                            of_type: 'AWS::AutoScaling::LaunchConfiguration' do |properties|
+              expect(properties[:AssociatePublicIpAddress]).to eq(true)
+              expect(properties[:InstanceType]).to eq('t2.micro')
+              expect(properties[:IamInstanceProfile]).to eq(ref('IAMInstanceProfileBastionHost'))
+              expect(properties[:ImageId]).
+                to eq({'Fn::FindInMap' => ["BastionAMIs", ref('AWS::Region'),
+                                           "Global"]})
+              expect(properties[:SecurityGroups]).to eq([ref('GlobalSecurityGroup'),
+                                                         ref('BastionSecurityGroup')])
+              user_data = {
+                'ssh_acl_github' => ['github_user'],
+                'dns' => {
+                  'zone' => 'example.com',
+                  'hostname' => 'bastion-foo'
+                }
+              }
+
+              expect(properties[:UserData]).
+                to eq(Base64.encode64(user_data.to_yaml))
+            end
+          end
 
         it 'autoscaling group' do
           availability_zones = %w(a b)
@@ -635,7 +643,8 @@ environments:
       end
 
         context 'Autoscaling trigger' do
-        it 'updates the trigger for AutoScaling the environment' do
+          let(:template) { generate_application_template('application_with_specific_autoscaling_rules') }
+          it 'updates the trigger for AutoScaling the environment' do
           expect_resource template, "ApplicationWithSpecificAutoscalingRulesEnvStaging" do |properties|
             trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
             measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
@@ -650,43 +659,50 @@ environments:
           end
         end
 
-        it 'updates the autoscaling thresholds with very specific rules' do
-          expect_resource template, "ApplicationWithEvenMoreSpecificAutoscalingRulesEnvStaging" do |properties|
-            trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
-            measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
-            expect(measure_name.length).to eq(1)
-            expect(measure_name[0][:Value]).to eq('Latency')
-            breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
-            expect(breach_duration.length).to eq (1)
-            expect(breach_duration[0][:Value]).to eq("2")
-            breach_duration = (trigger_options.select{|options| options[:OptionName] == 'Period'})
-            expect(breach_duration.length).to eq (1)
-            expect(breach_duration[0][:Value]).to eq("2")
-            lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
-            expect(lower_threshold.length).to eq(1)
-            expect(lower_threshold[0][:Value]).to eq("1")
-            upper_threshold = (trigger_options.select{|options| options[:OptionName] == 'UpperThreshold'})
-            expect(upper_threshold.length).to eq(1)
-            expect(upper_threshold[0][:Value]).to eq("2")
-            unit = (trigger_options.select{|options| options[:OptionName] == 'Unit'})
-            expect(unit.length).to eq(1)
-            expect(unit[0][:Value]).to eq('Seconds')
-            upper_breach_scale_increment = (trigger_options.select{|options| options[:OptionName] == 'UpperBreachScaleIncrement'})
-            expect(upper_breach_scale_increment.length).to eq(1)
-            expect(upper_threshold[0][:Value]).to eq("2")
+          context 'Autoscaling specific trigger' do
+            let(:template) { generate_application_template('application_with_even_more_specific_autoscaling_rules') }
+            it 'updates the autoscaling thresholds with very specific rules' do
+              expect_resource template, "ApplicationWithEvenMoreSpecificAutoscalingRulesEnvStaging" do |properties|
+                trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
+                measure_name = (trigger_options.select{|options| options[:OptionName] == 'MeasureName'})
+                expect(measure_name.length).to eq(1)
+                expect(measure_name[0][:Value]).to eq('Latency')
+                breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
+                expect(breach_duration.length).to eq (1)
+                expect(breach_duration[0][:Value]).to eq("2")
+                breach_duration = (trigger_options.select{|options| options[:OptionName] == 'Period'})
+                expect(breach_duration.length).to eq (1)
+                expect(breach_duration[0][:Value]).to eq("2")
+                lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
+                expect(lower_threshold.length).to eq(1)
+                expect(lower_threshold[0][:Value]).to eq("1")
+                upper_threshold = (trigger_options.select{|options| options[:OptionName] == 'UpperThreshold'})
+                expect(upper_threshold.length).to eq(1)
+                expect(upper_threshold[0][:Value]).to eq("2")
+                unit = (trigger_options.select{|options| options[:OptionName] == 'Unit'})
+                expect(unit.length).to eq(1)
+                expect(unit[0][:Value]).to eq('Seconds')
+                upper_breach_scale_increment = (trigger_options.select{|options| options[:OptionName] == 'UpperBreachScaleIncrement'})
+                expect(upper_breach_scale_increment.length).to eq(1)
+                expect(upper_threshold[0][:Value]).to eq("2")
+              end
+            end
           end
-        end
 
-        it 'does not set Trigger' do
-          expect_resource template, "ApplicationWithoutSpecificAutoscalingRulesEnvStaging" do |properties|
-            trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
-            expect(trigger_options.length).to eq(0)
+          context 'No autoscaling trigger' do
+            let(:template) { generate_application_template('application_without_specific_autoscaling_rules') }
+            it 'does not set Trigger' do
+              expect_resource template, "ApplicationWithoutSpecificAutoscalingRulesEnvStaging" do |properties|
+                trigger_options = properties[:OptionSettings].select { |options| options[:Namespace] == 'aws:autoscaling:trigger' }
+                expect(trigger_options.length).to eq(0)
+              end
+            end
           end
-        end
       end
 
         context 'Environment Naming' do
         context 'default naming' do
+          let(:template) { generate_application_template('application_default_environment_naming') }
           it 'creates the staging environment' do
             expect_resource template, "ApplicationDefaultEnvironmentNamingEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
@@ -711,6 +727,7 @@ environments:
         end
 
         context 'new naming' do
+          let(:template) { generate_application_template('application_new_environment_naming') }
           it 'creates the staging environment' do
             expect_resource template, "ApplicationNewEnvironmentNamingEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
@@ -735,6 +752,7 @@ environments:
         end
 
         context 'override' do
+          let(:template) { generate_application_template('application_default_environment_naming_override') }
           it 'respects environment defaults' do
             expect_resource template, "ApplicationDefaultEnvironmentNamingOverrideEnvStaging" do |properties|
               env_name = properties.fetch(:EnvironmentName)
