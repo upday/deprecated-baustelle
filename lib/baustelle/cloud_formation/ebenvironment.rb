@@ -54,7 +54,7 @@ module Baustelle
                               CNAMEPrefix: eb_dns,
                               EnvironmentName: env_hash,
                               SolutionStackName: stack.fetch(:name),
-                              Tags: generate_tags(app_name, env_name, stack_name, app_config),
+                              Tags: generate_tags(app_name, env_name, stack_name),
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
@@ -234,23 +234,13 @@ module Baustelle
         app_name.gsub(IGNORED_SUFFIX, '')
       end
 
-      def generate_tags(app_name, env_name, stack_name, app_config)
-        if app_config.template_layout == 'old'
-          [
-            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-            { 'Key' => 'Application', 'Value' => app_name },
-            { 'Key' => 'Stack',       'Value' => stack_name },
-            { 'Key' => 'Environment', 'Value' => env_name },
-          ]
-        elsif app_config.template_layout == 'new'
-          [
-            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-            { 'Key' => 'application', 'Value' => remove_suffix(app_name) },
-            { 'Key' => 'stack',       'Value' => stack_name },
-            { 'Key' => 'environment', 'Value' => env_name },
-          ]
-        end
-
+      def generate_tags(app_name, env_name, stack_name)
+        [
+          { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
+          { 'Key' => 'application', 'Value' => remove_suffix(app_name) },
+          { 'Key' => 'stack',       'Value' => stack_name },
+          { 'Key' => 'environment', 'Value' => env_name },
+        ]
       end
 
       def build_hostname(app_config, stack_name, region, env_name, app_name)
