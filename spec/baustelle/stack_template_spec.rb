@@ -444,6 +444,54 @@ environments:
             end
           end
         end
+        context 'generates bastion host configuration' do
+          it 'security group' do
+            expect_resource template, "BastionSecurityGroup",
+                            of_type: 'AWS::EC2::SecurityGroup'
+          end
+
+          it 'launch configuration' do
+            expect_resource template, "BastionLaunchConfiguration",
+                            of_type: 'AWS::AutoScaling::LaunchConfiguration' do |properties|
+              expect(properties[:AssociatePublicIpAddress]).to eq(true)
+              expect(properties[:InstanceType]).to eq('t2.micro')
+              expect(properties[:IamInstanceProfile]).to eq(ref('IAMInstanceProfileBastionHost'))
+              expect(properties[:ImageId]).
+                  to eq({'Fn::FindInMap' => ["BastionAMIs", ref('AWS::Region'),
+                                             "Global"]})
+              expect(properties[:SecurityGroups]).to eq([ref('GlobalSecurityGroup'),
+                                                         ref('BastionSecurityGroup')])
+              user_data = {
+                  'ssh_acl_github' => ['github_user'],
+                  'dns' => {
+                      'zone' => 'example.com',
+                      'hostname' => 'bastion-foo'
+                  }
+              }
+
+              expect(properties[:UserData]).
+                  to eq(Base64.encode64(user_data.to_yaml))
+            end
+          end
+
+          it 'autoscaling group' do
+            availability_zones = %w(a b)
+
+            expect_resource template, "BastionASG",
+                            of_type: 'AWS::AutoScaling::AutoScalingGroup' do |properties, res|
+              expect(properties[:AvailabilityZones]).
+                  to eq(availability_zones.map { |az|
+                    {'Fn::Join' => ['', [ref('AWS::Region'), az]]}
+                  })
+
+              expect(properties[:MinSize]).to eq(1)
+              expect(properties[:MaxSize]).to eq(1)
+              expect(properties[:DesiredCapacity]).to eq(1)
+              expect(properties[:LaunchConfigurationName]).to eq(ref('BastionLaunchConfiguration'))
+              expect(res[:UpdatePolicy]).to eq({AutoScalingRollingUpdate: {MaxBatchSize: 1}})
+            end
+          end
+        end
       end
 
       context 'HelloWorld Application' do
@@ -588,57 +636,6 @@ environments:
           expect_resource template, 'ApplicationOnlyStagingEnvStaging'
           expect(template[:Resources]['ApplicationOnlyStagingEnvProd']).to be_nil
           expect(template[:Resources]['ApplicationOnlyStagingEnvLoadTest']).to be_nil
-        end
-      end
-
-
-        context 'generates bastion host configuration' do
-          let(:template) { generate_application_template('bastion_security_group') }
-          it 'security group' do
-            expect_resource template, "BastionSecurityGroup",
-                            of_type: 'AWS::EC2::SecurityGroup'
-          end
-
-          it 'launch configuration' do
-            expect_resource template, "BastionLaunchConfiguration",
-                            of_type: 'AWS::AutoScaling::LaunchConfiguration' do |properties|
-              expect(properties[:AssociatePublicIpAddress]).to eq(true)
-              expect(properties[:InstanceType]).to eq('t2.micro')
-              expect(properties[:IamInstanceProfile]).to eq(ref('IAMInstanceProfileBastionHost'))
-              expect(properties[:ImageId]).
-                to eq({'Fn::FindInMap' => ["BastionAMIs", ref('AWS::Region'),
-                                           "Global"]})
-              expect(properties[:SecurityGroups]).to eq([ref('GlobalSecurityGroup'),
-                                                         ref('BastionSecurityGroup')])
-              user_data = {
-                'ssh_acl_github' => ['github_user'],
-                'dns' => {
-                  'zone' => 'example.com',
-                  'hostname' => 'bastion-foo'
-                }
-              }
-
-              expect(properties[:UserData]).
-                to eq(Base64.encode64(user_data.to_yaml))
-            end
-          end
-
-        it 'autoscaling group' do
-          availability_zones = %w(a b)
-
-          expect_resource template, "BastionASG",
-                          of_type: 'AWS::AutoScaling::AutoScalingGroup' do |properties, res|
-            expect(properties[:AvailabilityZones]).
-              to eq(availability_zones.map { |az|
-                      {'Fn::Join' => ['', [ref('AWS::Region'), az]]}
-                    })
-
-            expect(properties[:MinSize]).to eq(1)
-            expect(properties[:MaxSize]).to eq(1)
-            expect(properties[:DesiredCapacity]).to eq(1)
-            expect(properties[:LaunchConfigurationName]).to eq(ref('BastionLaunchConfiguration'))
-            expect(res[:UpdatePolicy]).to eq({AutoScalingRollingUpdate: {MaxBatchSize: 1}})
-          end
         end
       end
 
