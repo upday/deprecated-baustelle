@@ -554,17 +554,6 @@ environments:
         end
       end
 
-      it 'links application using the old elasticbeanstalk url scheme' do
-        expect_resource template, "HelloWorldEnvProduction" do |properties|
-          option_settings = group_option_settings(properties[:OptionSettings])
-          app_env = option_settings["aws:elasticbeanstalk:application:environment"]
-          expect(app_env["OLD_HOSTNAME_SCHEME_APP"]).
-            to eq({'Fn::Join' =>
-                     ['', ['http://', 'foo-us-east-1-production-hello-world-old-hostname-scheme.elasticbeanstalk.com']]
-                  })
-        end
-      end
-
       it 'links HTTPS application within the same environment' do
         expect_resource template, "HelloWorldEnvProduction" do |properties|
           option_settings = group_option_settings(properties[:OptionSettings])

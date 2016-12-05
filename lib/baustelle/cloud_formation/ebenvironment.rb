@@ -244,9 +244,7 @@ module Baustelle
         return app_config.dns_name if app_config.dns_name
 
         hostname = "#{stack_name}-#{region}-#{env_name}-#{app_name.gsub('_', '-')}"
-        if app_config.new_hostname_scheme?
-          hostname += ".#{region}"
-        end
+        hostname += ".#{region}"
         hostname += ".elasticbeanstalk.com"
       end
     end
