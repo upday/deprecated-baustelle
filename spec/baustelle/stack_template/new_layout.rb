@@ -33,19 +33,9 @@ shared_examples "New template layout" do
       end
     end
 
-    it 'Raise error if the setting is overwritten in an environment' do
-      error_config = Marshal.load(Marshal.dump(config))
-      error_config.
-        fetch('environments', nil).
-        fetch('production', nil).
-        fetch('applications', {}).
-        fetch('new_layout_NewLayout', {})['template_layout'] = 'old'
-      expect {Baustelle::StackTemplate.new(error_config).build("foo", region, "bucket", 'UUID')}.to raise_error(RuntimeError)
-    end
-
     it 'Creates child template' do
       expect(subject.childs).to_not be_nil
-      expect(subject.childs.length).to eq(2)
+      expect(subject.childs.length).to eq(15)
       expect(subject.childs['FooNewLayoutNewlayout']).to_not be_nil
     end
 

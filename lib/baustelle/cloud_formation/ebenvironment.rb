@@ -11,7 +11,7 @@ module Baustelle
       BACKEND_REGEX = %r{^backend\((?<type>[^:]+):(?<name>[^:]+):(?<property>[^:]+)\)$}
       APPLICATION_REF_REGEX = %r{^application\((?<name>[^:]+):(?<property>[^:]+)\)$}
 
-      NEW_TEMPLATE_SUFFIX = '_NewLayout'
+      IGNORED_SUFFIX = '_NewLayout'
 
       def apply(template, stack_name:, region:, env_name:, app_ref:, app_name:, vpc:, app_config:,
                 stack_configurations:, backends:, env_config:, base_iam_role:,
@@ -54,7 +54,12 @@ module Baustelle
                               CNAMEPrefix: eb_dns,
                               EnvironmentName: env_hash,
                               SolutionStackName: stack.fetch(:name),
-                              Tags: generate_tags(app_name, env_name, stack_name, app_config),
+                              Tags: [
+                                  { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
+                                  { 'Key' => 'application', 'Value' => remove_suffix(app_name) },
+                                  { 'Key' => 'stack',       'Value' => stack_name },
+                                  { 'Key' => 'environment', 'Value' => env_name },
+                                ],
                               OptionSettings: {
                                 'aws:autoscaling:launchconfiguration' => {
                                   'EC2KeyName' => 'kitchen',
@@ -230,32 +235,10 @@ module Baustelle
                       "#{env_name}-#{app_name}".gsub('_', '-'))
       end
 
-      def remove_suffix(app_name,app_config)
-        if app_config.template_layout == 'new'
-          app_name.gsub(NEW_TEMPLATE_SUFFIX,'')
-        else
-          app_name
-        end
+      def remove_suffix(app_name)
+        app_name.gsub(IGNORED_SUFFIX, '')
       end
 
-      def generate_tags(app_name, env_name, stack_name, app_config)
-        if app_config.template_layout == 'old'
-          [
-            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-            { 'Key' => 'Application', 'Value' => app_name },
-            { 'Key' => 'Stack',       'Value' => stack_name },
-            { 'Key' => 'Environment', 'Value' => env_name },
-          ]
-        elsif app_config.template_layout == 'new'
-          [
-            { 'Key' => 'FQN',         'Value' => "#{app_name}.#{env_name}.#{stack_name}" },
-            { 'Key' => 'application', 'Value' => remove_suffix(app_name, app_config) },
-            { 'Key' => 'stack',       'Value' => stack_name },
-            { 'Key' => 'environment', 'Value' => env_name },
-          ]
-        end
-
-      end
 
       def build_hostname(app_config, stack_name, region, env_name, app_name)
         return app_config.dns_name if app_config.dns_name

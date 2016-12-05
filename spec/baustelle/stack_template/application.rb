@@ -9,7 +9,9 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
   camelized_environment = environment.camelize
   camelized_app_name = app_name.camelize
 
+
   context "Application #{app_name} in #{environment} environment" do
+    let(:template) {generate_application_template(app_name)}
     it 'IAM Role' do
       expect_resource template, "IAMRole",
                                of_type: 'AWS::IAM::Role'
@@ -73,9 +75,9 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
 
         expect(properties[:Tags]).to eq([
           { 'Key' => 'FQN',         'Value' => "#{app_name}.#{environment}.#{stack_name}" },
-          { 'Key' => 'Application', 'Value' => app_name },
-          { 'Key' => 'Stack',       'Value' => stack_name },
-          { 'Key' => 'Environment', 'Value' => environment },
+          { 'Key' => 'application', 'Value' => app_name },
+          { 'Key' => 'stack',       'Value' => stack_name },
+          { 'Key' => 'environment', 'Value' => environment },
         ])
       end
     end
