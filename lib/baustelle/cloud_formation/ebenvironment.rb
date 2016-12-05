@@ -242,10 +242,7 @@ module Baustelle
 
       def build_hostname(app_config, stack_name, region, env_name, app_name)
         return app_config.dns_name if app_config.dns_name
-
-        hostname = "#{stack_name}-#{region}-#{env_name}-#{app_name.gsub('_', '-')}"
-        hostname += ".#{region}"
-        hostname += ".elasticbeanstalk.com"
+        hostname = "#{stack_name}-#{region}-#{env_name}-#{app_name.gsub('_', '-')}.#{region}.elasticbeanstalk.com"
       end
     end
   end
