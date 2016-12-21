@@ -50,10 +50,12 @@ module Baustelle
               'measure_name' => enum(RSchema::AWSAutoscalingTriggers::MEASURES),
               'breach_duration' => Fixnum,
               'period' => Fixnum,
+              'statistic' => enum(RSchema::AWSAutoscalingTriggers::STATISTIC),
               'lower_threshold' => Float,
               'upper_threshold' => Float,
               'unit' => enum(RSchema::AWSAutoscalingTriggers::UNITS),
-              'upper_breach_scale_increment' => Fixnum
+              'upper_breach_scale_increment' => Fixnum,
+              'lower_breach_scale_increment' => Fixnum
             },
             'instance_type' => instance_type,
             'config' => hash_of(
