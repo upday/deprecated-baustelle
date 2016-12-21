@@ -157,10 +157,12 @@ applications:
       measure_name: Latency
       breach_duration: 2
       period: 2
+      statistic: Average
       lower_threshold: 1
       upper_threshold: 2
       unit: Seconds
       upper_breach_scale_increment: 2
+      lower_breach_scale_increment: -1
   application_without_specific_autoscaling_rules:
     stack: ruby
     instance_type: t1.small
@@ -656,9 +658,12 @@ environments:
                 breach_duration = (trigger_options.select{|options| options[:OptionName] == 'BreachDuration'})
                 expect(breach_duration.length).to eq (1)
                 expect(breach_duration[0][:Value]).to eq("2")
-                breach_duration = (trigger_options.select{|options| options[:OptionName] == 'Period'})
-                expect(breach_duration.length).to eq (1)
-                expect(breach_duration[0][:Value]).to eq("2")
+                period = (trigger_options.select{|options| options[:OptionName] == 'Period'})
+                expect(period.length).to eq (1)
+                expect(period[0][:Value]).to eq("2")
+                statistic = (trigger_options.select{|options| options[:OptionName] == 'Statistic'})
+                expect(statistic.length).to eq (1)
+                expect(statistic[0][:Value]).to eq('Average')
                 lower_threshold = (trigger_options.select{|options| options[:OptionName] == 'LowerThreshold'})
                 expect(lower_threshold.length).to eq(1)
                 expect(lower_threshold[0][:Value]).to eq("1")
@@ -670,7 +675,10 @@ environments:
                 expect(unit[0][:Value]).to eq('Seconds')
                 upper_breach_scale_increment = (trigger_options.select{|options| options[:OptionName] == 'UpperBreachScaleIncrement'})
                 expect(upper_breach_scale_increment.length).to eq(1)
-                expect(upper_threshold[0][:Value]).to eq("2")
+                expect(upper_breach_scale_increment[0][:Value]).to eq("2")
+                lower_breach_scale_increment = (trigger_options.select{|options| options[:OptionName] == 'LowerBreachScaleIncrement'})
+                expect(lower_breach_scale_increment.length).to eq(1)
+                expect(lower_breach_scale_increment[0][:Value]).to eq("-1")
               end
             end
           end
