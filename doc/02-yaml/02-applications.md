@@ -52,6 +52,8 @@ applications:
         resource: backend(Kinesis:user_events:arn)
     miscellaneous:
       foo: bar
+    jenkins:
+      bla: baz
 
 
   another_application:
@@ -191,3 +193,7 @@ per-environment basis.
 ### `applications.<app_name>.miscellaneous`
 A hash with any key value pairs that are ignored by baustelle but accessible in jenkins jobs
 via `app_config.miscellaneous.<key>`.
+
+### `applications.<app_name>.jenkins`
+A hash with any key value pairs that are ignored by baustelle but accessible in jenkins jobs
+via `app_config.jenkins.<key>`.
