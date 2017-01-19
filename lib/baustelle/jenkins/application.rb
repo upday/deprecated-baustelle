@@ -31,8 +31,8 @@ module Baustelle
 
       def template_file(template_type)
         {
-          :systemtests => "jobs/#{@app_config.raw['stack']}.systemtests.groovy.erb",
-          :pipeline => "jobs/#{@app_config.raw['stack']}.groovy.erb"
+          :systemtests => "jobs/systemtests.groovy.erb",
+          :pipeline => "jobs/pipeline.groovy.erb"
         }[template_type]
       end
 
