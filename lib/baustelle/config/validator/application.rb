@@ -85,9 +85,6 @@ module Baustelle
               'name' => String
             },
             optional('maven') => Hash,
-            optional('procfile') => {
-              optional('command_line_params') => String
-            },
             optional('iam_instance_profile') => hash_of(
               String => {
                 optional('effect') => enum(%w(Allow Deny)),
