@@ -40,4 +40,5 @@ module Baustelle
   require 'baustelle/backend/redis'
   require 'baustelle/backend/kinesis'
   require 'baustelle/backend/postgres'
+  require 'baustelle/backend/aurora'
 end

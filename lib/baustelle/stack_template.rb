@@ -94,7 +94,8 @@ module Baustelle
             backend_full_name = [env_name, backend_name].join('_')
             acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
                                                                   parent_iam_role: global_iam_role,
-                                                                  internal_dns: internal_dns_zones)
+                                                                  internal_dns: internal_dns_zones,
+                                                                  env_name: env_name)
             backend.build(template)
           end
 
