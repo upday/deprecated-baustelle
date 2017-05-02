@@ -28,7 +28,7 @@ module Baustelle
                             # Create new DB SnapshotIdentifier: String,
                             StorageEncrypted: false,
                             Tags: [
-                              {Key: 'application', Value: "#{@name.split('_')[1]}"},
+                              {Key: 'application', Value: "#{app_name}"},
                               {Key: 'environment', Value: "#{@env_name}"},
                             ],
                             VpcSecurityGroupIds: [template.ref('GlobalSecurityGroup')]
@@ -40,8 +40,9 @@ module Baustelle
                               Engine: 'aurora',
                               DBInstanceClass: @options.fetch('instance_type', 'db.r3.large'),
                               DBClusterIdentifier: template.ref("#{prefix}DBCluster"),
+                              MultiAZ: false,
                               Tags: [
-                                {Key: 'application', Value: "#{@name.split('_')[1]}"},
+                                {Key: 'application', Value: "#{app_name}"},
                                 {Key: 'environment', Value: "#{@env_name}"},
                               ],
                             }
@@ -77,6 +78,10 @@ module Baustelle
       def prefix
         "Aurora#{@name.camelize}"
       end
+      def app_name
+        @name.split('_',2)[1]
+      end
+
     end
   end
 end
