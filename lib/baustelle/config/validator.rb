@@ -116,8 +116,7 @@ module Baustelle
               optional('Redis') => hash_of(
                 String => {
                   'cache_node_type' => instance_type(:cache),
-                  'cluster_size' => Fixnum,
-                  'instance_type' => instance_type
+                  'cluster_size' => Fixnum
                 }
               ),
               optional('Kinesis') => hash_of(
@@ -136,7 +135,7 @@ module Baustelle
               ),
               optional('Aurora') => hash_of(
                 String => {
-                  'instance_type' => instance_type(:rds),
+                  optional('instance_type') => instance_type(:rds),
                   'username' => String,
                   'password' => String,
                   optional('instances') => predicate("valid number of cluster instance") {|num| num.is_a?(Fixnum) && num > 1}
