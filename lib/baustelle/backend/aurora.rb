@@ -10,7 +10,7 @@ module Baustelle
                           }
 
         template.resource "#{prefix}DBCluster",
-                          Type: 'AWS::RDS::DBCLuster',
+                          Type: 'AWS::RDS::DBCluster',
                           Properties: {
                             AvailabilityZones: @vpc.availability_zones,
                             BackupRetentionPeriod: 7,
