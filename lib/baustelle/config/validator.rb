@@ -134,6 +134,14 @@ module Baustelle
                   optional('multi_az') => boolean
                 }
               ),
+              optional('Aurora') => hash_of(
+                String => {
+                  optional('instance_type') => instance_type(:rds),
+                  'username' => String,
+                  'password' => String,
+                  optional('instances') => predicate("valid number of cluster instance") {|num| num.is_a?(Fixnum) && num > 1}
+                }
+              ),
               optional('External') => hash_of(String => Hash)
             },
             'applications' => hash_of(
