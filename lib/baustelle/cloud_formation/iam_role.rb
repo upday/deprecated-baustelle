@@ -41,6 +41,11 @@ module Baustelle
                                 }
                               ]
                             },
+                            ManagedPolicyArns: [
+                                'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier',
+                                'arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker',
+                                'arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier'
+                            ],
                             Policies: @statements.map { |name, options|
                               {
                                 PolicyName: role_name + name.to_s.camelize,
