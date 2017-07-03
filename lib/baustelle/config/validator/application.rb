@@ -75,7 +75,7 @@ module Baustelle
                                               }),
             optional('elb') => {
               optional('https') => boolean,
-              optional('ssl_certificate') => predicate("is a ARN resource of a server certificate") { |value| value =~ /^arn:aws:iam::\d+:server-certificate\/.*/ },
+              optional('ssl_certificate') => predicate("is a ARN resource of a server certificate") { |value| value =~ /^arn:aws:(iam|acm):.*:\d+:(server-)?certificate\/.*/ },
               optional('ssl_reference_policy') => String,
               optional('visibility') => enum(%w(internal public)),
               optional('keep_http_listener') => boolean
