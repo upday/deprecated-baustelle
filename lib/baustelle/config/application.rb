@@ -36,6 +36,10 @@ module Baustelle
         elb.fetch('visibility', 'public')
       end
 
+      def healthcheck_url
+        @raw.fetch('healthcheck_url', '/health')
+      end
+
     end
   end
 end
