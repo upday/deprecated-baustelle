@@ -96,7 +96,7 @@ module Baustelle
                                   'ServiceRole' => 'aws-elasticbeanstalk-service-role'
                                 },
                                 'aws:elasticbeanstalk:application' => {
-                                  'Application Healthcheck URL' => app_config.healthcheck_url
+                                  'Application Healthcheck URL' => app_config.healthcheck_path
                                 },
                                 'aws:elasticbeanstalk:command' => {
                                   'BatchSize' => (100 * UPDATE_FACTOR).to_i,
