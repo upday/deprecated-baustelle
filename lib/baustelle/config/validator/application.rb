@@ -62,6 +62,7 @@ module Baustelle
               String => ConfigEntry.new(applications: applications,
                                         backends: backends)
             ),
+            optional('healthcheck_path') => String,
             optional('disabled') => boolean,
             optional('pre_deploy_test_command') => String,
             optional('systemtests') => either(enum(applications),
