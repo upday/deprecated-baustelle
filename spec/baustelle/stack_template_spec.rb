@@ -65,6 +65,7 @@ backends:
     main:
       cache_node_type: cache.r3.large
       cluster_size: 2
+      engine_version: 3.2.10
   Kinesis:
     main:
       shard_count: 2

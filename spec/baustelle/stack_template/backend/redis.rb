@@ -15,7 +15,7 @@ shared_examples "Backend Redis in environment" do  |stack_name:, camelized_stack
         expect(properties[:CacheNodeType]).to eq(instance_type)
         expect(properties[:CacheSubnetGroupName]).to eq(ref(resource_prefix + "SubnetGroup"))
         expect(properties[:Engine]).to eq('redis')
-        expect(properties[:EngineVersion]).to eq('2.8.19')
+        expect(properties[:EngineVersion]).to eq('3.2.10')
         expect(properties[:NumCacheClusters]).to eq(cluster_size)
         expect(properties[:SecurityGroupIds]).to eq([ref("GlobalSecurityGroup")])
       end

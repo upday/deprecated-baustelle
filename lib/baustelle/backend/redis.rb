@@ -18,7 +18,7 @@ module Baustelle
                             CacheNodeType: options.fetch('cache_node_type','cache.m1.medium'),
                             CacheSubnetGroupName: template.ref(sg),
                             Engine: 'redis',
-                            EngineVersion: '2.8.19',
+                            EngineVersion: options.fetch('engine_version','2.8.19'),
                             NumCacheClusters: options.fetch('cluster_size'),
                             SecurityGroupIds: [template.ref('GlobalSecurityGroup')]
                           }
