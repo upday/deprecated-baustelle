@@ -29,7 +29,7 @@ module Baustelle
         end
 
         include RSchema::DSL::Base
-        
+
         def initialize(full_config)
           @full_config = full_config
         end
@@ -43,7 +43,8 @@ module Baustelle
             'stack' => enum(stacks),
             'scale' => {
               'min' => Fixnum,
-              'max' => Fixnum
+              'max' => Fixnum,
+              'update_factor' => Float,
             },
             # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingtrigger
             optional('trigger') => {

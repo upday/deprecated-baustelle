@@ -94,6 +94,7 @@ applications:
     scale:
       min: 2
       max: 4
+      update_factor: 0.25
     config:
       RAILS_ENV: production
       RABBITMQ_URL: backend(RabbitMQ:main:url)
@@ -304,7 +305,7 @@ environments:
                        environment: 'production',
                        app_name: "hello_world",
                        instance_type: "t2.small",
-                       min_size: 2, max_size: 4,
+                       min_size: 2, max_size: 4, update_factor: 0.2,
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        config: {'RAILS_ENV' => 'production'}
@@ -314,7 +315,7 @@ environments:
                        environment: 'staging',
                        app_name: "hello_world",
                        instance_type: "t2.micro",
-                       min_size: 1, max_size: 1,
+                       min_size: 1, max_size: 1, update_factor: 0.5,
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        config: {'RAILS_ENV' => 'staging'}
@@ -324,7 +325,7 @@ environments:
                        environment: 'staging',
                        app_name: "custom_hello_world",
                        instance_type: "t2.small",
-                       min_size: 1, max_size: 1,
+                       min_size: 1, max_size: 1, update_factor: 0.5,
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        elb_public: false
@@ -334,7 +335,7 @@ environments:
                        environment: 'production',
                        app_name: "custom_hello_world",
                        instance_type: "t2.small",
-                       min_size: 1, max_size: 1,
+                       min_size: 1, max_size: 1, update_factor: 0.5,
                        solution_stack_name: 'Ruby AWS EB Solution',
                        availability_zones: %w(a b),
                        elb_public: false

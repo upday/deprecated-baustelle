@@ -20,7 +20,7 @@ module Baustelle
         stack = solution_stack(template, app_config.raw.fetch('stack'),
                                stack_configurations: stack_configurations)
 
-        
+
         if app_config.raw.fetch('new_environment_naming',false)
           env_hash = eb_env_name(stack_name, app_name, env_name, stack)
         else
@@ -72,8 +72,8 @@ module Baustelle
                                   'RollingUpdateType' => 'Health',
                                   # we ensure we keep at least 50% of minimum capacity during update
                                   'MinInstancesInService' => (app_config.raw.fetch('scale').fetch('min') *  UPDATE_FACTOR).floor.to_i,
-                                  # the batch size is upto 50% of max capacity, see example below
-                                  'MaxBatchSize' => (app_config.raw.fetch('scale').fetch('max') *  UPDATE_FACTOR).ceil.to_i,
+                                  # if not defined, the batch size is upto 50% of max capacity, see example below
+                                  'MaxBatchSize' => (app_config.raw.fetch('scale').fetch('max') * app_config.raw.fetch('scale').fetch('update_factor', UPDATE_FACTOR)).ceil.to_i,
                                   # Scenario:
                                   # min: 4, max: 8
                                   # when currently @4 instances: update will be performed in two batches of 2 instances
@@ -212,7 +212,7 @@ module Baustelle
         config.inject({}) do |acc, (key, value)|
           if application = value.to_s.match(APPLICATION_REF_REGEX)
             app_config = Baustelle::Config.app_config(env_config, application[:name])
-            
+
             hostname = build_hostname(app_config, stack_name, region, env_name, application[:name])
             port = app_config.https? ? 443 : 80
 

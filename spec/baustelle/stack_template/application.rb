@@ -1,5 +1,5 @@
 shared_examples "Application in environment" do |stack_name:, environment:, app_name:,
-                                                 instance_type:, min_size:, max_size:,
+                                                 instance_type:, min_size:, max_size:, update_factor:,
                                                  solution_stack_name: nil,
                                                  availability_zones:,
                                                  config: {},
@@ -51,6 +51,8 @@ shared_examples "Application in environment" do |stack_name:, environment:, app_
           to eq(min_size)
         expect(option_settings["aws:autoscaling:asg"]["MaxSize"].to_i).
           to eq(max_size)
+        expect(option_settings["aws:autoscaling:updatepolicy:rollingupdate"]["MaxBatchSize"].to_i).
+            to eq((max_size * update_factor).ceil.to_i)
         expect(option_settings["aws:ec2:vpc"]["Subnets"]).
           to eq({'Fn::Join' => [',', availability_zones.map { |az|
                                   ref("#{stack_name}Subnet#{az.upcase}")
