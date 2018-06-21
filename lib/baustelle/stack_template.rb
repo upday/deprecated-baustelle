@@ -72,43 +72,48 @@ module Baustelle
       # if we create/update all environments at once
       previous_eb_env =  nil
 
-      applications = Baustelle::Config.applications(config).sort_by { |app_name| app_name}.each.map do |app_name|
-        app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name, main_template_uuid, previous_eb_env)
-        previous_eb_env = app.canonical_name
-        app.apply(template, vpc)
-        app
-      end
+      applications = Baustelle::Config.applications(config)
 
-      # For every environemnt
-      Baustelle::Config.environments(config).each do |env_name|
-        env_config = Baustelle::Config.for_environment(config, env_name)
+      if applications != nil
 
-        # Create backends
-
-        environment_backends = Hash.new { |h,k| h[k] = {} }
-
-        (env_config['backends'] || {}).inject(environment_backends) do |acc, (type, backends)|
-          backend_klass = Baustelle::Backend.const_get(type)
-
-          backends.each do |backend_name, options|
-            backend_full_name = [env_name, backend_name].join('_')
-            acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
-                                                                  parent_iam_role: global_iam_role,
-                                                                  internal_dns: internal_dns_zones,
-                                                                  env_name: env_name)
-            backend.build(template)
-          end
-
-          environment_backends
+        applications = applications.sort_by { |app_name| app_name}.each.map do |app_name|
+          app = CloudFormation::ApplicationStack.new(name, app_name, bucket_name, main_template_uuid, previous_eb_env)
+          previous_eb_env = app.canonical_name
+          app.apply(template, vpc)
+          app
         end
 
-        # Create applications
+        # For every environemnt
+        Baustelle::Config.environments(config).each do |env_name|
+          env_config = Baustelle::Config.for_environment(config, env_name)
 
-        applications.each do |app|
-          app_config = Baustelle::Config.app_config(env_config, app.name)
+          # Create backends
 
-          unless app_config.disabled?
-            app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
+          environment_backends = Hash.new { |h,k| h[k] = {} }
+
+          (env_config['backends'] || {}).inject(environment_backends) do |acc, (type, backends)|
+            backend_klass = Baustelle::Backend.const_get(type)
+
+            backends.each do |backend_name, options|
+              backend_full_name = [env_name, backend_name].join('_')
+              acc[type][backend_name] = backend = backend_klass.new(backend_full_name, options, vpc: vpc,
+                                                                    parent_iam_role: global_iam_role,
+                                                                    internal_dns: internal_dns_zones,
+                                                                    env_name: env_name)
+              backend.build(template)
+            end
+
+            environment_backends
+          end
+
+          # Create applications
+
+          applications.each do |app|
+            app_config = Baustelle::Config.app_config(env_config, app.name)
+
+            unless app_config.disabled?
+              app.add_environment(template,name,region,env_name,vpc,app_config,env_config,environment_backends)
+            end
           end
         end
       end
